@@ -42,6 +42,9 @@
 //! version string for output lib name
 #define QL_LIB_VERSION "1_18"
 
+//! This QuantLib has patches for ORE
+#define QL_ORE_PATCH
+
 /*! @}  */
 
 namespace QuantLib {
