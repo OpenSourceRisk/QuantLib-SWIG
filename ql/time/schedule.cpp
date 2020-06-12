@@ -157,6 +157,10 @@ namespace QuantLib {
                 // verified after adjustment
                 break;
               case DateGeneration::ThirdWednesday:
+              case DateGeneration::ThirdThursday:
+              case DateGeneration::ThirdFriday:
+              case DateGeneration::MondayAfterThirdFriday:
+              case DateGeneration::TuesdayAfterThirdFriday:
                   QL_REQUIRE(IMM::isIMMdate(firstDate_, false),
                              "first date (" << firstDate_ <<
                              ") is not an IMM date");
@@ -186,6 +190,10 @@ namespace QuantLib {
                 // verified after adjustment
                 break;
               case DateGeneration::ThirdWednesday:
+              case DateGeneration::ThirdThursday:
+              case DateGeneration::ThirdFriday:
+              case DateGeneration::MondayAfterThirdFriday:
+              case DateGeneration::TuesdayAfterThirdFriday:
                 QL_REQUIRE(IMM::isIMMdate(nextToLastDate_, false),
                            "next-to-last date (" << nextToLastDate_ <<
                            ") is not an IMM date");
@@ -270,6 +278,10 @@ namespace QuantLib {
           case DateGeneration::Twentieth:
           case DateGeneration::TwentiethIMM:
           case DateGeneration::ThirdWednesday:
+          case DateGeneration::ThirdThursday:
+          case DateGeneration::ThirdFriday:
+          case DateGeneration::MondayAfterThirdFriday:
+          case DateGeneration::TuesdayAfterThirdFriday:
           case DateGeneration::OldCDS:
           case DateGeneration::CDS:
           case DateGeneration::CDS2015:
@@ -381,6 +393,32 @@ namespace QuantLib {
                 dates_[i] = Date::nthWeekday(3, Wednesday,
                                              dates_[i].month(),
                                              dates_[i].year());
+        if (*rule_==DateGeneration::ThirdThursday)
+            for (Size i=1; i<dates_.size()-1; ++i)
+                dates_[i] = Date::nthWeekday(3, Thursday,
+                                             dates_[i].month(),
+                                             dates_[i].year());
+        if (*rule_==DateGeneration::ThirdFriday)
+            for (Size i=1; i<dates_.size()-1; ++i)
+                dates_[i] = Date::nthWeekday(3, Friday,
+                                             dates_[i].month(),
+                                             dates_[i].year());
+        if (*rule_==DateGeneration::MondayAfterThirdFriday) {
+            for (Size i=1; i<dates_.size()-1; ++i) {
+                Date tmp = Date::nthWeekday(3, Friday,
+                                             dates_[i].month(),
+                                             dates_[i].year());
+                dates_[i] = Date::nextWeekday(tmp, Monday);
+            }
+        }
+        if (*rule_==DateGeneration::TuesdayAfterThirdFriday) {
+            for (Size i=1; i<dates_.size()-1; ++i) {
+                Date tmp = Date::nthWeekday(3, Friday,
+                                             dates_[i].month(),
+                                             dates_[i].year());
+                dates_[i] = Date::nextWeekday(tmp, Tuesday);
+            }
+        }
 
         if (*endOfMonth_ && calendar_.isEndOfMonth(seed)) {
             // adjust to end of month
