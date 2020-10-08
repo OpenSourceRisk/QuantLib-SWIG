@@ -83,6 +83,8 @@ namespace QuantLib {
                      behavior.
         */
         void alwaysForwardNotifications();
+        /*! Returns true if the object is calculated, false otherwise */
+        bool isCalculated() const;
       protected:
         /*! This method performs all needed calculations by calling
             the <i><b>performCalculations</b></i> method.
@@ -173,6 +175,10 @@ namespace QuantLib {
                 throw;
             }
         }
+    }
+
+    inline bool LazyObject::isCalculated() const {
+        return calculated_;
     }
 
 }
