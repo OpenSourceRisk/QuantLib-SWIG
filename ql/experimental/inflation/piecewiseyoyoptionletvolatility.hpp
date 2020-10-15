@@ -73,7 +73,8 @@ namespace QuantLib {
                                   bool,
                                   Size) // firstAliveHelper
         {
-            return std::max(0.0, c->data()[i-1] - 0.02); // vol cannot be negative
+            // vol cannot be negative
+            return 1e-8;
         }
         template <class C>
         static Real maxValueAfter(Size i,
@@ -81,7 +82,7 @@ namespace QuantLib {
                                   bool,
                                   Size) // firstAliveHelper
         {
-            return c->data()[i-1] + 0.02;
+            return c->data()[i-1] + 0.05;
         }
 
         // root-finding update
