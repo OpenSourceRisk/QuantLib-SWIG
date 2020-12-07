@@ -47,6 +47,12 @@ namespace QuantLib {
 
         Barrier::Type barrierType = arguments_.barrierType;
 
+        results_.additionalResults["volatility"] = volatility();
+        results_.additionalResults["spot"] = spot;
+        results_.additionalResults["dividendDiscount"] = dividendDiscount();
+        results_.additionalResults["riskFreeDiscount"] = riskFreeDiscount();
+        results_.additionalResults["strike"] = strike;
+        
         switch (payoff->optionType()) {
           case Option::Call:
             switch (barrierType) {
