@@ -25,8 +25,10 @@
 #define quantlib_yoy_optionlet_volatility_structures_hpp
 
 #include <ql/termstructures/voltermstructure.hpp>
+#include <ql/termstructures/volatility/volatilitytype.hpp>
 #include <ql/math/interpolation.hpp>
 #include <ql/time/calendars/target.hpp>
+#include <ql/quote.hpp>
 
 namespace QuantLib {
 
@@ -46,7 +48,9 @@ namespace QuantLib {
                                       const DayCounter& dc,
                                       const Period& observationLag,
                                       Frequency frequency,
-                                      bool indexIsInterpolated);
+                                      bool indexIsInterpolated,
+                                      VolatilityType volType = ShiftedLognormal,
+                                      Real displacement = 0.0);
 
         virtual ~YoYOptionletVolatilitySurface() {}
 
@@ -66,6 +70,14 @@ namespace QuantLib {
                               Rate strike,
                               const Period &obsLag = Period(-1,Days),
                               bool extrapolate = false) const;
+        /*! Returns the volatility for a given time and strike rate. No adjustments
+          due to lags and interpolation are applied to the input time. */
+        Volatility volatility(const Time time, Rate strike) const;
+
+        //! Returns the volatility type
+        virtual VolatilityType volatilityType() const { return volType_; }
+        //! Returns the displacement for lognormal volatilities
+        virtual Real displacement() const { return displacement_; }
 
         //! Returns the total integrated variance for a given exercise date and strike rate.
         /*! Total integrated variance is useful because it scales out
@@ -133,6 +145,8 @@ namespace QuantLib {
         Period observationLag_;
         Frequency frequency_;
         bool indexIsInterpolated_;
+        VolatilityType volType_;
+        Real displacement_;
     };
 
 
@@ -152,7 +166,22 @@ namespace QuantLib {
                                        Frequency frequency,
                                        bool indexIsInterpolated,
                                        Rate minStrike = -1.0,  // -100%
-                                       Rate maxStrike = 100.0);  // +10,000%
+                                       Rate maxStrike = 100.0, // +10,000%
+                                       VolatilityType volType = ShiftedLognormal,
+                                       Real displacement = 0.0);
+        // costructor taking a quote
+        ConstantYoYOptionletVolatility(const Handle<Quote>& v,
+                                       Natural settlementDays,
+                                       const Calendar&,
+                                       BusinessDayConvention bdc,
+                                       const DayCounter& dc,
+                                       const Period &observationLag,
+                                       Frequency frequency,
+                                       bool indexIsInterpolated,
+                                       Rate minStrike = -1.0,  // -100%
+                                       Rate maxStrike = 100.0, // +10,000%
+                                       VolatilityType volType = ShiftedLognormal,
+                                       Real displacement = 0.0);
         //@}
         virtual ~ConstantYoYOptionletVolatility() {}
 
@@ -169,7 +198,7 @@ namespace QuantLib {
         //! implements the actual volatility calculation in derived classes
         virtual Volatility volatilityImpl(Time length, Rate strike) const;
 
-        Volatility volatility_;
+        Handle<Quote> volatility_;
         Rate minStrike_, maxStrike_;
     };
 
