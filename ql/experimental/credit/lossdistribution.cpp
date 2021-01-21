@@ -293,7 +293,7 @@ namespace QuantLib {
     //--------------------------------------------------------------------------
         QL_REQUIRE (loss >= 0, "loss " << loss << " must be >= 0");
         Real dx = maximum_ / nBuckets_;
-        for (Size i = i0; i < nBuckets_; i++)
+        for (Size i = i0; i <= nBuckets_; i++)
             if (dx * i > loss + epsilon_) return i - 1;
         return nBuckets_;
     }
