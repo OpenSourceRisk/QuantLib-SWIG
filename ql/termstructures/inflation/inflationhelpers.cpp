@@ -33,11 +33,12 @@ namespace QuantLib {
         BusinessDayConvention paymentConvention,
         const DayCounter& dayCounter,
         const ext::shared_ptr<ZeroInflationIndex>& zii,
-        const Handle<YieldTermStructure>& nominalTermStructure)
+        const Handle<YieldTermStructure>& nominalTermStructure,
+        const Date& start)
     : BootstrapHelper<ZeroInflationTermStructure>(quote),
       swapObsLag_(swapObsLag), maturity_(maturity), calendar_(calendar),
       paymentConvention_(paymentConvention), dayCounter_(dayCounter),
-      zii_(zii), nominalTermStructure_(nominalTermStructure) {
+      zii_(zii), nominalTermStructure_(nominalTermStructure), start_(start) {
 
         if (zii_->interpolated()) {
             // if interpolated then simple
@@ -151,7 +152,7 @@ namespace QuantLib {
             !nominalTermStructure_.empty() ? nominalTermStructure_ : z->nominalTermStructure();
 
         Real nominal = 1000000.0;   // has to be something but doesn't matter what
-        Date start = nominalTS->referenceDate();
+        Date start = start_ == Date() ? nominalTS->referenceDate() : start_;
         zciis_.reset(new ZeroCouponInflationSwap(
                                 ZeroCouponInflationSwap::Payer,
                                 nominal, start, maturity_,
@@ -172,11 +173,13 @@ namespace QuantLib {
         BusinessDayConvention paymentConvention,
         const DayCounter& dayCounter,
         const ext::shared_ptr<YoYInflationIndex>& yii,
-        const Handle<YieldTermStructure>& nominalTermStructure)
+        const Handle<YieldTermStructure>& nominalTermStructure,
+        const Date& start)
     : BootstrapHelper<YoYInflationTermStructure>(quote),
       swapObsLag_(swapObsLag), maturity_(maturity),
       calendar_(calendar), paymentConvention_(paymentConvention),
-      dayCounter_(dayCounter), yii_(yii), nominalTermStructure_(nominalTermStructure) {
+      dayCounter_(dayCounter), yii_(yii), nominalTermStructure_(nominalTermStructure),
+      start_(start) {
 
         if (yii_->interpolated()) {
             // if interpolated then simple
@@ -287,7 +290,7 @@ namespace QuantLib {
 
         // always works because tenor is always 1 year so
         // no problem with different days-in-month
-        Date from = Settings::instance().evaluationDate();
+        Date from = start_ == Date() ? Settings::instance().evaluationDate() : start_;
         Date to = maturity_;
         Schedule fixedSchedule = MakeSchedule().from(from).to(to)
                                     .withTenor(1*Years)
