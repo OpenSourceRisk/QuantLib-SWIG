@@ -171,6 +171,7 @@ namespace QuantLib {
               case DateGeneration::OldCDS:
               case DateGeneration::CDS:
               case DateGeneration::CDS2015:
+              case DateGeneration::LastWednesday:
                 QL_FAIL("first date incompatible with " << *rule_ <<
                         " date generation rule");
               default:
@@ -204,6 +205,7 @@ namespace QuantLib {
               case DateGeneration::OldCDS:
               case DateGeneration::CDS:
               case DateGeneration::CDS2015:
+              case DateGeneration::LastWednesday:
                 QL_FAIL("next to last date incompatible with " << *rule_ <<
                         " date generation rule");
               default:
@@ -285,6 +287,7 @@ namespace QuantLib {
           case DateGeneration::OldCDS:
           case DateGeneration::CDS:
           case DateGeneration::CDS2015:
+          case DateGeneration::LastWednesday:
             QL_REQUIRE(!*endOfMonth_,
                        "endOfMonth convention incompatible with " << *rule_ <<
                        " date generation rule");
@@ -411,6 +414,13 @@ namespace QuantLib {
                                              dates_[i].month(),
                                              dates_[i].year());
                 dates_[i] = Date::nextWeekday(tmp, Tuesday);
+            }
+        }
+
+        if (*rule_ == DateGeneration::LastWednesday) {
+            for (Size i = 1; i < dates_.size() - 1; ++i) {
+                // The next Wednesday on or after the 1st of the next month and back 7.
+                dates_[i] = Date::nextWeekday(Date::endOfMonth(dates_[i]) + 1, Wednesday) - 7;
             }
         }
 
