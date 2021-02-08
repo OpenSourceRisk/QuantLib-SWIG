@@ -133,6 +133,11 @@ namespace QuantLib {
         results_.gamma = solver->gammaAt(spot);
         results_.theta = solver->thetaAt(spot);
 
+        results_.additionalResults["solverValue"] = results_.value;
+        results_.additionalResults["solverDelta"] = results_.delta;
+        results_.additionalResults["solverGamma"] = results_.gamma;
+        results_.additionalResults["solverTheta"] = results_.theta;
+        
         // 6. Calculate vanilla option and rebate for in-barriers
         if (   arguments_.barrierType == Barrier::DownIn
             || arguments_.barrierType == Barrier::UpIn) {
@@ -179,6 +184,19 @@ namespace QuantLib {
                                                     - results_.gamma;
             results_.theta = vanillaOption->theta() + rebateOption->theta()
                                                     - results_.theta;
+
+            results_.additionalResults["vanillaOptionValue"] = vanillaOption->NPV();
+            results_.additionalResults["vanillaOptionDelta"] = vanillaOption->delta();
+            results_.additionalResults["vanillaOptionGamma"] = vanillaOption->gamma();
+            results_.additionalResults["vanillaOptionTheta"] = vanillaOption->theta();
+            
+            results_.additionalResults["rebateOptionValue"] = rebateOption->NPV();
+            results_.additionalResults["rebateOptionDelta"] = rebateOption->delta();
+            results_.additionalResults["rebateOptionGamma"] = rebateOption->gamma();
+            results_.additionalResults["rebateOptionTheta"] = rebateOption->theta();
         }
+        results_.additionalResults["delta"] = results_.delta;
+        results_.additionalResults["gamma"] = results_.gamma;
+        results_.additionalResults["theta"] = results_.theta;
     }
 }
