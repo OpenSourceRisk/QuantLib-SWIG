@@ -46,7 +46,10 @@ namespace QuantLib {
         Real spot = underlying();
         QL_REQUIRE(spot >= 0.0, "negative or null underlying given");
         QL_REQUIRE(!triggered(spot), "barrier(s) already touched");
-
+        
+        results_.additionalResults["spot"] = spot;
+        results_.additionalResults["strike"] = strike;
+        
         DoubleBarrier::Type barrierType = arguments_.barrierType;
 
         if (triggered(spot)) {
@@ -163,6 +166,9 @@ namespace QuantLib {
         Real vanilla = black.value();
         if (vanilla < 0.0)
            vanilla = 0.0;
+        results_.additionalResults["forwardPrice"] = forwardPrice;
+        results_.additionalResults["stdDeviation"] = stdDeviation();
+        results_.additionalResults["vanillaEquivalent"] = vanilla;
         return vanilla;
     }
 
@@ -194,6 +200,15 @@ namespace QuantLib {
 
        Real rend = std::exp(-dividendYield() * residualTime());
        Real kov = underlying() * rend * acc1 - strike() * riskFreeDiscount() * acc2;
+
+       results_.additionalResults["underlying"] = underlying();
+       results_.additionalResults["riskFreeDiscount"] = riskFreeDiscount();
+       results_.additionalResults["dividendYield"] = dividendYield();
+       results_.additionalResults["residualTime"] = residualTime();
+       results_.additionalResults["stdDeviation"] = stdDeviation();
+       results_.additionalResults["costOfCarry"] = costOfCarry();
+       results_.additionalResults["volatilitySquared"] = volatilitySquared();
+
        return std::max(0.0, kov);
     }
     
@@ -230,6 +245,15 @@ namespace QuantLib {
 
        Real rend = std::exp(-dividendYield() * residualTime());
        Real kov = strike() * riskFreeDiscount() * acc1 - underlying() * rend  * acc2;
+       
+       results_.additionalResults["underlying"] = underlying();
+       results_.additionalResults["riskFreeDiscount"] = riskFreeDiscount();
+       results_.additionalResults["dividendYield"] = dividendYield();
+       results_.additionalResults["residualTime"] = residualTime();
+       results_.additionalResults["stdDeviation"] = stdDeviation();
+       results_.additionalResults["costOfCarry"] = costOfCarry();
+       results_.additionalResults["volatilitySquared"] = volatilitySquared();
+       
        return std::max(0.0, kov);
     }
     
