@@ -107,7 +107,7 @@ namespace QuantLib {
         // Check if convergence is sufficiently fast (for extreme parameters with big alpha the convergence can be very
         // poor, see for example Hui "One-touch double barrier binary option value")
         QL_REQUIRE(std::fabs(term) < requiredConvergence, "serie did not converge sufficiently fast");
-
+        
         if (barrierType == DoubleBarrier::KnockOut)
            return std::max(tot, 0.0); // KO
         else {
@@ -115,6 +115,7 @@ namespace QuantLib {
                                              arguments_.exercise->lastDate());
            QL_REQUIRE(discount>0.0,
                         "positive discount required");
+                        
            return std::max(cash * discount - tot, 0.0); // KI
         }
     }
@@ -199,11 +200,12 @@ namespace QuantLib {
 
         Real spot = process_->stateVariable()->value();
         QL_REQUIRE(spot > 0.0, "negative or null underlying given");
-
+        
         Real variance =
             process_->blackVolatility()->blackVariance(
                                              arguments_.exercise->lastDate(),
                                              payoff->strike());
+        
         Real barrier_lo = arguments_.barrier_lo;
         Real barrier_hi = arguments_.barrier_hi;
         DoubleBarrier::Type barrierType = arguments_.barrierType;
@@ -219,6 +221,10 @@ namespace QuantLib {
                    barrierType == DoubleBarrier::KOKI,
                    "Unsupported barrier type");
 
+        results_.additionalResults["spot"] = spot;
+        results_.additionalResults["variance"] = variance;
+        results_.additionalResults["cashPayoff"] = payoff->cashPayoff();
+        
         // degenerate cases
         switch (barrierType) {
           case DoubleBarrier::KnockOut:
@@ -286,6 +292,18 @@ namespace QuantLib {
             break;
         }
 
+        Time residualTime = process_->time(arguments_.exercise->lastDate());
+        Real r = process_->riskFreeRate()->zeroRate(residualTime, Continuous,
+                                             NoFrequency);
+        Real q = process_->dividendYield()->zeroRate(residualTime,
+                                                   Continuous, NoFrequency);
+        Real b = r - q;
+        
+        results_.additionalResults["residualTime"] = residualTime;
+        results_.additionalResults["riskFreeRate"] = r;
+        results_.additionalResults["dividendYield"] = q;
+        results_.additionalResults["costOfCarry"] = b;
+        
         AnalyticDoubleBarrierBinaryEngine_helper helper(process_,
            payoff, arguments_);
         switch (barrierType)
