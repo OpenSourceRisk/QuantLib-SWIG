@@ -228,7 +228,8 @@ namespace QuantLib {
         Leg cashflows;
 
         // the following is not always correct
-        Calendar calendar = schedule_.calendar();
+
+		Calendar calendar = schedule_.calendar();
 
         Date refStart, start, refEnd, end;
         Date paymentDate;

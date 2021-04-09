@@ -57,8 +57,14 @@ namespace QuantLib {
     }
 
     Date ForwardRateAgreement::settlementDate() const {
-        return calendar_.advance(Settings::instance().evaluationDate(),
+        Date d;
+        if (paymentCalendar_.empty()) {
+        d = calendar_.advance(Settings::instance().evaluationDate(),
                                  settlementDays_, Days);
+        } else {
+        d = paymentCalendar_.advance(Settings::instance().evaluationDate(), settlementDays_, Days);
+        }
+        return std::max(d, valueDate_);
     }
 
     Date ForwardRateAgreement::fixingDate() const {

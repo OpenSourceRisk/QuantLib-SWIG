@@ -30,11 +30,12 @@ namespace QuantLib {
                      const ext::shared_ptr<Payoff>& payoff,
                      const Date& valueDate,
                      const Date& maturityDate,
-                     const Handle<YieldTermStructure>& discountCurve)
+                     const Handle<YieldTermStructure>& discountCurve,
+                     const Calendar& paymentCalendar = Calendar())
     : dayCounter_(dayCounter), calendar_(calendar),
       businessDayConvention_(businessDayConvention),
       settlementDays_(settlementDays), payoff_(payoff), valueDate_(valueDate),
-      maturityDate_(maturityDate), discountCurve_(discountCurve) {
+      maturityDate_(maturityDate), discountCurve_(discountCurve), paymentCalendar_(paymentCalendar){
 
         maturityDate_ = calendar_.adjust(maturityDate_,
                                          businessDayConvention_);
@@ -42,11 +43,16 @@ namespace QuantLib {
         registerWith(Settings::instance().evaluationDate());
         registerWith(discountCurve_);
     }
-
+	
+		
 
     Date Forward::settlementDate() const {
-        Date d = calendar_.advance(Settings::instance().evaluationDate(),
-                                   settlementDays_, Days);
+        Date d;
+        if (paymentCalendar_.empty()) {
+			d = calendar_.advance(Settings::instance().evaluationDate(), settlementDays_, Days);
+		} else {
+            d = paymentCalendar_.advance(Settings::instance().evaluationDate(), settlementDays_, Days);
+        }		
         return std::max(d,valueDate_);
     }
 
