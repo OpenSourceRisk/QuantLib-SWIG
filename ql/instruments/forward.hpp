@@ -24,15 +24,15 @@
 #ifndef quantlib_forward_hpp
 #define quantlib_forward_hpp
 
+#include <ql/handle.hpp>
 #include <ql/instrument.hpp>
+#include <ql/interestrate.hpp>
+#include <ql/payoff.hpp>
 #include <ql/position.hpp>
+#include <ql/termstructures/yieldtermstructure.hpp>
 #include <ql/time/calendar.hpp>
 #include <ql/time/daycounter.hpp>
-#include <ql/interestrate.hpp>
 #include <ql/types.hpp>
-#include <ql/handle.hpp>
-#include <ql/payoff.hpp>
-#include <ql/termstructures/yieldtermstructure.hpp>
 
 namespace QuantLib {
 
@@ -82,8 +82,7 @@ namespace QuantLib {
         //! returns spot value/price of an underlying financial instrument
         virtual Real spotValue() const = 0;
         //! NPV of income/dividends/storage-costs etc. of underlying instrument
-        virtual Real spotIncome(const Handle<YieldTermStructure>&
-                                               incomeDiscountCurve) const = 0;
+        virtual Real spotIncome(const Handle<YieldTermStructure>& incomeDiscountCurve) const = 0;
 
         //! \name Calculations
         //@{
@@ -116,9 +115,7 @@ namespace QuantLib {
                 const ext::shared_ptr<Payoff>& payoff,
                 const Date& valueDate,
                 const Date& maturityDate,
-                const Handle<YieldTermStructure>& discountCurve =
-                                                Handle<YieldTermStructure>(),
-				const Calendar& paymentCalendar = Calendar());
+                const Handle<YieldTermStructure>& discountCurve = Handle<YieldTermStructure>());
 
         void performCalculations() const;
         /*! derived classes must set this, typically via spotIncome() */
@@ -128,8 +125,7 @@ namespace QuantLib {
 
         DayCounter dayCounter_;
         Calendar calendar_;
-        Calendar paymentCalendar_;
-		BusinessDayConvention businessDayConvention_;
+        BusinessDayConvention businessDayConvention_;
         Natural settlementDays_;
         ext::shared_ptr<Payoff> payoff_;
         /*! valueDate = settlement date (date the fwd contract starts
@@ -147,15 +143,14 @@ namespace QuantLib {
     //! Class for forward type payoffs
     class ForwardTypePayoff : public Payoff {
       public:
-        ForwardTypePayoff(Position::Type type, Real strike)
-        : type_(type),strike_(strike) {
-            QL_REQUIRE(strike >= 0.0,"negative strike given");
+        ForwardTypePayoff(Position::Type type, Real strike) : type_(type), strike_(strike) {
+            QL_REQUIRE(strike >= 0.0, "negative strike given");
         }
         Position::Type forwardType() const { return type_; };
         Real strike() const { return strike_; };
         //! \name Payoff interface
         //@{
-        std::string name() const { return "Forward";}
+        std::string name() const { return "Forward"; }
         std::string description() const;
         Real operator()(Real price) const;
         //@}
@@ -165,24 +160,17 @@ namespace QuantLib {
     };
 
 
-
     // inline definitions
 
-    inline const Calendar& Forward::calendar() const {
-        return calendar_;
-    }
+    inline const Calendar& Forward::calendar() const { return calendar_; }
 
     inline BusinessDayConvention Forward::businessDayConvention() const {
         return businessDayConvention_;
     }
 
-    inline const DayCounter& Forward::dayCounter() const {
-        return dayCounter_;
-    }
+    inline const DayCounter& Forward::dayCounter() const { return dayCounter_; }
 
-    inline Handle<YieldTermStructure> Forward::discountCurve() const {
-        return discountCurve_;
-    }
+    inline Handle<YieldTermStructure> Forward::discountCurve() const { return discountCurve_; }
 
     inline Handle<YieldTermStructure> Forward::incomeDiscountCurve() const {
         return incomeDiscountCurve_;
@@ -197,12 +185,12 @@ namespace QuantLib {
 
     inline Real ForwardTypePayoff::operator()(Real price) const {
         switch (type_) {
-          case Position::Long:
-            return (price-strike_);
-          case Position::Short:
-            return (strike_-price);
-          default:
-            QL_FAIL("unknown/illegal position type");
+            case Position::Long:
+                return (price - strike_);
+            case Position::Short:
+                return (strike_ - price);
+            default:
+                QL_FAIL("unknown/illegal position type");
         }
     }
 
@@ -210,4 +198,3 @@ namespace QuantLib {
 
 
 #endif
-

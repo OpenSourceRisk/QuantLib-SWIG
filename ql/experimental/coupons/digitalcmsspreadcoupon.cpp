@@ -80,12 +80,6 @@ namespace QuantLib {
         return *this;
     }
 
-    DigitalCmsSpreadLeg& DigitalCmsSpreadLeg::withPaymentCalendar(
-                                           const Calendar& paymentcalendar) {
-        paymentCalendar_ = paymentcalendar;
-        return *this;
-    }
-
     DigitalCmsSpreadLeg& DigitalCmsSpreadLeg::withFixingDays(Natural fixingDays) {
         fixingDays_ = std::vector<Natural>(1,fixingDays);
         return *this;

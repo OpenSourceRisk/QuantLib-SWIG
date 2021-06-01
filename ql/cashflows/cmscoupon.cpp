@@ -79,11 +79,6 @@ namespace QuantLib {
         paymentAdjustment_ = convention;
         return *this;
     }
-    
-    CmsLeg& CmsLeg::withPaymentCalendar(const Calendar& paymentcalendar) {
-        paymentCalendar_ = paymentcalendar;
-        return *this;
-    }
 
     CmsLeg& CmsLeg::withFixingDays(Natural fixingDays) {
         fixingDays_ = std::vector<Natural>(1, fixingDays);
