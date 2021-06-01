@@ -97,6 +97,7 @@ namespace QuantLib {
         yoyInflationLeg& withNotionals(const std::vector<Real>& notionals);
         yoyInflationLeg& withPaymentDayCounter(const DayCounter&);
         yoyInflationLeg& withPaymentAdjustment(BusinessDayConvention);
+        yoyInflationLeg& withPaymentCalendar(const Calendar&);
         yoyInflationLeg& withFixingDays(Natural fixingDays);
         yoyInflationLeg& withFixingDays(const std::vector<Natural>& fixingDays);
         yoyInflationLeg& withGearings(Real gearing);

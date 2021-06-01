@@ -174,7 +174,7 @@ namespace QuantLib {
 
     AverageBMALeg::AverageBMALeg(const Schedule& schedule,
                                  const ext::shared_ptr<BMAIndex>& index)
-    : schedule_(schedule), index_(index), paymentAdjustment_(Following) {}
+    : schedule_(schedule), index_(index), paymentAdjustment_(Following){}
 
     AverageBMALeg& AverageBMALeg::withNotionals(Real notional) {
         notionals_ = std::vector<Real>(1,notional);
@@ -190,6 +190,11 @@ namespace QuantLib {
     AverageBMALeg& AverageBMALeg::withPaymentDayCounter(
                                                const DayCounter& dayCounter) {
         paymentDayCounter_ = dayCounter;
+        return *this;
+    }
+
+    AverageBMALeg& AverageBMALeg::withPaymentCalendar(const Calendar& paymentcalendar) {
+        paymentCalendar_ = paymentcalendar;
         return *this;
     }
 
@@ -230,6 +235,8 @@ namespace QuantLib {
         // the following is not always correct
         Calendar calendar = schedule_.calendar();
 
+        Calendar calendar_1 = paymentCalendar_; 
+
         Date refStart, start, refEnd, end;
         Date paymentDate;
 
@@ -237,7 +244,7 @@ namespace QuantLib {
         for (Size i=0; i<n; ++i) {
             refStart = start = schedule_.date(i);
             refEnd   =   end = schedule_.date(i+1);
-            paymentDate = calendar.adjust(end, paymentAdjustment_);
+            paymentDate = calendar_1.adjust(end, paymentAdjustment_);
             if (i == 0 && schedule_.hasIsRegular() && !schedule_.isRegular(i+1)
                 && schedule_.hasTenor())
                 refStart = calendar.adjust(end - schedule_.tenor(),

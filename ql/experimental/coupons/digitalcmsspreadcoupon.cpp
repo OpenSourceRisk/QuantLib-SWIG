@@ -80,6 +80,12 @@ namespace QuantLib {
         return *this;
     }
 
+    DigitalCmsSpreadLeg& DigitalCmsSpreadLeg::withPaymentCalendar(
+                                           const Calendar& paymentcalendar) {
+        paymentCalendar_ = paymentcalendar;
+        return *this;
+    }
+
     DigitalCmsSpreadLeg& DigitalCmsSpreadLeg::withFixingDays(Natural fixingDays) {
         fixingDays_ = std::vector<Natural>(1,fixingDays);
         return *this;
@@ -192,7 +198,7 @@ namespace QuantLib {
         nakedOption_ = nakedOption;
         return *this;
     }
-
+    // schedule_ replaced by paymentCalendar_
     DigitalCmsSpreadLeg::operator Leg() const {
         return FloatingDigitalLeg<SwapSpreadIndex, CmsSpreadCoupon, DigitalCmsSpreadCoupon>(
                             schedule_, notionals_, index_, paymentDayCounter_,

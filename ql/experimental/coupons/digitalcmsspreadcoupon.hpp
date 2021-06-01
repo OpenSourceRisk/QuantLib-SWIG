@@ -63,6 +63,7 @@ namespace QuantLib {
         DigitalCmsSpreadLeg& withNotionals(const std::vector<Real>& notionals);
         DigitalCmsSpreadLeg& withPaymentDayCounter(const DayCounter&);
         DigitalCmsSpreadLeg& withPaymentAdjustment(BusinessDayConvention);
+        DigitalCmsSpreadLeg& withPaymentCalendar(const Calendar&);
         DigitalCmsSpreadLeg& withFixingDays(Natural fixingDays);
         DigitalCmsSpreadLeg& withFixingDays(const std::vector<Natural>& fixingDays);
         DigitalCmsSpreadLeg& withGearings(Real gearing);
@@ -106,6 +107,7 @@ namespace QuantLib {
         bool putATM_;
         ext::shared_ptr<DigitalReplication> replication_;
         bool nakedOption_;
+        Calendar paymentCalendar_;
     };
 
 }

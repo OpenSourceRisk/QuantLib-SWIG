@@ -73,6 +73,7 @@ namespace QuantLib {
                const ext::shared_ptr<SwapIndex>& swapIndex);
         CmsLeg& withNotionals(Real notional);
         CmsLeg& withNotionals(const std::vector<Real>& notionals);
+        CmsLeg& withPaymentCalendar(const Calendar&);
         CmsLeg& withPaymentDayCounter(const DayCounter&);
         CmsLeg& withPaymentAdjustment(BusinessDayConvention);
         CmsLeg& withFixingDays(Natural fixingDays);
@@ -94,6 +95,7 @@ namespace QuantLib {
         std::vector<Real> notionals_;
         DayCounter paymentDayCounter_;
         BusinessDayConvention paymentAdjustment_;
+        Calendar paymentCalendar_;
         std::vector<Natural> fixingDays_;
         std::vector<Real> gearings_;
         std::vector<Spread> spreads_;
