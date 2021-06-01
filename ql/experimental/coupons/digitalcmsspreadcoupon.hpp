@@ -62,6 +62,7 @@ namespace QuantLib {
         DigitalCmsSpreadLeg& withNotionals(Real notional);
         DigitalCmsSpreadLeg& withNotionals(const std::vector<Real>& notionals);
         DigitalCmsSpreadLeg& withPaymentDayCounter(const DayCounter&);
+        DigitalCmsSpreadLeg& withPaymentCalendar(const Calendar& cal);
         DigitalCmsSpreadLeg& withPaymentAdjustment(BusinessDayConvention);
         DigitalCmsSpreadLeg& withPaymentCalendar(const Calendar&);
         DigitalCmsSpreadLeg& withFixingDays(Natural fixingDays);

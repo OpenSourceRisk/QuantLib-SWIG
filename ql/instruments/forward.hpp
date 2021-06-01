@@ -117,7 +117,8 @@ namespace QuantLib {
                 const Date& valueDate,
                 const Date& maturityDate,
                 const Handle<YieldTermStructure>& discountCurve =
-                                                Handle<YieldTermStructure>());
+                                                Handle<YieldTermStructure>(),
+				const Calendar& paymentCalendar = Calendar());
 
         void performCalculations() const;
         /*! derived classes must set this, typically via spotIncome() */
@@ -127,7 +128,8 @@ namespace QuantLib {
 
         DayCounter dayCounter_;
         Calendar calendar_;
-        BusinessDayConvention businessDayConvention_;
+        Calendar paymentCalendar_;
+		BusinessDayConvention businessDayConvention_;
         Natural settlementDays_;
         ext::shared_ptr<Payoff> payoff_;
         /*! valueDate = settlement date (date the fwd contract starts

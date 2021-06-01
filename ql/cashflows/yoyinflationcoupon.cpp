@@ -146,8 +146,7 @@ namespace QuantLib {
         floors_ = floors;
         return *this;
     }
-
-
+    
     yoyInflationLeg::operator Leg() const {
 
         Size n = schedule_.size()-1;
