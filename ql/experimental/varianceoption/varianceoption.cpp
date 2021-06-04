@@ -17,6 +17,7 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
+#include <ql/math/comparison.hpp>
 #include <ql/experimental/varianceoption/varianceoption.hpp>
 #include <ql/event.hpp>
 
@@ -44,7 +45,8 @@ namespace QuantLib {
     void VarianceOption::arguments::validate() const {
         QL_REQUIRE(payoff, "no strike given");
         QL_REQUIRE(notional != Null<Real>(), "no notional given");
-        QL_REQUIRE(notional > 0.0, "negative or null notional given");
+        QL_REQUIRE(notional > 0.0 || close_enough(notional, 0.0),
+                   "negative or null notional given");
         QL_REQUIRE(startDate != Date(), "null start date given");
         QL_REQUIRE(maturityDate != Date(), "null maturity date given");
     }
