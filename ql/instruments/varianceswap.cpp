@@ -20,6 +20,7 @@
 
 #include <ql/instruments/varianceswap.hpp>
 #include <ql/event.hpp>
+#include <ql/math/comparison.hpp>
 
 namespace QuantLib {
 
@@ -66,7 +67,8 @@ namespace QuantLib {
         QL_REQUIRE(strike != Null<Real>(), "no strike given");
         QL_REQUIRE(strike > 0.0, "negative or null strike given");
         QL_REQUIRE(notional != Null<Real>(), "no notional given");
-        QL_REQUIRE(notional > 0.0, "negative or null notional given");
+        QL_REQUIRE(notional > 0.0 || close_enough(notional, 0.0),
+                   "negative or null notional given");
         QL_REQUIRE(startDate != Date(), "null start date given");
         QL_REQUIRE(maturityDate != Date(), "null maturity date given");
     }
