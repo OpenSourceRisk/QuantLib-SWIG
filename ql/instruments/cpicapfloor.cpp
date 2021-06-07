@@ -71,6 +71,7 @@ namespace QuantLib {
                        <<"when the observation is effectively linear"
                        << observationLag_ << " vs " << infIndex_->availabilityLag());
         }
+        registerWith(infIndex);
     }
 
 
