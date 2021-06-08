@@ -289,12 +289,17 @@ namespace QuantLib {
         results_.additionalResults["stdDev"] = stdDev;
         Option::Type w = (arguments_.type==VanillaSwap::Payer) ?
                                                 Option::Call : Option::Put;
-        results_.value = Spec().value(w, strike, atmForward, stdDev, annuity,
-                                                                displacement);
 
         Time exerciseTime = vol_->timeFromReference(exerciseDate);
-        results_.additionalResults["vega"] = Spec().vega(
-            strike, atmForward, stdDev, exerciseTime, annuity, displacement);
+
+        if (close_enough(annuity, 0.0)) {
+            results_.value = 0.0;
+            results_.additionalResults["vega"] = 0.0;
+        } else {
+            results_.value = Spec().value(w, strike, atmForward, stdDev, annuity, displacement);
+            results_.additionalResults["vega"] =
+                Spec().vega(strike, atmForward, stdDev, exerciseTime, annuity, displacement);
+        }
 
         results_.additionalResults["timeToExpiry"] = exerciseTime;
         results_.additionalResults["impliedVolatility"] = stdDev / std::sqrt(exerciseTime);
