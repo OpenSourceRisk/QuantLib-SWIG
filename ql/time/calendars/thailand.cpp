@@ -35,7 +35,9 @@ namespace QuantLib {
 
         if (isWeekend(w)
             // New Year's Day
-            || ((d == 1 || (d == 3 && w == Monday)) && m == January)
+            || ((d == 1 || (d == 3 && w == Monday) || (d == 2 && w == Tuesday) ||
+                 (d == 3 && w == Tuesday)) &&
+                m == January)
             // Chakri Memorial Day
             || ((d == 6 || ((d == 7 || d == 8) && w == Monday)) && m == April)
             // Songkran Festival (was cancelled in 2020 due to the Covid-19 Pandamic)
@@ -54,7 +56,7 @@ namespace QuantLib {
             // 	​H.M. Queen Sirikit The Queen Mother’s Birthday / Mother’s Day
             || ((d == 12 || ((d == 13 || d == 14) && w == Monday)) && m == August)
             // H.M. King Bhumibol Adulyadej The Great Memorial Day
-            || ((d == 3 || ((d == 14 || d == 15) && w == Monday)) && m == October && y >= 2017)
+            || ((d == 13 || ((d == 14 || d == 15) && w == Monday)) && m == October && y >= 2017)
             // Chulalongkorn Day
             || ((d == 23 || ((d == 24 || d == 25) && w == Monday)) && m == October)
             // H.M. King Bhumibol Adulyadej The Great’s Birthday/ National Day / Father’s Day
@@ -62,9 +64,7 @@ namespace QuantLib {
             // Constitution Day
             || ((d == 10 || ((d == 11 || d == 12) && w == Monday)) && m == December)
             // New Year’s Eve
-            || (d == 31 && m == December)
-            // New Year’s Eve Observence
-            || ((d == 1 || d == 2) && w == Monday && m == January))
+            || (d == 31 && m == December))
             return false;
 
         if ((y == 2000) &&
