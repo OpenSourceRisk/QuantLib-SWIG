@@ -59,6 +59,7 @@ namespace QuantLib {
       ext::shared_ptr<ZeroInflationIndex> zii_;
       ext::shared_ptr<ZeroCouponInflationSwap> zciis_;
       Handle<YieldTermStructure> nominalTermStructure_;
+      Date start_;
     };
 
 
