@@ -749,42 +749,6 @@ void CreditDefaultSwapTest::testAccrualRebateAmounts() {
     }
 }
 
-void CreditDefaultSwapTest::testAccrualRebateAmounts() {
-
-    BOOST_TEST_MESSAGE("Testing accrual rebate amounts on credit default swaps...");
-
-    SavedSettings backup;
-
-    // The accrual values are taken from various test results on the ISDA CDS model website
-    // https://www.cdsmodel.com/cdsmodel/documentation.html.
-
-    // Inputs
-    Real notional = 10000000;
-    Real spread = 0.0100;
-    Date maturity(20, Jun, 2014);
-
-    // key is trade date and value is expected accrual
-    typedef map<Date, Real> InputData;
-    InputData inputs = map_list_of
-        (Date(18, Mar, 2009), 24166.67)
-        (Date(19, Mar, 2009), 0.00)
-        (Date(20, Mar, 2009), 277.78)
-        (Date(23, Mar, 2009), 1111.11)
-        (Date(19, Jun, 2009), 25555.56)
-        (Date(20, Jun, 2009), 25833.33)
-        (Date(21, Jun, 2009), 0.00)
-        (Date(22, Jun, 2009), 277.78)
-        (Date(18, Jun, 2014), 25277.78)
-        (Date(19, Jun, 2014), 25555.56);
-
-    BOOST_FOREACH(const InputData::value_type& input, inputs) {
-        Settings::instance().evaluationDate() = input.first;
-        CreditDefaultSwap cds = MakeCreditDefaultSwap(maturity, spread)
-            .withNominal(notional);
-        BOOST_CHECK_SMALL(input.second - cds.accrualRebate()->amount(), 0.01);
-    }
-}
-
 test_suite* CreditDefaultSwapTest::suite() {
     auto* suite = BOOST_TEST_SUITE("Credit-default swap tests");
     suite->add(QUANTLIB_TEST_CASE(&CreditDefaultSwapTest::testCachedValue));
