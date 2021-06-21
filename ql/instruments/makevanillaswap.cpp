@@ -76,8 +76,12 @@ namespace QuantLib {
             // use index valueDate interface wherever possible to estimate spot date.
             // Unless we pass an explicit settlementDays_ which does not match the index-defined number of fixing days.
             Date spotDate;
-            if (settlementDays_ == Null<Natural>())
-                spotDate = iborIndex_->valueDate(refDate);
+            if (settlementDays_ == Null<Natural>()) {
+                // ref date can be a holiday for the fixing calendar, so we adjust this before callaing valueDate()
+                // since this method requires the argument to be a business day
+                spotDate =
+                    iborIndex_->valueDate(iborIndex_->fixingCalendar().adjust(refDate, Following));
+            }
             else
                 spotDate = floatCalendar_.advance(refDate, settlementDays_ * Days);
             startDate = spotDate+forwardStart_;
