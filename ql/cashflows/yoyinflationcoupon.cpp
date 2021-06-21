@@ -139,6 +139,10 @@ namespace QuantLib {
         return *this;
     }
 
+    yoyInflationLeg& yoyInflationLeg::withRateCurve(const Handle<YieldTermStructure>& rateCurve) {
+        rateCurve_ = rateCurve;
+        return *this;
+    }
 
     yoyInflationLeg::operator Leg() const {
 
@@ -205,8 +209,8 @@ namespace QuantLib {
                     // in this case you can set a pricer
                     // straight away because it only provides computation - not data
                     ext::shared_ptr<YoYInflationCouponPricer> pricer =
-                        ext::make_shared<YoYInflationCouponPricer>(Handle<YoYOptionletVolatilitySurface>(),
-                                                                   Handle<YieldTermStructure>());
+                        ext::make_shared<YoYInflationCouponPricer>(
+                            Handle<YoYOptionletVolatilitySurface>(), rateCurve_);
                     coup->setPricer(pricer);
                     leg.push_back(ext::dynamic_pointer_cast<CashFlow>(coup));
 

@@ -108,6 +108,7 @@ namespace QuantLib {
       yoyInflationLeg& withCaps(const std::vector<Rate>& caps);
       yoyInflationLeg& withFloors(Rate floor);
       yoyInflationLeg& withFloors(const std::vector<Rate>& floors);
+      yoyInflationLeg& withRateCurve(const Handle<YieldTermStructure>& rateCurve);
       operator Leg() const;
     private:
         Schedule schedule_;
@@ -121,6 +122,7 @@ namespace QuantLib {
         std::vector<Real> gearings_;
         std::vector<Spread> spreads_;
         std::vector<Rate> caps_, floors_;
+        Handle<YieldTermStructure> rateCurve_;
     };
 
 
