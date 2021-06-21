@@ -198,5 +198,12 @@ namespace QuantLib {
         results_.additionalResults["delta"] = results_.delta;
         results_.additionalResults["gamma"] = results_.gamma;
         results_.additionalResults["theta"] = results_.theta;
+
+        Real strike = payoff->strike();
+        Real vol = process_->blackVolatility()->blackVol(arguments_.exercise->lastDate(), strike);
+        results_.additionalResults["spot"] = process_->x0();
+        results_.additionalResults["strike"] = payoff->strike();
+        results_.additionalResults["barrier"] = arguments_.barrier;
+        results_.additionalResults["vol"] = vol;
     }
 }
