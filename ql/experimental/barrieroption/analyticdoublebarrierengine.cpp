@@ -49,6 +49,12 @@ namespace QuantLib {
         
         results_.additionalResults["spot"] = spot;
         results_.additionalResults["strike"] = strike;
+        results_.additionalResults["volatility"] = volatility();
+        results_.additionalResults["barrierLow"] = barrierLo();
+        results_.additionalResults["barrierHigh"] = barrierHi();
+        results_.additionalResults["dividendDiscount"] = dividendDiscount();
+        results_.additionalResults["riskFreeDiscount"] = riskFreeDiscount();
+        
         
         DoubleBarrier::Type barrierType = arguments_.barrierType;
 

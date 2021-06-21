@@ -57,6 +57,12 @@ namespace QuantLib {
         Rate riskFreeDiscount =
             process_->riskFreeRate()->discount(ex->lastDate());
 
+        results_.additionalResults["spot"] = spot;
+        results_.additionalResults["strike"] = payoff->strike();
+        results_.additionalResults["variance"] = variance;
+        results_.additionalResults["riskFreeDiscount"] = riskFreeDiscount;
+        results_.additionalResults["dividendDiscount"] = dividendDiscount;        
+        
         if(ex->payoffAtExpiry()) {
             AmericanPayoffAtExpiry pricer(spot, riskFreeDiscount,
                                           dividendDiscount, variance, 

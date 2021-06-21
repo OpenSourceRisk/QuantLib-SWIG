@@ -225,6 +225,8 @@ namespace QuantLib {
         results_.additionalResults["spot"] = spot;
         results_.additionalResults["variance"] = variance;
         results_.additionalResults["cashPayoff"] = payoff->cashPayoff();
+        results_.additionalResults["barrierLow"] = barrier_lo;
+        results_.additionalResults["barrierHigh"] = barrier_hi;
         
         // degenerate cases
         switch (barrierType) {
