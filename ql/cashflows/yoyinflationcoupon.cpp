@@ -209,8 +209,7 @@ namespace QuantLib {
                     // in this case you can set a pricer
                     // straight away because it only provides computation - not data
                     ext::shared_ptr<YoYInflationCouponPricer> pricer =
-                        ext::make_shared<YoYInflationCouponPricer>(
-                            Handle<YoYOptionletVolatilitySurface>(), rateCurve_);
+                        ext::make_shared<YoYInflationCouponPricer>(rateCurve_);
                     coup->setPricer(pricer);
                     leg.push_back(ext::dynamic_pointer_cast<CashFlow>(coup));
 
