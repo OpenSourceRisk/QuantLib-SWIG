@@ -202,12 +202,23 @@ namespace QuantLib {
         for (int k = n_ - 1; k >= 0; k--)
             excessProbability_[k] = excessProbability_[k+1] + probability_[k];
 
-        Distribution dist (nBuckets_, 0.0, maximum_);
+        Distribution dist(nBuckets_, 0.0, maximum_);
+        Size bucket = 0;
+        Real prob = 0.0;
+        Real average = 0.0;
         for (Size i = 0; i <= n_; i++) {
             if (volume * i <= maximum_) {
-                Size bucket = dist.locate(volume * i);
-                dist.addDensity (bucket, probability_[i] / dist.dx(bucket));
-                dist.addAverage (bucket, volume*i);
+                Size newBucket = dist.locate(volume * i);
+                if (newBucket == bucket) {
+                    prob += probability_[i];
+                    average += volume * i * probability_[i];
+                } else {
+                    dist.addDensity(bucket, prob / dist.dx(bucket));
+                    dist.addAverage(bucket, average / prob);
+                    prob = probability_[i];
+                    average = volume * i * probability_[i];
+                    bucket = newBucket;
+                }
             }
         }
 
