@@ -20,6 +20,7 @@
 
 #include <ql/experimental/credit/lossdistribution.hpp>
 #include <ql/math/randomnumbers/mt19937uniformrng.hpp>
+#include <ql/math/comparison.hpp>
 
 using namespace std;
 
@@ -212,7 +213,7 @@ namespace QuantLib {
                     prob += probability_[i];
                     average += volume * i * probability_[i];
                 } else {
-                    if (prob > 0) {
+                    if (!close_enough(prob, 0.0)) {
                         dist.addDensity(bucket, prob / dist.dx(bucket));
                         dist.addAverage(bucket, average / prob);
                     }
@@ -221,7 +222,7 @@ namespace QuantLib {
                     bucket = newBucket;
                 }
             } else {
-                if (prob > 0) {
+                if (!close_enough(prob, 0.0)) {
                     dist.addDensity(bucket, prob / dist.dx(bucket));
                     dist.addAverage(bucket, average / prob);
                     prob = 0.;
