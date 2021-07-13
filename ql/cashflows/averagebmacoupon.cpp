@@ -224,7 +224,7 @@ namespace QuantLib {
         // the following is not always correct
 
 		Calendar calendar = schedule_.calendar();
-        Calendar calendar_1 = paymentCalendar_.empty() ? schedule_.calendar() : paymentCalendar_;
+        Calendar paymentcalendar = paymentCalendar_.empty() ? schedule_.calendar() : paymentCalendar_;
 
         Date refStart, start, refEnd, end;
         Date paymentDate;
@@ -233,7 +233,7 @@ namespace QuantLib {
         for (Size i=0; i<n; ++i) {
             refStart = start = schedule_.date(i);
             refEnd   =   end = schedule_.date(i+1);
-            paymentDate = calendar_1.adjust(end, paymentAdjustment_);
+            paymentDate = paymentcalendar.adjust(end, paymentAdjustment_);
             if (i == 0 && schedule_.hasIsRegular() && !schedule_.isRegular(i+1)
                 && schedule_.hasTenor())
                 refStart = calendar.adjust(end - schedule_.tenor(),
