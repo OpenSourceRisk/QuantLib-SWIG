@@ -86,6 +86,7 @@ namespace QuantLib {
         AverageBMALeg& withNotionals(Real notional);
         AverageBMALeg& withNotionals(const std::vector<Real>& notionals);
         AverageBMALeg& withPaymentDayCounter(const DayCounter&);
+        AverageBMALeg& withPaymentCalendar(const Calendar&);
         AverageBMALeg& withPaymentAdjustment(BusinessDayConvention);
         AverageBMALeg& withGearings(Real gearing);
         AverageBMALeg& withGearings(const std::vector<Real>& gearings);
@@ -97,6 +98,7 @@ namespace QuantLib {
         ext::shared_ptr<BMAIndex> index_;
         std::vector<Real> notionals_;
         DayCounter paymentDayCounter_;
+        Calendar paymentCalendar_;
         BusinessDayConvention paymentAdjustment_;
         std::vector<Real> gearings_;
         std::vector<Spread> spreads_;

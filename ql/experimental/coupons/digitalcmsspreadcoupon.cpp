@@ -191,16 +191,17 @@ namespace QuantLib {
         return *this;
     }
 
+
+    DigitalCmsSpreadLeg& DigitalCmsSpreadLeg::withPaymentCalendar(const Calendar& cal) {
+        paymentCalendar_ = cal;
+        return *this;
+    }
+
     DigitalCmsSpreadLeg::operator Leg() const {
         return FloatingDigitalLeg<SwapSpreadIndex, CmsSpreadCoupon, DigitalCmsSpreadCoupon>(
-                            schedule_, notionals_, index_, paymentDayCounter_,
-                            paymentAdjustment_, fixingDays_,
-                            gearings_, spreads_, inArrears_,
-                            callStrikes_, longCallOption_,
-                            callATM_, callPayoffs_,
-                            putStrikes_, longPutOption_,
-                            putATM_, putPayoffs_,
-                            replication_, nakedOption_);
+            schedule_, notionals_, index_, paymentDayCounter_, paymentAdjustment_, fixingDays_,
+            gearings_, spreads_, inArrears_, callStrikes_, longCallOption_, callATM_, callPayoffs_,
+            putStrikes_, longPutOption_, putATM_, putPayoffs_, replication_, nakedOption_, paymentCalendar_);
     }
 
 }

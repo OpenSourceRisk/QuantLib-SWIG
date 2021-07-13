@@ -89,6 +89,11 @@ namespace QuantLib {
         return *this;
     }
 
+    yoyInflationLeg& yoyInflationLeg::withPaymentCalendar(const Calendar& paymentcalendar) {
+        paymentCalendar_ = paymentcalendar;
+        return *this;
+    }
+
     yoyInflationLeg& yoyInflationLeg::withFixingDays(Natural fixingDays) {
         fixingDays_ = std::vector<Natural>(1,fixingDays);
         return *this;

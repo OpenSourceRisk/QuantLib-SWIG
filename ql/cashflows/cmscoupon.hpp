@@ -73,6 +73,7 @@ namespace QuantLib {
         CmsLeg& withNotionals(Real notional);
         CmsLeg& withNotionals(const std::vector<Real>& notionals);
         CmsLeg& withPaymentDayCounter(const DayCounter&);
+        CmsLeg& withPaymentCalendar(const Calendar& cal);
         CmsLeg& withPaymentAdjustment(BusinessDayConvention);
         CmsLeg& withFixingDays(Natural fixingDays);
         CmsLeg& withFixingDays(const std::vector<Natural>& fixingDays);
@@ -97,6 +98,7 @@ namespace QuantLib {
         std::vector<Real> notionals_;
         DayCounter paymentDayCounter_;
         BusinessDayConvention paymentAdjustment_;
+        Calendar paymentCalendar_;
         std::vector<Natural> fixingDays_;
         std::vector<Real> gearings_;
         std::vector<Spread> spreads_;

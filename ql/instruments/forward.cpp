@@ -22,6 +22,7 @@
 #include <ql/termstructures/yieldtermstructure.hpp>
 #include <utility>
 
+
 namespace QuantLib {
 
     Forward::Forward(DayCounter dayCounter,
@@ -37,8 +38,8 @@ namespace QuantLib {
       payoff_(std::move(payoff)), valueDate_(valueDate), maturityDate_(maturityDate),
       discountCurve_(std::move(discountCurve)) {
 
-        maturityDate_ = calendar_.adjust(maturityDate_,
-                                         businessDayConvention_);
+
+        maturityDate_ = calendar_.adjust(maturityDate_, businessDayConvention_);
 
         registerWith(Settings::instance().evaluationDate());
         registerWith(discountCurve_);
@@ -46,22 +47,19 @@ namespace QuantLib {
 
 
     Date Forward::settlementDate() const {
-        Date d = calendar_.advance(Settings::instance().evaluationDate(),
-                                   settlementDays_, Days);
-        return std::max(d,valueDate_);
+        Date d = calendar_.advance(Settings::instance().evaluationDate(), settlementDays_, Days);
+        return std::max(d, valueDate_);
     }
 
 
     bool Forward::isExpired() const {
-        return detail::simple_event(maturityDate_)
-               .hasOccurred(settlementDate());
+        return detail::simple_event(maturityDate_).hasOccurred(settlementDate());
     }
 
 
     Real Forward::forwardValue() const {
         calculate();
-        return (underlyingSpotValue_ - underlyingIncome_ )/
-               discountCurve_->discount(maturityDate_);
+        return (underlyingSpotValue_ - underlyingIncome_) / discountCurve_->discount(maturityDate_);
     }
 
 
@@ -71,24 +69,21 @@ namespace QuantLib {
                                        Compounding comp,
                                        const DayCounter& dayCounter) {
 
-        Time t = dayCounter.yearFraction(settlementDate,maturityDate_) ;
-        Real compoundingFactor = forwardValue/
-            (underlyingSpotValue-spotIncome(incomeDiscountCurve_)) ;
-        return InterestRate::impliedRate(compoundingFactor,
-                                         dayCounter, comp, Annual,
-                                         t);
+        Time t = dayCounter.yearFraction(settlementDate, maturityDate_);
+        Real compoundingFactor =
+            forwardValue / (underlyingSpotValue - spotIncome(incomeDiscountCurve_));
+        return InterestRate::impliedRate(compoundingFactor, dayCounter, comp, Annual, t);
     }
 
 
     void Forward::performCalculations() const {
 
-        QL_REQUIRE(!discountCurve_.empty(),
-                   "null term structure set to Forward");
+        QL_REQUIRE(!discountCurve_.empty(), "null term structure set to Forward");
 
         ext::shared_ptr<ForwardTypePayoff> ftpayoff =
             ext::dynamic_pointer_cast<ForwardTypePayoff>(payoff_);
         Real fwdValue = forwardValue();
-        NPV_ = (*ftpayoff)(fwdValue) * discountCurve_->discount(maturityDate_);
+        NPV_ = (*ftpayoff)(fwdValue)*discountCurve_->discount(maturityDate_);
     }
 
 }

@@ -138,6 +138,11 @@ namespace QuantLib {
         return *this;
     }
 
+    CmsLeg& CmsLeg::withPaymentCalendar(const Calendar& cal) {
+        paymentCalendar_ = cal;
+        return *this;
+	}
+
     CmsLeg& CmsLeg::withExCouponPeriod(
                                 const Period& period,
                                 const Calendar& cal,

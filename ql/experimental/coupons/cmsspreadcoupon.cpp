@@ -133,12 +133,15 @@ namespace QuantLib {
         zeroPayments_ = flag;
         return *this;
     }
+    CmsSpreadLeg& CmsSpreadLeg::withPaymentCalendar(const Calendar& cal) {
+        paymentCalendar_ = cal;
+        return *this;
+	}
 
     CmsSpreadLeg::operator Leg() const {
-        return FloatingLeg<SwapSpreadIndex, CmsSpreadCoupon,
-                           CappedFlooredCmsSpreadCoupon>(
-            schedule_, notionals_, swapSpreadIndex_, paymentDayCounter_,
-            paymentAdjustment_, fixingDays_, gearings_, spreads_, caps_,
-            floors_, inArrears_, zeroPayments_);
+            return FloatingLeg<SwapSpreadIndex, CmsSpreadCoupon, CappedFlooredCmsSpreadCoupon>(
+                schedule_, notionals_, swapSpreadIndex_, paymentDayCounter_, paymentAdjustment_,
+                fixingDays_, gearings_, spreads_, caps_, floors_, inArrears_, zeroPayments_, 0U,
+                paymentCalendar_); 
     }
 }

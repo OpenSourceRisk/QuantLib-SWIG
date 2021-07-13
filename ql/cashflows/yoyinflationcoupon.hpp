@@ -98,6 +98,7 @@ namespace QuantLib {
       yoyInflationLeg& withNotionals(const std::vector<Real>& notionals);
       yoyInflationLeg& withPaymentDayCounter(const DayCounter&);
       yoyInflationLeg& withPaymentAdjustment(BusinessDayConvention);
+      yoyInflationLeg& withPaymentCalendar(const Calendar&);
       yoyInflationLeg& withFixingDays(Natural fixingDays);
       yoyInflationLeg& withFixingDays(const std::vector<Natural>& fixingDays);
       yoyInflationLeg& withGearings(Real gearing);
@@ -110,6 +111,7 @@ namespace QuantLib {
       yoyInflationLeg& withFloors(const std::vector<Rate>& floors);
       yoyInflationLeg& withRateCurve(const Handle<YieldTermStructure>& rateCurve);
       operator Leg() const;
+
     private:
         Schedule schedule_;
         ext::shared_ptr<YoYInflationIndex> index_;
