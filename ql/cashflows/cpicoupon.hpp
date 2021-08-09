@@ -116,7 +116,7 @@ namespace QuantLib {
         bool checkPricerImpl(const ext::shared_ptr<InflationCouponPricer>&) const override;
         // use to calculate for fixing date, allows change of
         // interpolation w.r.t. index.  Can also be used ahead of time
-        Rate indexFixing(const Date &) const;
+        Rate indexFixing(const Date & observationDate, const Date& paymentDate) const;
     };
 
 
@@ -241,7 +241,7 @@ namespace QuantLib {
     }
 
     inline Rate CPICoupon::indexFixing() const {
-        return indexFixing(fixingDate());
+        return indexFixing(fixingDate(), paymentDate_);
     }
 
     inline Rate CPICoupon::baseCPI() const {
@@ -253,7 +253,7 @@ namespace QuantLib {
     }
 
     inline Rate CPICoupon::indexObservation(const Date& onDate) const {
-        return indexFixing(onDate);
+        return indexFixing(onDate, paymentDate_);
     }
 
     inline ext::shared_ptr<ZeroInflationIndex> CPICoupon::cpiIndex() const {

@@ -72,24 +72,30 @@ namespace QuantLib {
     }
 
 
-    Rate CPICoupon::indexFixing(const Date &d) const {
+    Rate CPICoupon::indexFixing(const Date& observationDate, const Date& paymentDate) const {
         // you may want to modify the interpolation of the index
         // this gives you the chance
 
         Rate I1;
         // what interpolation do we use? Index / flat / linear
         if (observationInterpolation() == CPI::AsIndex) {
-            I1 = cpiIndex()->fixing(d);
+            I1 = cpiIndex()->fixing(observationDate);
 
         } else {
             // work out what it should be
-            std::pair<Date,Date> dd = inflationPeriod(d, cpiIndex()->frequency());
-            Real indexStart = cpiIndex()->fixing(dd.first);
+            std::pair<Date, Date> observationInflationPeriod =
+                inflationPeriod(observationDate, cpiIndex()->frequency());
+            Real indexStart = cpiIndex()->fixing(observationInflationPeriod.first);
             if (observationInterpolation() == CPI::Linear) {
-                Real indexEnd = cpiIndex()->fixing(dd.second+Period(1,Days));
+                std::pair<Date, Date> couponInflationPeriod =
+                    inflationPeriod(paymentDate, cpiIndex()->frequency());
+                Real indexEnd =
+                    cpiIndex()->fixing(observationInflationPeriod.second + Period(1, Days));
                 // linear interpolation
-                I1 = indexStart + (indexEnd - indexStart) * (d - dd.first)
-                / (Real)( (dd.second+Period(1,Days)) - dd.first); // can't get to next period's value within current period
+                I1 = indexStart +
+                     (indexEnd - indexStart) * (paymentDate - couponInflationPeriod.first) /
+                         (Real)((couponInflationPeriod.second + Period(1, Days)) -
+                             couponInflationPeriod.first); // can't get to next period's value within current period
             } else {
                 // no interpolation, i.e. flat = constant, so use start-of-period value
                 I1 = indexStart;
