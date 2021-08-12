@@ -24,7 +24,6 @@
 #include <ql/cashflows/inflationcoupon.hpp>
 #include <ql/time/daycounters/thirty360.hpp>
 #include <utility>
-#include <iostream>
 
 namespace QuantLib {
 
@@ -130,11 +129,13 @@ namespace QuantLib {
             //std::pair<Date,Date> dd = inflationPeriod(fixingDate(), frequency());
             //std::cout << fixingDate() << " and " << dd.first << " " << dd.second << std::endl;
             // work out what it should be
-            std::pair<Date,Date> dd = inflationPeriod(fixingDate(), frequency());
-            Real indexStart = index()->fixing(dd.first);
+            std::pair<Date, Date> observationInflationPeriod =
+                inflationPeriod(fixingDate(), frequency());
+            Real indexStart = index()->fixing(observationInflationPeriod.first);
             if (interpolation() == CPI::Linear) {
                 std::pair<Date, Date> paymentDateInflationPeriod = inflationPeriod(date(), frequency());
-                Real indexEnd = index()->fixing(dd.second+Period(1,Days));
+                Real indexEnd =
+                    index()->fixing(observationInflationPeriod.second + Period(1, Days));
                 // linear interpolation
                 //std::cout << indexStart << " and " << indexEnd << std::endl;
                 I1 = indexStart +
