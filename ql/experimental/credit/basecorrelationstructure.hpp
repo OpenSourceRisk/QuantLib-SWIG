@@ -72,12 +72,9 @@ namespace QuantLib {
             )
         : CorrelationTermStructure(settlementDays, cal, bdc, dc),
           correlHandles_(correls),
-          correlations_(correls.size(), correls.front().size()),
-          nTrancheTenors_(tenors.size()),
           nLosses_(lossLevel.size()),
           tenors_(tenors),
-          lossLevel_(lossLevel),
-          trancheTimes_(tenors.size(), 0.) {
+          lossLevel_(lossLevel) {
               checkTrancheTenors();
 
               // Reference date to which the tenors are applied to get the base correlation maturities.
@@ -93,6 +90,10 @@ namespace QuantLib {
                   Date d;
                   if (rule) {
                       d = start + tenors_[i];
+                      if (*rule == DateGeneration::CDS2015 || *rule == DateGeneration::CDS ||
+                          *rule == DateGeneration::OldCDS) {
+                          d = cdsMaturity(start, tenors_[i], *rule);
+                      }
                       Schedule schedule = MakeSchedule()
                           .from(start)
                           .to(d)
@@ -106,15 +107,21 @@ namespace QuantLib {
                       d = cldr.advance(start, tenors_[i], bdconv);
                   }
 
-                  QL_REQUIRE(d > refDate, "The tranche date " << io::iso_date(d) << " should be greater than " <<
-                      "the reference date " << io::iso_date(refDate) << ".");
+                  // only keep future dates
+                  if(d <= refDate)
+                      continue;
 
                   trancheDates_.push_back(d);
               }
 
+              QL_REQUIRE(!trancheDates_.empty(),
+                         "no tranche dates left after removing expired tenors");
+
+              correlations_ = Matrix(correls.size(), trancheDates_.size(), 0.0);
               initializeTrancheTimes();
+
               checkInputs(correlations_.rows(), correlations_.columns());
-                updateMatrix();
+              updateMatrix();
               registerWithMarketData();
               // call factory
               setupInterpolation();
@@ -153,8 +160,7 @@ namespace QuantLib {
         std::vector<std::vector<Handle<Quote> > > correlHandles_;
         mutable Matrix correlations_;
         Interpolation2D interpolation_;
-        Size nTrancheTenors_,
-            nLosses_;
+        Size nLosses_;
         std::vector<Period> tenors_;
         mutable std::vector<Real> lossLevel_;
         mutable std::vector<Date> trancheDates_;
@@ -168,7 +174,7 @@ namespace QuantLib {
         QL_REQUIRE(tenors_[0]>0*Days,
                    "first tranche tenor is negative (" <<
                    tenors_[0] << ")");
-        for (Size i=1; i<nTrancheTenors_; ++i)
+        for (Size i=1; i<tenors_.size(); ++i)
             QL_REQUIRE(tenors_[i]>tenors_[i-1],
                        "non increasing tranche tenor: " << io::ordinal(i) <<
                        " is " << tenors_[i-1] << ", " << io::ordinal(i+1) <<
@@ -194,7 +200,8 @@ namespace QuantLib {
 
     template <class I2D_T>
     void BaseCorrelationTermStructure<I2D_T>::initializeTrancheTimes() const {
-        for (Size i=0; i<nTrancheTenors_; ++i)
+        trancheTimes_.resize(trancheDates_.size());
+        for (Size i=0; i<trancheDates_.size(); ++i)
             trancheTimes_[i] = timeFromReference(trancheDates_[i]);
     }
 
@@ -205,9 +212,9 @@ namespace QuantLib {
                    "mismatch between number of loss levels (" <<
                    nLosses_ << ") and number of rows (" << volRows <<
                    ") in the correl matrix");
-        QL_REQUIRE(nTrancheTenors_==volsColumns,
+        QL_REQUIRE(tenors_.size()==volsColumns,
                    "mismatch between number of tranche tenors (" <<
-                   nTrancheTenors_ << ") and number of columns (" << 
+                   tenors_.size() << ") and number of columns (" <<
                    volsColumns << ") in the correl matrix");
     }
 
@@ -227,9 +234,11 @@ namespace QuantLib {
 
     template <class I2D_T>
     void BaseCorrelationTermStructure<I2D_T>::updateMatrix() const {
-        for (Size i=0; i<correlHandles_.size(); ++i)
-            for (Size j=0; j<correlHandles_.front().size(); ++j)
-                correlations_[i][j] = correlHandles_[i][j]->value();
+        // we might have removed expired tenors
+        Size tenorStartIndex = correlHandles_.front().size() - correlations_.columns();
+        for (Size i=0; i<correlations_.rows(); ++i)
+            for (Size j=0; j<correlations_.columns(); ++j)
+                correlations_[i][j] = correlHandles_[i][tenorStartIndex+j]->value();
 
     }
 
