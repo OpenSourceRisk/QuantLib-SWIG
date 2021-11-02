@@ -69,7 +69,8 @@ namespace QuantLib {
                        ") less than floor level (" << floor << ")");
         }
 
-        registerWith(underlying);
+        registerWith(underlying_);
+        underlying_->alwaysForwardNotifications();
     }
 
     void CappedFlooredCoupon::setPricer(

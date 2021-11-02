@@ -34,7 +34,8 @@ namespace QuantLib {
               underlying->referencePeriodEnd(), underlying->dayCounter(),
               underlying->isInArrears()),
           underlying_(underlying) {
-        registerWith(underlying);
+        registerWith(underlying_);
+        underlying_->alwaysForwardNotifications();
     }
 
     void StrippedCappedFlooredCoupon::performCalculations() const {
