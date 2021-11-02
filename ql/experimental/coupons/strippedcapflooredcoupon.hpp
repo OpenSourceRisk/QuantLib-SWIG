@@ -34,6 +34,10 @@ namespace QuantLib {
 
         explicit StrippedCappedFlooredCoupon(const ext::shared_ptr<CappedFlooredCoupon> &underlying);
 
+        //! \name LazyObject interface
+        //@{
+        void performCalculations() const override;
+        //@}
         //! Coupon interface
         Rate rate() const override;
         Rate convexityAdjustment() const override;
@@ -45,9 +49,6 @@ namespace QuantLib {
         Rate effectiveCap() const;
         //! effective floor
         Rate effectiveFloor() const;
-
-        //! Observer interface
-        void update() override;
 
         //! Visitability
         void accept(AcyclicVisitor&) override;

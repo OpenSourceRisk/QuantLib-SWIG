@@ -1,4 +1,5 @@
-/* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+/* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset
+: 4 -*- */
 
 /*
  Copyright (C) 2007 Giorgio Facchinetti
@@ -92,9 +93,14 @@ namespace QuantLib {
     }
 
     Rate FloatingRateCoupon::rate() const {
+        calculate();
+        return rate_;
+    }
+
+    void FloatingRateCoupon::performCalculations() const {
         QL_REQUIRE(pricer_, "pricer not set");
         pricer_->initialize(*this);
-        return pricer_->swapletRate();
+        rate_ = pricer_->swapletRate();
     }
 
     Real FloatingRateCoupon::price(const Handle<YieldTermStructure>& discountingCurve) const {

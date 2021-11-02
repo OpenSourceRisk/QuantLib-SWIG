@@ -95,6 +95,10 @@ namespace QuantLib {
                       bool nakedOption = false);
 
         //@}
+        //! \name LazyObject interface
+        //@{
+        void performCalculations() const override;
+        //@}
         //! \name Coupon interface
         //@{
         Rate rate() const override;
@@ -121,10 +125,6 @@ namespace QuantLib {
            (multiplied by: nominal*accrualperiod*discount is the NPV of the option)
         */
         Rate putOptionRate() const;
-        //@}
-        //! \name Observer interface
-        //@{
-        void update() override;
         //@}
         //! \name Visitability
         //@{
