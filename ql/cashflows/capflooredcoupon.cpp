@@ -79,7 +79,7 @@ namespace QuantLib {
         underlying_->setPricer(pricer);
     }
 
-    void CappedFlooredCoupon::deepUpdate() override {
+    void CappedFlooredCoupon::deepUpdate() {
         update();
         underlying_->deepUpdate();
     }
