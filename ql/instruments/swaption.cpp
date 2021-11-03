@@ -142,6 +142,7 @@ namespace QuantLib {
 
     void Swaption::deepUpdate() {
         swap_->deepUpdate();
+        update();
     }
 
     bool Swaption::isExpired() const {

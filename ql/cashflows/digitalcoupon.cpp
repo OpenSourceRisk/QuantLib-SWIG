@@ -172,7 +172,7 @@ namespace QuantLib {
         }
 
         registerWith(underlying);
-        if (nakeOption_)
+        if (nakedOption_)
             underlying_->alwaysForwardNotifications();
     }
 
@@ -225,7 +225,7 @@ namespace QuantLib {
     }
 
     void DigitalCoupon::alwaysForwardNotifications() {
-        alwaysForwardNotifications();
+        LazyObject::alwaysForwardNotifications();
         underlying_->alwaysForwardNotifications();
     }
 

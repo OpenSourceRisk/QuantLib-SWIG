@@ -173,7 +173,7 @@ namespace QuantLib {
                     lazy->alwaysForwardNotifications();
             }
         }
-        alwaysForwardNotifications();
+        LazyObject::alwaysForwardNotifications();
     }
 
     void Swap::arguments::validate() const {

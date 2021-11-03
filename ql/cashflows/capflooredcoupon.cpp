@@ -84,7 +84,7 @@ namespace QuantLib {
     }
 
     void CappedFlooredCoupon::alwaysForwardNotifications() {
-        alwaysForwardNotifications();
+        LazyObject::alwaysForwardNotifications();
         underlying_->alwaysForwardNotifications();
     }
 
