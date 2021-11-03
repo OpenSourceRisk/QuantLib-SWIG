@@ -95,6 +95,10 @@ namespace QuantLib {
                       bool nakedOption = false);
 
         //@}
+        //! \name Obverver interface
+        //@{
+        void deepUpdate() override;
+        //@}
         //! \name LazyObject interface
         //@{
         void performCalculations() const override;

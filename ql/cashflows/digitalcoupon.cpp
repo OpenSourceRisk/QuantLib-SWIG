@@ -217,6 +217,11 @@ namespace QuantLib {
         return putOptionRate;
     }
 
+    void DigitalCoupon::deepUpdate() {
+        update();
+        underlying_->deepUpdate();
+    }
+
     void DigitalCoupon::performCalculations() const {
 
         QL_REQUIRE(underlying_->pricer(), "pricer not set");

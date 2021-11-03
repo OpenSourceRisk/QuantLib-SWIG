@@ -79,6 +79,11 @@ namespace QuantLib {
         underlying_->setPricer(pricer);
     }
 
+    void CappedFlooredCoupon::deepUpdate() override {
+        update();
+        underlying_->deepUpdate();
+    }
+
     void CappedFlooredCoupon::performCalculations() const {
         QL_REQUIRE(underlying_->pricer(), "pricer not set");
         Rate swapletRate = underlying_->rate();

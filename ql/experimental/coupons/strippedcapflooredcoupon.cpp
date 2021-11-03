@@ -38,6 +38,11 @@ namespace QuantLib {
         underlying_->alwaysForwardNotifications();
     }
 
+    void StrippedCappedFlooredCoupon::deepUpdate() {
+        update();
+        underlying_->deepUpdate();
+    }
+
     void StrippedCappedFlooredCoupon::performCalculations() const {
         QL_REQUIRE(underlying_->underlying()->pricer() != nullptr, "pricer not set");
         underlying_->underlying()->pricer()->initialize(*underlying_->underlying());

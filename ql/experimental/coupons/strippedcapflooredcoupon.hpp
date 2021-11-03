@@ -34,6 +34,11 @@ namespace QuantLib {
 
         explicit StrippedCappedFlooredCoupon(const ext::shared_ptr<CappedFlooredCoupon> &underlying);
 
+        //! \name Obverver interface
+        //@{
+        void deepUpdate() override;
+        //@}
+
         //! \name LazyObject interface
         //@{
         void performCalculations() const override;
