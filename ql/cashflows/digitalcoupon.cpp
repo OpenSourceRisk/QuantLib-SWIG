@@ -172,6 +172,8 @@ namespace QuantLib {
         }
 
         registerWith(underlying);
+        if (nakeOption_)
+            underlying_->alwaysForwardNotifications();
     }
 
 
@@ -220,6 +222,11 @@ namespace QuantLib {
     void DigitalCoupon::deepUpdate() {
         update();
         underlying_->deepUpdate();
+    }
+
+    void DigitalCoupon::alwaysForwardNotifications() {
+        alwaysForwardNotifications();
+        underlying_->alwaysForwardNotifications();
     }
 
     void DigitalCoupon::performCalculations() const {

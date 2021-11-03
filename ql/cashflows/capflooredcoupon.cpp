@@ -70,7 +70,6 @@ namespace QuantLib {
         }
 
         registerWith(underlying_);
-        underlying_->alwaysForwardNotifications();
     }
 
     void CappedFlooredCoupon::setPricer(
@@ -82,6 +81,11 @@ namespace QuantLib {
     void CappedFlooredCoupon::deepUpdate() {
         update();
         underlying_->deepUpdate();
+    }
+
+    void CappedFlooredCoupon::alwaysForwardNotifications() {
+        alwaysForwardNotifications();
+        underlying_->alwaysForwardNotifications();
     }
 
     void CappedFlooredCoupon::performCalculations() const {
