@@ -64,7 +64,6 @@ namespace QuantLib {
       startDiscounts_(legs, 0.0), endDiscounts_(legs, 0.0),
       npvDateDiscount_(0.0) {}
 
-
     bool Swap::isExpired() const {
         for (const auto& leg : legs_) {
             Leg::const_iterator i;
@@ -160,12 +159,21 @@ namespace QuantLib {
     void Swap::deepUpdate() {
         for (auto& leg : legs_) {
             for (auto& k : leg) {
-                ext::shared_ptr<LazyObject> f = ext::dynamic_pointer_cast<LazyObject>(k);
-                if (f != nullptr)
-                    f->update();
+                if (auto lazy = ext::dynamic_pointer_cast<LazyObject>(k))
+                    lazy->deepUpdate();
             }
         }
         update();
+    }
+
+    void Swap::alwaysForwardNotifications() {
+        for (auto& leg : legs_) {
+            for (auto& k : leg) {
+                if (auto lazy = ext::dynamic_pointer_cast<LazyObject>(k))
+                    lazy->alwaysForwardNotifications();
+            }
+        }
+        LazyObject::alwaysForwardNotifications();
     }
 
     void Swap::arguments::validate() const {
