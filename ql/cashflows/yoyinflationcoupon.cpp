@@ -186,7 +186,7 @@ namespace QuantLib {
             }
             if (i==n-1 && schedule_.hasIsRegular() && !schedule_.isRegular(i+1)) {
                 BusinessDayConvention bdc = schedule_.businessDayConvention();
-                refEnd = schedule_.calendar().adjust(start + schedule_.tenor(), bdc);
+                refEnd = schedule_.calendar().adjust(refStart + schedule_.tenor(), bdc);
             }
             if (detail::get(gearings_, i, 1.0) == 0.0) { // fixed coupon
                 leg.push_back(ext::shared_ptr<CashFlow>(new
