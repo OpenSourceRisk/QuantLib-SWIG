@@ -31,10 +31,10 @@
 /*! @{ */
 
 //! version string
-#define QL_VERSION "1.22"
+#define QL_VERSION "1.25"
 
 //! version hexadecimal number
-#define QL_HEX_VERSION 0x012200f0
+#define QL_HEX_VERSION 0x012500f0
 
 //! This QuantLib has patches for ORE
 #define QL_ORE_PATCH
