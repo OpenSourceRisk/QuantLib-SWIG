@@ -215,9 +215,7 @@ namespace QuantLib {
 
     inline const std::map<std::string,boost::any>&
     Instrument::additionalResults() const {
-        /* Quick Fix for QPR-10061 - once we have the full solution for QPR-10061 we can
-           restore the call to calculate() which is in fact correct */
-        // calculate();
+        calculate();
         return additionalResults_;
     }
 
