@@ -189,18 +189,20 @@ namespace QuantLib {
         const Currency& currency,
         const ext::shared_ptr<OvernightIndex>& overnightIndex,
         bool telescopicValueDates,
-        RateAveraging::Type averagingMethod)
+        RateAveraging::Type averagingMethod,
+        const Period& fixedLegTenor,
+        Handle<YieldTermStructure> discount)
     : SwapIndex(familyName,
                 tenor,
                 settlementDays,
                 currency,
                 overnightIndex->fixingCalendar(),
-                1 * Years,
+                fixedLegTenor,
                 ModifiedFollowing,
                 overnightIndex->dayCounter(),
-                overnightIndex),
-      overnightIndex_(overnightIndex), 
-      telescopicValueDates_(telescopicValueDates), 
+                overnightIndex,
+                discount),
+      overnightIndex_(overnightIndex), telescopicValueDates_(telescopicValueDates),
       averagingMethod_(averagingMethod) {}
 
 
@@ -212,14 +214,67 @@ namespace QuantLib {
         // caching mechanism
         if (lastFixingDate_!=fixingDate) {
             Rate fixedRate = 0.0;
-            lastSwap_ = MakeOIS(tenor_, overnightIndex_, fixedRate)
-                .withEffectiveDate(valueDate(fixingDate))
-                .withFixedLegDayCount(dayCounter_)
-                .withTelescopicValueDates(telescopicValueDates_)
-                .withAveragingMethod(averagingMethod_);
+            if (exogenousDiscount_) {
+                lastSwap_ = MakeOIS(tenor_, overnightIndex_, fixedRate)
+                                .withEffectiveDate(valueDate(fixingDate))
+                                .withFixedLegDayCount(dayCounter_)
+                                .withTelescopicValueDates(telescopicValueDates_)
+                                .withAveragingMethod(averagingMethod_)
+                                .withPaymentFrequency(fixedLegTenor_.frequency())
+                                .withDiscountingTermStructure(discount_);
+            } else {
+                lastSwap_ = MakeOIS(tenor_, overnightIndex_, fixedRate)
+                                .withEffectiveDate(valueDate(fixingDate))
+                                .withFixedLegDayCount(dayCounter_)
+                                .withTelescopicValueDates(telescopicValueDates_)
+                                .withAveragingMethod(averagingMethod_)
+                                .withPaymentFrequency(fixedLegTenor_.frequency())
+                                .withDiscountingTermStructure(discount_);
+            }
             lastFixingDate_ = fixingDate;
         }
         return lastSwap_;
     }
 
+    Rate OvernightIndexedSwapIndex::forecastFixing(const Date& fixingDate) const {
+        return underlyingSwap(fixingDate)->fairRate();
+    }
+
+    ext::shared_ptr<SwapIndex>
+    OvernightIndexedSwapIndex::clone(const Handle<YieldTermStructure>& forwarding) const {
+
+        if (exogenousDiscount_)
+            return ext::shared_ptr<SwapIndex>(new OvernightIndexedSwapIndex(
+                familyName(), tenor(), fixingDays(), currency(),
+                ext::dynamic_pointer_cast<OvernightIndex>(overnightIndex()->clone(forwarding)),
+                false, averagingMethod(), fixedLegTenor(), discount_));
+        else
+            return ext::shared_ptr<SwapIndex>(new OvernightIndexedSwapIndex(
+                familyName(), tenor(), fixingDays(), currency(),
+                ext::dynamic_pointer_cast<OvernightIndex>(overnightIndex()->clone(forwarding)),
+                false, averagingMethod(), fixedLegTenor()));
+    }
+
+    ext::shared_ptr<SwapIndex>
+    OvernightIndexedSwapIndex::clone(const Handle<YieldTermStructure>& forwarding,
+                                     const Handle<YieldTermStructure>& discounting) const {
+        return ext::shared_ptr<SwapIndex>(new OvernightIndexedSwapIndex(
+            familyName(), tenor(), fixingDays(), currency(),
+            ext::dynamic_pointer_cast<OvernightIndex>(overnightIndex()->clone(forwarding)), false,
+            averagingMethod(), fixedLegTenor(), discounting));
+    }
+
+    ext::shared_ptr<SwapIndex> OvernightIndexedSwapIndex::clone(const Period& tenor) const {
+
+        if (exogenousDiscount_)
+            return ext::shared_ptr<SwapIndex>(new OvernightIndexedSwapIndex(
+                familyName(), tenor, fixingDays(), currency(),
+                ext::dynamic_pointer_cast<OvernightIndex>(overnightIndex()), false,
+                averagingMethod(), fixedLegTenor(), discount_));
+        else
+            return ext::shared_ptr<SwapIndex>(new OvernightIndexedSwapIndex(
+                familyName(), tenor, fixingDays(), currency(),
+                ext::dynamic_pointer_cast<OvernightIndex>(overnightIndex()), false,
+                averagingMethod(), fixedLegTenor()));
+    }
 }
