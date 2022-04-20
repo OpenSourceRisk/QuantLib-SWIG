@@ -786,6 +786,8 @@ void InflationTest::testYYTermStructure() {
     SavedSettings backup;
     IndexHistoryCleaner cleaner;
 
+    IndexManager::instance().clearHistories();
+
     // try the YY UK
     Calendar calendar = UnitedKingdom();
     BusinessDayConvention bdc = ModifiedFollowing;
