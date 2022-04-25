@@ -32,10 +32,10 @@
 #include <ql/time/daycounter.hpp>
 #include <ql/time/businessdayconvention.hpp>
 #include <ql/time/calendar.hpp>
+#include <ql/time/schedule.hpp>
 
 namespace QuantLib {
 
-    class Schedule;
     class OvernightIndex;
 
     //! Overnight indexed swap: fix vs compounded overnight rate
@@ -85,6 +85,8 @@ namespace QuantLib {
         const Leg& overnightLeg() const { return legs_[1]; }
 
         RateAveraging::Type averagingMethod() const { return averagingMethod_; }
+
+        const Schedule& schedule() const { return schedule_; }
         //@}
 
         //! \name Results
@@ -116,6 +118,7 @@ namespace QuantLib {
         Spread spread_;
         bool telescopicValueDates_;
         RateAveraging::Type averagingMethod_;
+        Schedule schedule_;
     };
 
 

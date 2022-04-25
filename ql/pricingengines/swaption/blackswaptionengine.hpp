@@ -229,28 +229,36 @@ namespace QuantLib {
         // the part of the swap preceding exerciseDate should be truncated
         // to avoid taking into account unwanted cashflows
         // for the moment we add a check avoiding this situation
-        VanillaSwap swap = *arguments_.swap;
-        const Leg& fixedLeg = swap.fixedLeg();
+        auto swap = arguments_.swap;
+        auto swapOis = arguments_.swapOis;
+        QL_REQUIRE(swap || swapOis,
+                   "BlackStyleSwaptionEngine: internal error, expected swap or swapOis to be set");
+        const Leg& fixedLeg = swap ? swap->fixedLeg() : swapOis->fixedLeg();
         ext::shared_ptr<FixedRateCoupon> firstCoupon =
             ext::dynamic_pointer_cast<FixedRateCoupon>(fixedLeg[0]);
         QL_REQUIRE(firstCoupon->accrualStartDate() >= exerciseDate,
                    "swap start (" << firstCoupon->accrualStartDate() << ") before exercise date ("
                                   << exerciseDate << ") not supported in Black swaption engine");
 
-        Rate strike = swap.fixedRate();
+        Rate strike = swap ? swap->fixedRate() : swapOis->fixedRate();
 
         // using the discounting curve
         // swap.iborIndex() might be using a different forwarding curve
-        swap.setPricingEngine(ext::shared_ptr<PricingEngine>(new
-            DiscountingSwapEngine(discountCurve_, false)));
-        Rate atmForward = swap.fairRate();
+        auto engine = ext::make_shared<DiscountingSwapEngine>(discountCurve_, false);
+        if (swap)
+            swap->setPricingEngine(engine);
+        if (swapOis)
+            swap->setPricingEngine(engine);
+        Rate atmForward = swap ? swap->fairRate() : swapOis->fairRate();
 
         // Volatilities are quoted for zero-spreaded swaps.
         // Therefore, any spread on the floating leg must be removed
         // with a corresponding correction on the fixed leg.
-        if (swap.spread()!=0.0) {
-            Spread correction = swap.spread() *
-                std::fabs(swap.floatingLegBPS()/swap.fixedLegBPS());
+        Real spread = swap ? swap->spread() : swapOis->spread();
+        if (spread!=0.0) {
+            Spread correction =
+                spread * std::fabs(swap ? swap->floatingLegBPS() / swap->fixedLegBPS() :
+                                          swapOis->overnightLegBPS() / swapOis->fixedLegBPS());
             strike -= correction;
             atmForward -= correction;
             results_.additionalResults["spreadCorrection"] = correction;
@@ -260,15 +268,12 @@ namespace QuantLib {
         results_.additionalResults["strike"] = strike;
         results_.additionalResults["atmForward"] = atmForward;
 
-        // using the discounting curve
-        swap.setPricingEngine(ext::shared_ptr<PricingEngine>(
-                           new DiscountingSwapEngine(discountCurve_, false)));
         Real annuity;
         if (arguments_.settlementType == Settlement::Physical ||
             (arguments_.settlementType == Settlement::Cash &&
              arguments_.settlementMethod ==
                  Settlement::CollateralizedCashPrice)) {
-            annuity = std::fabs(swap.fixedLegBPS()) / basisPoint;
+            annuity = std::fabs(swap ? swap->fixedLegBPS() : swapOis->fixedLegBPS()) / basisPoint;
         } else if (arguments_.settlementType == Settlement::Cash &&
                    arguments_.settlementMethod == Settlement::ParYieldCurve) {
             DayCounter dayCount = firstCoupon->dayCounter();
@@ -288,8 +293,9 @@ namespace QuantLib {
         }
         results_.additionalResults["annuity"] = annuity;
 
-        Time swapLength =  vol_->swapLength(swap.floatingSchedule().dates().front(),
-                                            swap.floatingSchedule().dates().back());
+        const Schedule floatingSchedule = swap ? swap->floatingSchedule() : swapOis->schedule();
+        Time swapLength =  vol_->swapLength(floatingSchedule.dates().front(),
+                                            floatingSchedule.dates().back());
 
         // swapLength is rounded to whole months. To ensure we can read a variance
         // and a shift from vol_ we floor swapLength at 1/12 here therefore.
