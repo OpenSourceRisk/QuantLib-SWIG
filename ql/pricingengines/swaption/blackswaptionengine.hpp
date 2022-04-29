@@ -248,7 +248,7 @@ namespace QuantLib {
         if (swap)
             swap->setPricingEngine(engine);
         if (swapOis)
-            swap->setPricingEngine(engine);
+            swapOis->setPricingEngine(engine);
         Rate atmForward = swap ? swap->fairRate() : swapOis->fairRate();
 
         // Volatilities are quoted for zero-spreaded swaps.
