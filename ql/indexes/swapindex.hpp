@@ -122,6 +122,7 @@ namespace QuantLib {
         //@{
         ext::shared_ptr<OvernightIndex> overnightIndex() const;
 	RateAveraging::Type averagingMethod() const;
+	bool telescopicValueDates() const;
         /*! \warning Relinking the term structure underlying the index will
                      not have effect on the returned swap.
         */
@@ -170,6 +171,11 @@ namespace QuantLib {
     inline RateAveraging::Type OvernightIndexedSwapIndex::averagingMethod() const {
         return averagingMethod_;
     }
+
+    inline bool OvernightIndexedSwapIndex::telescopicValueDates() const {
+	return telescopicValueDates_;
+    }
+
 }
 
 #endif

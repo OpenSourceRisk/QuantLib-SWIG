@@ -247,12 +247,12 @@ namespace QuantLib {
             return ext::shared_ptr<SwapIndex>(new OvernightIndexedSwapIndex(
                 familyName(), tenor(), fixingDays(), currency(),
                 ext::dynamic_pointer_cast<OvernightIndex>(overnightIndex()->clone(forwarding)),
-                false, averagingMethod(), fixedLegTenor(), discount_));
+                telescopicValueDates(), averagingMethod(), fixedLegTenor(), discount_));
         else
             return ext::shared_ptr<SwapIndex>(new OvernightIndexedSwapIndex(
                 familyName(), tenor(), fixingDays(), currency(),
                 ext::dynamic_pointer_cast<OvernightIndex>(overnightIndex()->clone(forwarding)),
-                false, averagingMethod(), fixedLegTenor()));
+                telescopicValueDates(), averagingMethod(), fixedLegTenor()));
     }
 
     ext::shared_ptr<SwapIndex>
@@ -260,8 +260,8 @@ namespace QuantLib {
                                      const Handle<YieldTermStructure>& discounting) const {
         return ext::shared_ptr<SwapIndex>(new OvernightIndexedSwapIndex(
             familyName(), tenor(), fixingDays(), currency(),
-            ext::dynamic_pointer_cast<OvernightIndex>(overnightIndex()->clone(forwarding)), false,
-            averagingMethod(), fixedLegTenor(), discounting));
+            ext::dynamic_pointer_cast<OvernightIndex>(overnightIndex()->clone(forwarding)),
+            telescopicValueDates(), averagingMethod(), fixedLegTenor(), discounting));
     }
 
     ext::shared_ptr<SwapIndex> OvernightIndexedSwapIndex::clone(const Period& tenor) const {
@@ -269,12 +269,12 @@ namespace QuantLib {
         if (exogenousDiscount_)
             return ext::shared_ptr<SwapIndex>(new OvernightIndexedSwapIndex(
                 familyName(), tenor, fixingDays(), currency(),
-                ext::dynamic_pointer_cast<OvernightIndex>(overnightIndex()), false,
+                ext::dynamic_pointer_cast<OvernightIndex>(overnightIndex()), telescopicValueDates(),
                 averagingMethod(), fixedLegTenor(), discount_));
         else
             return ext::shared_ptr<SwapIndex>(new OvernightIndexedSwapIndex(
                 familyName(), tenor, fixingDays(), currency(),
-                ext::dynamic_pointer_cast<OvernightIndex>(overnightIndex()), false,
+                ext::dynamic_pointer_cast<OvernightIndex>(overnightIndex()), telescopicValueDates(),
                 averagingMethod(), fixedLegTenor()));
     }
 }
