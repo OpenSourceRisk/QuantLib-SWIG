@@ -20,6 +20,7 @@
 */
 
 #include <ql/indexes/iborindex.hpp>
+#include <ql/indexes/ibor/libor.hpp>
 #include <ql/models/shortrate/calibrationhelpers/swaptionhelper.hpp>
 #include <ql/pricingengines/swap/discountingswapengine.hpp>
 #include <ql/pricingengines/swaption/blackswaptionengine.hpp>
@@ -151,8 +152,6 @@ namespace QuantLib {
     void SwaptionHelper::performCalculations() const {
 
         Calendar calendar = index_->fixingCalendar();
-        Natural effSettlDays =
-            settlementDays_ == Null<Size>() ? index_->fixingDays() : settlementDays_;
 
         Date exerciseDate = exerciseDate_;
         if (exerciseDate == Null<Date>())
@@ -160,9 +159,18 @@ namespace QuantLib {
                                             maturity_,
                                             index_->businessDayConvention());
 
-        Date startDate = calendar.advance(exerciseDate,
-                                    effSettlDays, Days,
-                                    index_->businessDayConvention());
+        Date startDate;
+        if (settlementDays_ == Null<Size>()) {
+            startDate = index_->valueDate(index_->fixingCalendar().adjust(exerciseDate));
+        } else {
+            if (auto libor = boost::dynamic_pointer_cast<Libor>(index_)) {
+                startDate = libor->jointCalendar().advance(exerciseDate, settlementDays_, Days,
+                                                           index_->businessDayConvention());
+            } else {
+                startDate = calendar.advance(exerciseDate, settlementDays_, Days,
+                                             index_->businessDayConvention());
+            }
+        }
 
         Date endDate = endDate_;
         if (endDate == Null<Date>())
