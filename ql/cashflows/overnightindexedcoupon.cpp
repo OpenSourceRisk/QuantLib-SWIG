@@ -152,7 +152,7 @@ namespace QuantLib {
                          overnightIndex->fixingDays(), overnightIndex,
                          gearing, spread,
                          refPeriodStart, refPeriodEnd,
-                         dayCounter, false) {
+                         dayCounter, false), averagingMethod_(averagingMethod) {
 
         // value dates
         Date tmpEndDate = endDate;

@@ -31,6 +31,7 @@
 
 #include <ql/option.hpp>
 #include <ql/instruments/vanillaswap.hpp>
+#include <ql/instruments/overnightindexedswap.hpp>
 #include <ql/termstructures/yieldtermstructure.hpp>
 #include <ql/termstructures/volatility/volatilitytype.hpp>
 
@@ -86,6 +87,10 @@ namespace QuantLib {
                  const ext::shared_ptr<Exercise>& exercise,
                  Settlement::Type delivery = Settlement::Physical,
                  Settlement::Method settlementMethod = Settlement::PhysicalOTC);
+        Swaption(ext::shared_ptr<OvernightIndexedSwap> swap,
+                 const ext::shared_ptr<Exercise>& exercise,
+                 Settlement::Type delivery = Settlement::Physical,
+                 Settlement::Method settlementMethod = Settlement::PhysicalOTC);
         //! \name Observer interface
         //@{
         void deepUpdate() override;
@@ -101,9 +106,12 @@ namespace QuantLib {
         Settlement::Method settlementMethod() const {
             return settlementMethod_;
         }
-        Swap::Type type() const { return swap_->type(); }
+        Swap::Type type() const { return swap_ ? swap_->type() : swapOis_->type(); }
         const ext::shared_ptr<VanillaSwap>& underlyingSwap() const {
             return swap_;
+        }
+        const ext::shared_ptr<OvernightIndexedSwap>& underlyingOvernightIndexedSwap() const {
+            return swapOis_;
         }
         //@}
         //! implied volatility
@@ -120,6 +128,7 @@ namespace QuantLib {
       private:
         // arguments
         ext::shared_ptr<VanillaSwap> swap_;
+        ext::shared_ptr<OvernightIndexedSwap> swapOis_;
         //Handle<YieldTermStructure> termStructure_;
         Settlement::Type settlementType_;
         Settlement::Method settlementMethod_;
@@ -131,6 +140,7 @@ namespace QuantLib {
       public:
         arguments() = default;
         ext::shared_ptr<VanillaSwap> swap;
+        ext::shared_ptr<OvernightIndexedSwap> swapOis;
         Settlement::Type settlementType = Settlement::Physical;
         Settlement::Method settlementMethod;
         void validate() const override;

@@ -109,23 +109,41 @@ namespace QuantLib {
     class OvernightIndexedSwapIndex : public SwapIndex {
       public:
         OvernightIndexedSwapIndex(
-                  const std::string& familyName,
-                  const Period& tenor,
-                  Natural settlementDays,
-                  const Currency& currency,
-                  const ext::shared_ptr<OvernightIndex>& overnightIndex,
-                  bool telescopicValueDates = false,
-                  RateAveraging::Type averagingMethod = RateAveraging::Compound);
+            const std::string& familyName,
+            const Period& tenor,
+            Natural settlementDays,
+            const Currency& currency,
+            const ext::shared_ptr<OvernightIndex>& overnightIndex,
+            bool telescopicValueDates = false,
+            RateAveraging::Type averagingMethod = RateAveraging::Compound,
+            const Period& fixedLegTenor = 1 * Years,
+            Handle<YieldTermStructure> discountingTermStructure = Handle<YieldTermStructure>());
         //! \name Inspectors
         //@{
         ext::shared_ptr<OvernightIndex> overnightIndex() const;
+	RateAveraging::Type averagingMethod() const;
+	bool telescopicValueDates() const;
         /*! \warning Relinking the term structure underlying the index will
                      not have effect on the returned swap.
         */
         ext::shared_ptr<OvernightIndexedSwap> underlyingSwap(
                                                 const Date& fixingDate) const;
         //@}
+        //! \name Other methods
+        //@{
+        //! returns a copy of itself linked to a different forwarding curve
+        virtual ext::shared_ptr<SwapIndex> clone(
+                        const Handle<YieldTermStructure>& forwarding) const override;
+        //! returns a copy of itself linked to different curves
+        virtual ext::shared_ptr<SwapIndex> clone(
+                        const Handle<YieldTermStructure>& forwarding,
+                        const Handle<YieldTermStructure>& discounting) const override;
+        //! returns a copy of itself with different tenor
+        virtual ext::shared_ptr<SwapIndex> clone(
+                        const Period& tenor) const override;
+        // @}
       protected:
+        Rate forecastFixing(const Date& fixingDate) const override;
         ext::shared_ptr<OvernightIndex> overnightIndex_;
         bool telescopicValueDates_;
         RateAveraging::Type averagingMethod_;
@@ -148,6 +166,14 @@ namespace QuantLib {
     inline ext::shared_ptr<OvernightIndex>
     OvernightIndexedSwapIndex::overnightIndex() const {
         return overnightIndex_;
+    }
+
+    inline RateAveraging::Type OvernightIndexedSwapIndex::averagingMethod() const {
+        return averagingMethod_;
+    }
+
+    inline bool OvernightIndexedSwapIndex::telescopicValueDates() const {
+	return telescopicValueDates_;
     }
 
 }

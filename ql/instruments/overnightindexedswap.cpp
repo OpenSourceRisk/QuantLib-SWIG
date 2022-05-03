@@ -72,6 +72,7 @@ namespace QuantLib {
     }
 
     void OvernightIndexedSwap::initialize(const Schedule& schedule) {
+        schedule_ = schedule;
         if (fixedDC_==DayCounter())
             fixedDC_ = overnightIndex_->dayCounter();
         legs_[0] = FixedRateLeg(schedule)
