@@ -247,11 +247,11 @@ namespace {
     }
 }
 
-#if defined(QL_ENABLE_SESSIONS)
-namespace QuantLib {
-    ThreadKey sessionId() { return {}; }
-}
-#endif
+// #if defined(QL_ENABLE_SESSIONS)
+// namespace QuantLib {
+//     ThreadKey sessionId() { return {}; }
+// }
+// #endif
 
 test_suite* init_unit_test_suite(int, char*[]) {
     bm.emplace_back("AmericanOption::FdAmericanGreeks", &AmericanOptionTest::testFdAmericanGreeks,

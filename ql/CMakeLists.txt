@@ -778,6 +778,7 @@ set(QL_SOURCES
     quotes/impliedstddevquote.cpp
     quotes/lastfixingquote.cpp
     rebatedexercise.cpp
+    sessionid.cpp
     settings.cpp
     stochasticprocess.cpp
     termstructure.cpp
@@ -2340,6 +2341,7 @@ target_link_directories(ql_library PUBLIC
     ${BOOST_LIBRARY_DIRS})
 
 target_link_libraries(ql_library PUBLIC
+    Boost::thread
     ${OpenMP_CXX_LIBRARIES})
 
 install(TARGETS ql_library EXPORT QuantLibTargets

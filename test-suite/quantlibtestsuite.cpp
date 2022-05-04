@@ -255,13 +255,13 @@ namespace {
 
 }
 
-#if defined(QL_ENABLE_SESSIONS)
-namespace QuantLib {
+// #if defined(QL_ENABLE_SESSIONS)
+// namespace QuantLib {
 
-    ThreadKey sessionId() { return {}; }
+//     ThreadKey sessionId() { return {}; }
 
-}
-#endif
+// }
+// #endif
 
 QuantLib::Date evaluation_date(int argc, char** argv) {
     /*! Dead simple parser:
