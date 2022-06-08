@@ -239,6 +239,10 @@ namespace QuantLib {
     }
 
     inline Rate CPICoupon::baseCPI() const {
+        if (baseCPI_ == Null<Real>()) {
+            Date baseDate = accrualStartDate_ - observationLag_;
+            return indexFixing(baseDate, accrualStartDate_);
+        }
         return baseCPI_;
     }
 
