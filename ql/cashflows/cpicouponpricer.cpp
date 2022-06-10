@@ -109,8 +109,16 @@ namespace QuantLib {
 
     Rate CPICouponPricer::adjustedFixing(Rate fixing) const {
 
+        Real I0 = coupon_->baseCPI();
+
+        if (I0 == Null<Real>()) {
+            I0 = coupon_->indexObservation(coupon_->baseDate());
+        }
+
+        Rate I1 = coupon_->indexFixing();
+
         if (fixing == Null<Rate>())
-            fixing = coupon_->indexFixing() / coupon_->baseCPI();
+            fixing = I1 / I0;
         //std::cout << " adjustedFixing " << fixing << std::endl;
         // no adjustment
         return fixing;
