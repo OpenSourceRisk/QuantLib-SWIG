@@ -48,11 +48,45 @@ namespace QuantLib {
                       fixingDays, zeroIndex, observationLag,
                       dayCounter, refPeriodStart, refPeriodEnd, exCouponDate),
         baseCPI_(baseCPI), fixedRate_(fixedRate), spread_(spread),
-        observationInterpolation_(observationInterpolation) {
+        observationInterpolation_(observationInterpolation), baseDate_(Date()) {
 
             QL_REQUIRE(std::fabs(baseCPI_) > 1e-16,
                        "|baseCPI_| < 1e-16, future divide-by-zero problem");
         }
+
+    CPICoupon::CPICoupon(Rate baseCPI,
+                         const Date& baseDate,
+                         const Date& paymentDate,
+                         Real nominal,
+                         const Date& startDate,
+                         const Date& endDate,
+                         Natural fixingDays,
+                         const ext::shared_ptr<ZeroInflationIndex>& zeroIndex,
+                         const Period& observationLag,
+                         CPI::InterpolationType observationInterpolation,
+                         const DayCounter& dayCounter,
+                         Real fixedRate,
+                         Spread spread,
+                         const Date& refPeriodStart,
+                         const Date& refPeriodEnd,
+                         const Date& exCouponDate)
+    : InflationCoupon(paymentDate,
+                      nominal,
+                      startDate,
+                      endDate,
+                      fixingDays,
+                      zeroIndex,
+                      observationLag,
+                      dayCounter,
+                      refPeriodStart,
+                      refPeriodEnd,
+                      exCouponDate),
+      baseCPI_(baseCPI), fixedRate_(fixedRate), spread_(spread),
+      observationInterpolation_(observationInterpolation), baseDate_(baseDate) {
+
+        QL_REQUIRE(baseDate != Date() || (std::fabs(baseCPI_) > 1e-16 && baseCPI_ != Null<Real>()),
+                   "neither baseDate nor baseCPI is set correctly");
+    }
 
 
     void CPICoupon::accept(AcyclicVisitor& v) {
@@ -122,6 +156,11 @@ namespace QuantLib {
 
     Real CPICashFlow::amount() const {
         Real I0 = baseFixing();
+        
+        if (I0 == Null<Real>()) {
+            I0 = indexFixing(baseDate());
+        }
+
         Real I1 = indexFixing();
 
         if (growthOnly())
@@ -130,12 +169,14 @@ namespace QuantLib {
             return notional() * (I1 / I0);
     }
 
-    Real CPICashFlow::indexFixing() const {
+    Real CPICashFlow::indexFixing(const Date& observationDate) const {
+        
+        Date obsDate = observationDate == Date() ? fixingDate() : observationDate;
         Real I1;
 
         // what interpolation do we use? Index / flat / linear
         if (interpolation() == CPI::AsIndex) {
-            I1 = index()->fixing(fixingDate());
+            I1 = index()->fixing(obsDate);
         } else {
             // work out what it should be
             // std::cout << fixingDate() << " and " << frequency() << std::endl;
@@ -143,7 +184,7 @@ namespace QuantLib {
             // std::cout << fixingDate() << " and " << dd.first << " " << dd.second << std::endl;
             // work out what it should be
             std::pair<Date, Date> observationInflationPeriod =
-                inflationPeriod(fixingDate(), frequency());
+                inflationPeriod(obsDate, frequency());
             Real indexStart = index()->fixing(observationInflationPeriod.first);
             if (interpolation() == CPI::Linear) {
                 std::pair<Date, Date> paymentDateInflationPeriod =
