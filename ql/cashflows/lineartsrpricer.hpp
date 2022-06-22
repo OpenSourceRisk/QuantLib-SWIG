@@ -238,6 +238,7 @@ namespace QuantLib {
 
         ext::shared_ptr<SwapIndex> swapIndex_;
         ext::shared_ptr<VanillaSwap> swap_;
+        ext::shared_ptr<OvernightIndexedSwap> onSwap_;
         ext::shared_ptr<SmileSection> smileSection_;
 
         Settings settings_;
