@@ -32,7 +32,7 @@
 #include <ql/utilities/null.hpp>
 #include <ql/shared_ptr.hpp>
 #include <boost/optional.hpp>
-#include <boost/serialization/variant.hpp>
+#include <boost/variant.hpp>
 #include <vector>
 
 namespace QuantLib {
