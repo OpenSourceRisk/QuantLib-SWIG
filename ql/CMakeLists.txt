@@ -281,6 +281,7 @@ set(QL_SOURCES
     instruments/basketoption.cpp
     instruments/bmaswap.cpp
     instruments/bond.cpp
+    instruments/bondforward.cpp
     instruments/bonds/btp.cpp
     instruments/bonds/cmsratebond.cpp
     instruments/bonds/convertiblebonds.cpp
@@ -298,7 +299,6 @@ set(QL_SOURCES
     instruments/dividendbarrieroption.cpp
     instruments/dividendvanillaoption.cpp
     instruments/europeanoption.cpp
-    instruments/fixedratebondforward.cpp
     instruments/floatfloatswap.cpp
     instruments/floatfloatswaption.cpp
     instruments/forward.cpp
@@ -660,6 +660,7 @@ set(QL_SOURCES
     pricingengines/asian/mc_discr_arith_av_strike.cpp
     pricingengines/asian/mc_discr_geom_av_price.cpp
     pricingengines/asian/mc_discr_geom_av_price_heston.cpp
+    pricingengines/asian/turnbullwakemanasianengine.cpp
     pricingengines/barrier/analyticbarrierengine.cpp
     pricingengines/barrier/analyticbinarybarrierengine.cpp
     pricingengines/barrier/discretizedbarrieroption.cpp
@@ -1273,6 +1274,7 @@ set(QL_HEADERS
     indexes/ibor/sonia.hpp
     indexes/ibor/thbfix.hpp
     indexes/ibor/tibor.hpp
+    indexes/ibor/tona.hpp
     indexes/ibor/trlibor.hpp
     indexes/ibor/usdlibor.hpp
     indexes/ibor/wibor.hpp
@@ -1304,6 +1306,7 @@ set(QL_HEADERS
     instruments/basketoption.hpp
     instruments/bmaswap.hpp
     instruments/bond.hpp
+    instruments/bondforward.hpp
     instruments/bonds/btp.hpp
     instruments/bonds/cmsratebond.hpp
     instruments/bonds/convertiblebonds.hpp
@@ -1837,8 +1840,8 @@ set(QL_HEADERS
     pricingengines/asian/mc_discr_arith_av_strike.hpp
     pricingengines/asian/mc_discr_geom_av_price.hpp
     pricingengines/asian/mc_discr_geom_av_price_heston.hpp
-    pricingengines/asian/mcdiscreteasianengine.hpp
     pricingengines/asian/mcdiscreteasianenginebase.hpp
+    pricingengines/asian/turnbullwakemanasianengine.hpp
     pricingengines/barrier/analyticbarrierengine.hpp
     pricingengines/barrier/analyticbinarybarrierengine.hpp
     pricingengines/barrier/binomialbarrierengine.hpp

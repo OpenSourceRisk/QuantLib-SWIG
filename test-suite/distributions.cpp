@@ -31,16 +31,7 @@
 #include <ql/math/distributions/poissondistribution.hpp>
 #include <ql/math/randomnumbers/stochasticcollocationinvcdf.hpp>
 #include <ql/math/comparison.hpp>
-#include <ql/math/functional.hpp>
-
-#if defined(__GNUC__) && !defined(__clang__) && BOOST_VERSION > 106300
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
 #include <boost/math/distributions/non_central_chi_squared.hpp>
-#if defined(__GNUC__) && !defined(__clang__) && BOOST_VERSION > 106300
-#pragma GCC diagnostic pop
-#endif
 
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
@@ -164,7 +155,7 @@ namespace distributions_test {
         const Real x(0.0);
         const Real y(0.0);
 
-        for (double i : rho) {
+        for (Real i : rho) {
             for (Integer sgn=-1; sgn < 2; sgn+=2) {
                 Bivariate bvn(sgn * i);
                 Real expected = 0.25 + std::asin(sgn * i) / (2 * M_PI);
@@ -273,9 +264,10 @@ void DistributionTest::testNormal() {
     }
 
     MaddockInverseCumulativeNormal mInvCum(average, sigma);
-    std::transform(x.begin(),x.end(), x.begin(), diff.begin(),
-    			   compose3(std::minus<Real>(),
-    				  identity<Real>(), compose(mInvCum, cum)));
+    std::transform(x.begin(), x.end(), diff.begin(),
+                   [&](Real x) {
+                       return x - mInvCum(cum(x));
+                   });
 
     e = norm(diff.begin(), diff.end(), h);
     if (e > 1.0e-7) {
@@ -728,8 +720,8 @@ void DistributionTest::testSankaranApproximation() {
     const Real ncps[] = {1,2,3,1,2,3};
 
     const Real tol = 0.01;
-    for (double df : dfs) {
-        for (double ncp : ncps) {
+    for (Real df : dfs) {
+        for (Real ncp : ncps) {
             const NonCentralCumulativeChiSquareDistribution d(df, ncp);
             const NonCentralCumulativeChiSquareSankaranApprox sankaran(df, ncp);
 

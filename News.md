@@ -1,110 +1,104 @@
-Changes for QuantLib 1.25:
+Changes for QuantLib 1.27:
 ==========================
 
-QuantLib 1.25 includes 35 pull requests from several contributors.
+QuantLib 1.27 includes 37 pull requests from several contributors.
 
 Some of the most notable changes are included below.
 A detailed list of changes is available in ChangeLog.txt and at
-<https://github.com/lballabio/QuantLib/milestone/21?closed=1>.
+<https://github.com/lballabio/QuantLib/milestone/23?closed=1>.
 
 Portability
 -----------
 
-- **End of support:** this release and the next will be the last two
-  to support Visual Studio 2013.
+- **Removed support:** as announced in the notes for the previous
+  release, support for Visual Studio 2013 was dropped.
 
-- Added a few CMake presets for building the library (thanks to Jonathan Sweemer).
+- **End of support:** as announced in the notes for the previous
+  release, this release will be the last to avoid C++14 syntax.
+  Allowing the newer (but still oldish) standard should still support
+  most compilers released in the past several years.
 
-- When built and installed through CMake, the library now installs a `QuantLibConfig.cmake` file
-  that allows other CMake projects to find and use QuantLib (thanks to Jonathan Sweemer).
+- **Future end of support:** this release and the next will be the
+  last to manage thread-local singletons via a user-provided
+  `sessionId` function.  Future releases will use the built-in
+  language support for thread-local variables.
 
-Cashflows
----------
+- The `Real` type is now used consistently throughout the codebase,
+  thanks to the Xcelerit dev team (@xcelerit-dev).  This, along with
+  other changes, allows its default definition to `double` to be
+  replaced with one of the available third-party AAD types.
 
-- Fixed the accrual calculation in overnight-indexed coupons (thanks to Mohammad Shojatalab).
+- The test suite is now built using the header-only version of
+  Boost.Test, thanks to Jonathan Sweemer (@sweemer).  This might
+  simplify Boost installation for some users, since in the default
+  configuration QuantLib now only needs the Boost headers.
 
-- Fixed fixing-days usage in `SubPeriodsCoupon` class (thanks to Marcin Rybacki).
-
-- IBOR coupons fixed in the past no longer need a forecast curve to return their amount.
-
-Indexes
--------
-
-- **Important change:** inflation indexes inherited from the `ZeroInflationIndex`
-  class no longer rely on their forecast curve for interpolation.  For coupons
-  that already took care of interpolation (as in the case of `CPICoupon` and
-  `ZeroInflationCashFlow`) this should not change the results. In other cases,
-  figures will change but should be more correct as the interpolation is now
-  performed according to market conventions.
-  Also, most inflation curves now assume that the index is not implemented.
-  Year-on-year inflation indexes and curves are not affected.
-
-Instruments
------------
-
-- **Breaking change:** convertible bonds were moved out of the `ql/experimental` folder.
-  Also, being market values and not part of the contract, dividends and credit spread
-  were moved from the bond to the `BinomialConvertibleEngine` class
-  (thanks to Lew Wei Hao).
-
-- The `ForwardRateAgreement` no longer inherits from `Forward`.  This also made it
-  possible to implement the `amount` method returning the expected cash settlement
-  (thanks to Lew Wei Hao).  The methods from `Forward` were kept available but
-  deprecated so code using them won't break.  Client code might break if it
-  performed casts to `Forward`.
-
-Models
-------
-
-- Fixed formula for discount bond option in CIR++ model (thanks to Magnus Mencke).
-
-Term structures
----------------
-
-- It is now possible to use normal volatilities in SABR smile sections,
-  and thus in the `SwaptionVolCube1` class (thanks to Lew Wei Hao).
+- Replaced some Boost facilities with the corresponding C++11
+  counterparts; thanks to Klaus Spanderen (@klausspanderen) and
+  Jonathan Sweemer (@sweemer).
 
 Date/time
 ---------
 
-- Added Chinese holidays for 2022 (thanks to Cheng Li).
+- Fixed the behavior of a couple of Australian holidays; thanks to
+  Pradeep Krishnamurthy (@pradkrish) and Fredrik Gerdin Börjesson
+  (@gbfredrik).
 
-Currencies
-----------
+Instruments
+-----------
 
-- Added a number of African, American, Asian and European currencies from
-  Quaternion's `QuantExt` project (thanks to Ole Bueker).
+- Added the Turnbull-Wakeman engine for discrete Asian options; thanks
+  to Fredrik Gerdin Börjesson (@gbfredrik) for the main engine code
+  and to Jack Gillett (@jackgillett101) for the Greeks.
 
-Experimental folder
--------------------
+- Added more validation to barrier options; thanks to Jonathan Sweemer
+  (@sweemer).
 
-The `ql/experimental` folder contains code whose interface is not
-fully stable, but is released in order to get user
-feedback. Experimental classes make no guarantees of backward
-compatibility; their interfaces might change in future releases.
+Models
+------
 
-- Added experimental rate helpers for LIBOR-LIBOR and Overnight-LIBOR basis swaps.
+- Fixed the start date of the underlying swap in swaption calibration
+  helpers; thanks to Peter Caspers (@pcaspers).
 
-- Renamed `WulinYongDoubleBarrierEngine` to `SuoWangDoubleBarrierEngine`
- (thanks to Adityakumar Sinha for the fix and Ruilong Xu for the heads-up).
+- Fixed parameter checks in SVI volatility smiles; thanks to Fredrik
+  Gerdin Börjesson (@gbfredrik).
+
+Patterns
+--------
+
+- Avoid possible iterator invalidation while notifying observers;
+  thanks to Klaus Spanderen (@klausspanderen).
 
 Deprecated features
 -------------------
 
-- Deprecated the constructors of zero-coupon inflation term structures taking
-  an `indexIsInterpolated` boolean argument.
+- **Removed** the `--enable-disposable` and `--enable-std-unique-ptr`
+  configure switches.
 
-- Deprecated a number of methods in the `ForwardRateAgreement` class that used
-  to be inherited from `Forward`.
+- **Removed** features deprecated in version 1.22:
+  - the unused `AmericanCondition` and `FDAmericanCondition` classes;
+  - the old-style FD shout and dividend shout engines;
+  - the unused `OneFactorOperator` class;
+  - the `io::to_integer` function;
+  - the `ArrayProxy` and `MatrixProxy` classes.
 
-- Deprecated a couple of constructors in the `SofrFutureRateHelper` class.
+- Deprecated the `QL_NOEXCEPT` and `QL_CONSTEXPR` macros.
 
-- Deprecated the `WulinYongDoubleBarrierEngine` alias for `SuoWangDoubleBarrierEngine`.
+- Deprecated the `QL_NULL_INTEGER` and `QL_NULL_REAL` macros.
 
-- Deprecated the protected `spreadLegValue_` data member
-  in the `BlackIborCouponPricer` class.
+- Deprecated some unused parts of the old-style FD framework:
+  - the `PdeShortRate` class;
+  - the `ShoutCondition` and `FDShoutCondition` classes;
+  - the `FDDividendEngineBase`, `FDDividendEngineMerton73`,
+    `FDDividendEngineShiftScale` and `FDDividendEngine` classes;
+  - the `FDStepConditionEngine` and `FDEngineAdapter` classes.
+
+- Deprecated a number of function objects in the
+  `ql/math/functional.hpp` header.
+
+- Deprecated the unused `MultiCurveSensitivities` class.
+
+- Deprecated the unused `inner_product` function.
 
 
-Thanks go also to Tom Anderson, Francois Botha, Matthew Kolbe, Benson
-Luk, Marcin Rybacki, Henning Segger, Klaus Spanderen, and GitHub users
-@jxcv0 and @azsrz for smaller fixes, enhancements and bug reports.
+**Thanks go also** to Ryan Russell (@ryanrussell) for documentation fixes.

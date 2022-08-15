@@ -19,7 +19,6 @@
 */
 
 #include <ql/math/autocovariance.hpp>
-#include <ql/math/functional.hpp>
 #include <ql/math/optimization/leastsquare.hpp>
 #include <ql/math/optimization/simplex.hpp>
 #include <ql/models/volatility/garch.hpp>
@@ -57,7 +56,7 @@ namespace QuantLib {
           public:
             explicit Garch11CostFunction (const std::vector<Volatility> &);
             Real value(const Array& x) const override;
-            Disposable<Array> values(const Array& x) const override;
+            Array values(const Array& x) const override;
             void gradient(Array& grad, const Array& x) const override;
             Real valueAndGradient(Array& grad, const Array& x) const override;
 
@@ -81,7 +80,7 @@ namespace QuantLib {
             return retval / (2.0*r2_.size());
         }
 
-        Disposable<Array> Garch11CostFunction::values(const Array& x) const {
+        Array Garch11CostFunction::values(const Array& x) const {
             Array retval (r2_.size());
             Real sigma2 = 0;
             Real u2 = 0;
@@ -112,7 +111,7 @@ namespace QuantLib {
                 sigma2prev = sigma2;
             }
             std::transform(grad.begin(), grad.end(), grad.begin(),
-                           divide_by<Real>(norm));
+                           [=](Real x) -> Real { return x / norm; });
         }
 
         Real Garch11CostFunction::valueAndGradient(Array& grad,
@@ -136,7 +135,7 @@ namespace QuantLib {
                 sigma2prev = sigma2;
             }
             std::transform(grad.begin(), grad.end(), grad.begin(),
-                           divide_by<Real>(norm));
+                           [=](Real x) -> Real { return x / norm; });
             return retval / norm;
         }
 
@@ -237,7 +236,7 @@ namespace QuantLib {
             Real A = mean_r2*mean_r2/A4; // 1/sigma^2
             Real B = A21 / A4; // rho(1)
 
-            Real gammaLower = A <= 1./3. - tol_level ? std::sqrt((1 - 3*A)/(3 - 3*A)) + tol_level : tol_level;
+            Real gammaLower = A <= 1./3. - tol_level ? std::sqrt((1 - 3*A)/(3 - 3*A)) + tol_level : Real(tol_level);
             Garch11Constraint constraints(gammaLower, 1.0 - tol_level);
 
             Real gamma = gammaLower + (1 - gammaLower) * 0.5;
@@ -323,7 +322,7 @@ namespace QuantLib {
             Real A4 = acf[0] + mean_r2*mean_r2;
             Real A = mean_r2*mean_r2/A4; // 1/sigma^2
             Real B = A21 / A4; // rho(1)
-            Real gammaLower = A <= 1./3. - tol_level ? std::sqrt((1 - 3*A)/(3 - 3*A)) + tol_level : tol_level;
+            Real gammaLower = A <= 1./3. - tol_level ? std::sqrt((1 - 3*A)/(3 - 3*A)) + tol_level : Real(tol_level);
             Garch11Constraint constraints(gammaLower, 1.0 - tol_level);
 
             // ACF
@@ -419,7 +418,7 @@ namespace QuantLib {
         Array acf(maxLag+1);
         std::vector<Volatility> tmp(r2.size());
         std::transform (r2.begin(), r2.end(), tmp.begin(),
-                        subtract<Real>(mean_r2));
+                       [=](Real x) -> Real { return x - mean_r2; });
         autocovariances (tmp.begin(), tmp.end(), acf.begin(), maxLag);
         QL_REQUIRE (acf[0] > 0, "Data series is constant");
 
@@ -518,8 +517,8 @@ namespace QuantLib {
                const EndCriteria &endCriteria,
                const Array &initGuess, Real &alpha, Real &beta, Real &omega) {
         std::vector<Volatility> tmp(r2.size());
-        std::transform (r2.begin(), r2.end(), tmp.begin(),
-                        subtract<Real>(mean_r2));
+        std::transform(r2.begin(), r2.end(), tmp.begin(),
+                       [=](Real x) -> Real { return x - mean_r2; });
         return calibrate_r2(tmp, method, endCriteria, initGuess,
                             alpha, beta, omega);
     }
@@ -551,8 +550,8 @@ namespace QuantLib {
                const EndCriteria &endCriteria,
                const Array &initGuess, Real &alpha, Real &beta, Real &omega) {
         std::vector<Volatility> tmp(r2.size());
-        std::transform (r2.begin(), r2.end(), tmp.begin(),
-                        subtract<Real>(mean_r2));
+        std::transform(r2.begin(), r2.end(), tmp.begin(),
+                       [=](Real x) -> Real { return x - mean_r2; });
         return calibrate_r2(tmp, method, constraints, endCriteria,
                             initGuess, alpha, beta, omega);
     }

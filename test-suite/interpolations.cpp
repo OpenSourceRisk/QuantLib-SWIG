@@ -1406,7 +1406,7 @@ void InterpolationTest::testKernelInterpolation() {
 
     // Check that y-values at knots are exactly the feeded y-values,
     // irrespective of kernel parameters
-    for (double i : lambdaVec) {
+    for (Real i : lambdaVec) {
         GaussianKernel myKernel(0, i);
 
         for (auto currY : yd) {
@@ -2191,7 +2191,7 @@ void InterpolationTest::testLagrangeInterpolation() {
         0.5130076920869246
     };
 
-    QL_CONSTEXPR Real tol = 50*QL_EPSILON;
+    constexpr double tol = 50*QL_EPSILON;
     for (Size i=0; i < 79; ++i) {
         const Real xx = -1.0 + i*0.025;
         const Real calculated = interpl(xx);
@@ -2303,8 +2303,7 @@ void InterpolationTest::testLagrangeInterpolationOnChebyshevPoints() {
         }
 
         const Real calculatedDeriv = interpl.derivative(x, true);
-        const Real expectedDeriv = std::exp(x)*(std::cos(x) + std::sin(x))
-                / square<Real>()(std::cos(x));
+        const Real expectedDeriv = std::exp(x)*(std::cos(x) + std::sin(x)) / squared(std::cos(x));
 
         const Real diffDeriv = std::fabs(expectedDeriv - calculatedDeriv);
         if (std::isnan(calculated) || diffDeriv > tolDeriv) {
@@ -2374,7 +2373,7 @@ void InterpolationTest::testBackwardFlatOnSinglePoint() {
 
     const Real x[] = { -1.0, 1.0, 2.0, 3.0 };
 
-    for (double i : x) {
+    for (Real i : x) {
         const Real calculated = impl(i, true);
         const Real expected = values[0];
 

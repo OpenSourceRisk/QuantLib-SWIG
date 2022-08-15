@@ -652,6 +652,7 @@
     <ClCompile Include="binaryoption.cpp" />
     <ClCompile Include="blackdeltacalculator.cpp" />
     <ClCompile Include="blackformula.cpp" />
+    <ClCompile Include="bondforward.cpp" />
     <ClCompile Include="bonds.cpp" />
     <ClCompile Include="brownianbridge.cpp" />
     <ClCompile Include="businessdayconventions.cpp" />
@@ -776,6 +777,7 @@
     <ClCompile Include="squarerootclvmodel.cpp" />
     <ClCompile Include="stats.cpp" />
     <ClCompile Include="subperiodcoupons.cpp" />
+    <ClCompile Include="svivolatility.cpp" />
     <ClCompile Include="swap.cpp" />
     <ClCompile Include="swapforwardmappings.cpp" />
     <ClCompile Include="swaption.cpp" />
@@ -818,6 +820,7 @@
     <ClInclude Include="binaryoption.hpp" />
     <ClInclude Include="blackdeltacalculator.hpp" />
     <ClInclude Include="blackformula.hpp" />
+    <ClInclude Include="bondforward.hpp" />
     <ClInclude Include="bonds.hpp" />
     <ClInclude Include="brownianbridge.hpp" />
     <ClInclude Include="businessdayconventions.hpp" />
@@ -944,6 +947,7 @@
     <ClInclude Include="squarerootclvmodel.hpp" />
     <ClInclude Include="stats.hpp" />
     <ClInclude Include="subperiodcoupons.hpp" />
+    <ClInclude Include="svivolatility.hpp" />
     <ClInclude Include="swap.hpp" />
     <ClInclude Include="swapforwardmappings.hpp" />
     <ClInclude Include="swaption.hpp" />
