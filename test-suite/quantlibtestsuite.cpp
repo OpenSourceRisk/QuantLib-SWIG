@@ -26,7 +26,7 @@
 #ifdef QL_ENABLE_PARALLEL_UNIT_TEST_RUNNER
 #include "paralleltestrunner.hpp"
 #else
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #endif
 
 /* Use BOOST_MSVC instead of _MSC_VER since some other vendors (Metrowerks,
@@ -34,11 +34,6 @@
 */
 #if !defined(BOOST_ALL_NO_LIB) && defined(BOOST_MSVC)
 #  include <ql/auto_link.hpp>
-#  ifndef QL_ENABLE_PARALLEL_UNIT_TEST_RUNNER
-#      define BOOST_LIB_NAME boost_unit_test_framework
-#      include <boost/config/auto_link.hpp>
-#      undef BOOST_LIB_NAME
-#  endif
 #endif
 
 #include "utilities.hpp"
@@ -61,6 +56,7 @@
 #include "blackdeltacalculator.hpp"
 #include "blackformula.hpp"
 #include "bonds.hpp"
+#include "bondforward.hpp"
 #include "brownianbridge.hpp"
 #include "businessdayconventions.hpp"
 #include "calendars.hpp"
@@ -185,6 +181,7 @@
 #include "swingoption.hpp"
 #include "stats.hpp"
 #include "subperiodcoupons.hpp"
+#include "svivolatility.hpp"
 #include "swap.hpp"
 #include "swapforwardmappings.hpp"
 #include "swaption.hpp"
@@ -366,6 +363,7 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(BinaryOptionTest::suite());
     test->add(BlackFormulaTest::suite());
     test->add(BondTest::suite());
+    test->add(BondForwardTest::suite());
     test->add(BrownianBridgeTest::suite());
     test->add(BusinessDayConventionTest::suite());
     test->add(CalendarTest::suite());
@@ -515,6 +513,7 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(RiskNeutralDensityCalculatorTest::experimental(speed));
     test->add(SpreadOptionTest::suite());
     test->add(SquareRootCLVModelTest::experimental());
+    test->add(SviVolatilityTest::experimental());
     test->add(SwingOptionTest::suite(speed));
     test->add(TwoAssetBarrierOptionTest::suite());
     test->add(TwoAssetCorrelationOptionTest::suite());

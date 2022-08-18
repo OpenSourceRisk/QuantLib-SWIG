@@ -288,9 +288,9 @@ namespace QuantLib {
       Example:
 
       \code{.cpp}
-      #include <boost/unordered_set.hpp>
+      #include <unordered_set>
 
-      boost::unordered_set<Date> set;
+      std::unordered_set<Date> set;
       Date d = Date(1, Jan, 2020); 
 
       set.insert(d);
@@ -372,11 +372,9 @@ namespace QuantLib {
 
     //! specialization of Null template for the Date class
     template <>
-    class Null<Date> {
-      public:
-        Null() = default;
-        operator Date() const { return {}; }
-    };
+    inline Date Null<Date>() {
+        return {};
+    }
 
 
 #ifndef QL_HIGH_RESOLUTION_DATE
@@ -457,6 +455,15 @@ namespace QuantLib {
         return (d1.serialNumber() >= d2.serialNumber());
     }
 #endif
+}
+
+namespace std {
+    template<>
+    struct hash<QuantLib::Date> {
+        std::size_t operator()(const QuantLib::Date& d) const {
+            return QuantLib::hash_value(d);
+        }
+    };
 }
 
 #endif

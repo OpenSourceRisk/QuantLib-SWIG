@@ -705,6 +705,9 @@
     <ClInclude Include="ql\indexes\ibor\tibor.hpp">
       <Filter>indexes\ibor</Filter>
     </ClInclude>
+    <ClInclude Include="ql\indexes\ibor\tona.hpp">
+      <Filter>indexes\ibor</Filter>
+    </ClInclude>
     <ClInclude Include="ql\indexes\ibor\trlibor.hpp">
       <Filter>indexes\ibor</Filter>
     </ClInclude>
@@ -784,6 +787,9 @@
       <Filter>instruments</Filter>
     </ClInclude>
     <ClInclude Include="ql\instruments\bond.hpp">
+      <Filter>instruments</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\instruments\bondforward.hpp">
       <Filter>instruments</Filter>
     </ClInclude>
     <ClInclude Include="ql\instruments\callabilityschedule.hpp">
@@ -2371,9 +2377,6 @@
       <Filter>pricingengines\asian</Filter>
     </ClInclude>
     <ClInclude Include="ql\pricingengines\asian\mc_discr_geom_av_price_heston.hpp">
-      <Filter>pricingengines\asian</Filter>
-    </ClInclude>
-    <ClInclude Include="ql\pricingengines\asian\mcdiscreteasianengine.hpp">
       <Filter>pricingengines\asian</Filter>
     </ClInclude>
     <ClInclude Include="ql\pricingengines\asian\mcdiscreteasianenginebase.hpp">
@@ -4386,6 +4389,9 @@
       <Filter>instruments</Filter>
     </ClInclude>
     <ClInclude Include="ql\pricingengines\bond\riskybondengine.hpp" />
+    <ClInclude Include="ql\pricingengines\asian\turnbullwakemanasianengine.hpp">
+      <Filter>pricingengines\asian</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ql\methods\montecarlo\brownianbridge.cpp">
@@ -4592,6 +4598,9 @@
     <ClCompile Include="ql\instruments\bond.cpp">
       <Filter>instruments</Filter>
     </ClCompile>
+    <ClCompile Include="ql\instruments\bondforward.cpp">
+      <Filter>instruments</Filter>
+    </ClCompile>
     <ClCompile Include="ql\instruments\capfloor.cpp">
       <Filter>instruments</Filter>
     </ClCompile>
@@ -4611,9 +4620,6 @@
       <Filter>instruments</Filter>
     </ClCompile>
     <ClCompile Include="ql\instruments\europeanoption.cpp">
-      <Filter>instruments</Filter>
-    </ClCompile>
-    <ClCompile Include="ql\instruments\fixedratebondforward.cpp">
       <Filter>instruments</Filter>
     </ClCompile>
     <ClCompile Include="ql\instruments\forward.cpp">
@@ -7098,5 +7104,8 @@
       <Filter>instruments</Filter>
     </ClCompile>
     <ClCompile Include="ql\pricingengines\bond\riskybondengine.cpp" />
+    <ClCompile Include="ql\pricingengines\asian\turnbullwakemanasianengine.cpp">
+      <Filter>pricingengines\asian</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

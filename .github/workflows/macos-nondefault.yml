@@ -19,13 +19,19 @@ jobs:
             shortname: stdclasses-11
             cxxflags: "-std=c++17"
             configureflags: --enable-std-classes
+          - os: [macos-12]
+            shortname: default-12
+          - os: [macos-12]
+            shortname: stdclasses-12
+            cxxflags: "-std=c++17"
+            configureflags: --enable-std-classes
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Setup
       run: |
         brew install automake boost ccache
     - name: Cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/Library/Caches/ccache
         key: ${{ matrix.os }}-${{ matrix.shortname }}-nondef-build-${{ github.ref }}-${{ github.head_ref }}-${{ hashFiles('**/*.hpp', '**/*.cpp', '**/macos.yml') }}

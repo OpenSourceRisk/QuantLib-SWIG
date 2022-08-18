@@ -17,6 +17,7 @@ QL_TEST_SRCS = \
 	bermudanswaption.cpp \
 	blackdeltacalculator.cpp \
 	blackformula.cpp \
+	bondforward.cpp \
 	bonds.cpp \
 	brownianbridge.cpp \
 	businessdayconventions.cpp \
@@ -141,6 +142,7 @@ QL_TEST_SRCS = \
 	squarerootclvmodel.cpp \
 	stats.cpp \
 	subperiodcoupons.cpp \
+	svivolatility.cpp \
 	swap.cpp \
 	swapforwardmappings.cpp \
 	swaption.cpp \
@@ -183,6 +185,7 @@ QL_TEST_HDRS = \
 	bermudanswaption.hpp \
 	blackdeltacalculator.hpp \
 	blackformula.hpp \
+	bondforward.hpp \
 	bonds.hpp \
 	brownianbridge.hpp \
 	businessdayconventions.hpp \
@@ -307,6 +310,7 @@ QL_TEST_HDRS = \
 	squarerootclvmodel.hpp \
 	stats.hpp \
 	subperiodcoupons.hpp \
+	svivolatility.hpp \
 	swap.hpp \
 	swapforwardmappings.hpp \
 	swaption.hpp \
@@ -438,10 +442,10 @@ EXTRA_DIST =
 endif
 
 quantlib_test_suite_LDADD = libUnitMain.la ${top_builddir}/ql/libQuantLib.la \
-                            ${BOOST_UNIT_TEST_LIB} ${BOOST_THREAD_LIB} ${BOOST_INTERPROCESS_LIB}
+                            ${BOOST_THREAD_LIB} ${BOOST_INTERPROCESS_LIB}
 
 quantlib_benchmark_LDADD = libUnitMain.la ${top_builddir}/ql/libQuantLib.la \
-                           ${BOOST_UNIT_TEST_LIB} ${BOOST_THREAD_LIB}
+                           ${BOOST_THREAD_LIB}
 
 TESTS = quantlib-test-suite$(EXEEXT)
 TESTS_ENVIRONMENT = BOOST_TEST_LOG_LEVEL=message BOOST_TEST_COLOR_OUTPUT=false

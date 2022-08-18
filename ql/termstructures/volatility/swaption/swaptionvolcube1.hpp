@@ -102,7 +102,7 @@ namespace QuantLib {
             std::vector<Period> swapTenors_;
             Size nLayers_;
             std::vector<Matrix> points_;
-            mutable std::vector<Disposable<Matrix> > transposedPoints_;
+            mutable std::vector<Matrix> transposedPoints_;
             bool extrapolation_;
             bool backwardFlat_;
             mutable std::vector< ext::shared_ptr<Interpolation2D> > interpolators_;
@@ -632,7 +632,7 @@ namespace QuantLib {
         std::vector<Time> swapLengths(sparseParameters_.swapLengths());
         sparseSmiles_.clear();
 
-        for (double& optionTime : optionTimes) {
+        for (Real& optionTime : optionTimes) {
             std::vector<ext::shared_ptr<SmileSection> > tmp;
             Size n = swapLengths.size();
             tmp.reserve(n);

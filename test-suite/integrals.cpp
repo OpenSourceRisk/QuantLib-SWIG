@@ -20,7 +20,6 @@
 
 #include "integrals.hpp"
 #include "utilities.hpp"
-#include <ql/math/functional.hpp>
 #include <ql/math/integrals/exponentialintegrals.hpp>
 #include <ql/math/integrals/filonintegral.hpp>
 #include <ql/math/integrals/segmentintegral.hpp>
@@ -58,18 +57,16 @@ namespace integrals_test {
 
     template <class T>
     void testSeveral(const T& I) {
-        testSingle(I, "f(x) = 0",
-                   constant<Real,Real>(0.0), 0.0, 1.0, 0.0);
-        testSingle(I, "f(x) = 1",
-                   constant<Real,Real>(1.0), 0.0, 1.0, 1.0);
-        testSingle(I, "f(x) = x",
-                   identity<Real>(),           0.0, 1.0, 0.5);
+        testSingle(I, "f(x) = 0", [](Real x) -> Real { return 0.0; }, 0.0, 1.0, 0.0);
+        testSingle(I, "f(x) = 1", [](Real x) -> Real { return 1.0; }, 0.0, 1.0, 1.0);
+        testSingle(I, "f(x) = x", [](Real x) -> Real { return x; }, 0.0, 1.0, 0.5);
         testSingle(I, "f(x) = x^2",
-                   square<Real>(),             0.0, 1.0, 1.0/3.0);
+                   [](Real x) -> Real { return x * x; }, 0.0, 1.0, 1.0/3.0);
         testSingle(I, "f(x) = sin(x)",
-                   static_cast<Real(*)(Real)>(std::sin), 0.0, M_PI, 2.0);
+                   [](Real x) -> Real { return std::sin(x); }, 0.0, M_PI, 2.0);
         testSingle(I, "f(x) = cos(x)",
-                   static_cast<Real(*)(Real)>(std::cos), 0.0, M_PI, 0.0);
+                   [](Real x) -> Real { return std::cos(x); }, 0.0, M_PI, 0.0);
+
         testSingle(I, "f(x) = Gaussian(x)",
                    NormalDistribution(), -10.0, 10.0, 1.0);
         testSingle(I, "f(x) = Abcd2(x)",
@@ -79,8 +76,8 @@ namespace integrals_test {
 
     template <class T>
     void testDegeneratedDomain(const T& I) {
-        testSingle(I, "f(x) = 0 over [1, 1 + macheps]",
-                   constant<Real, Real>(0.0), 1.0, 1.0 + QL_EPSILON, 0.0);
+        testSingle(I, "f(x) = 0 over [1, 1 + macheps]", [](Real x) -> Real { return 0.0; }, 1.0,
+            1.0 + QL_EPSILON, 0.0);
     }
 
 }
@@ -559,7 +556,7 @@ void IntegralTest::testRealSiCiIntegrals() {
         si = Si(x);
         diff = std::fabs(si + i[1]);
         if (diff > tol) {
-            integrals_test::reportSiCiFail("SineIntegral", x, si, -i[1], diff, tol);
+            integrals_test::reportSiCiFail("SineIntegral", x, si, Real(-i[1]), diff, tol);
         }
     }
 }

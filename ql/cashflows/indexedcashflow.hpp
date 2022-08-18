@@ -45,16 +45,11 @@ namespace QuantLib {
                             public Observer {
       public:
         IndexedCashFlow(Real notional,
-                        const ext::shared_ptr<Index> &index,
+                        ext::shared_ptr<Index> index,
                         const Date& baseDate,
                         const Date& fixingDate,
                         const Date& paymentDate,
-                        bool growthOnly = false)
-        : notional_(notional), index_(index),
-          baseDate_(baseDate), fixingDate_(fixingDate),
-          paymentDate_(paymentDate), growthOnly_(growthOnly) {
-            registerWith(index);
-        }
+                        bool growthOnly = false);
         //! \name Event interface
         //@{
         Date date() const override { return paymentDate_; }
@@ -64,14 +59,8 @@ namespace QuantLib {
         virtual Date fixingDate() const { return fixingDate_; }
         virtual ext::shared_ptr<Index> index() const { return index_; }
         virtual bool growthOnly() const { return growthOnly_; }
-
-        virtual Real indexFixing(const Date& observationDate = Date()) const {
-            if (observationDate == Date()) {
-                return index_->fixing(fixingDate_);
-            } else {
-                return index_->fixing(observationDate);
-            }
-        }
+        
+        virtual Real indexFixing() const { return index_->fixing(fixingDate_); }
         //! \name CashFlow interface
         //@{
         Real amount() const override; // already virtual

@@ -5,14 +5,14 @@ cmake_policy(SET CMP0091 NEW)
 
 # Version info
 set(QUANTLIB_VERSION_MAJOR 1)
-set(QUANTLIB_VERSION_MINOR 25)
+set(QUANTLIB_VERSION_MINOR 27)
 set(QUANTLIB_VERSION_PATCH 0)
 set(QUANTLIB_VERSION ${QUANTLIB_VERSION_MAJOR}.${QUANTLIB_VERSION_MINOR}.${QUANTLIB_VERSION_PATCH})
 
 # Project Info
 set(PACKAGE_NAME          "QuantLib")
 set(PACKAGE_VERSION       "${QUANTLIB_VERSION}")
-set(PACKAGE_VERSION_HEX   "0x012500f0")
+set(PACKAGE_VERSION_HEX   "0x012700f0")
 set(PACKAGE_STRING        "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 set(PACKAGE_TARNAME       "${PACKAGE_NAME}-${PACKAGE_VERSION}")
 set(PACKAGE_BUGREPORT     "https://github.com/lballabio/QuantLib/issues/")
@@ -45,6 +45,7 @@ option(QL_BUILD_TEST_SUITE "Build test suite" ON)
 option(QL_ENABLE_OPENMP "Detect and use OpenMP" OFF)
 option(QL_ENABLE_PARALLEL_UNIT_TEST_RUNNER "Enable the parallel unit test runner" OFF)
 option(QL_ENABLE_SESSIONS "Singletons return different instances for different sessions" OFF)
+option(QL_ENABLE_SINGLETON_THREAD_SAFE_INIT "Enable thread-safe singleton initialization" OFF)
 option(QL_ENABLE_THREAD_SAFE_OBSERVER_PATTERN "Enable the thread-safe observer pattern" OFF)
 option(QL_ENABLE_TRACING "Tracing messages should be allowed" OFF)
 option(QL_ERROR_FUNCTIONS "Error messages should include current function information" OFF)
@@ -55,10 +56,13 @@ option(QL_INSTALL_BENCHMARK "Install benchmark" ON)
 option(QL_INSTALL_EXAMPLES "Install examples" ON)
 option(QL_INSTALL_TEST_SUITE "Install test suite" ON)
 option(QL_TAGGED_LAYOUT "Library names use layout tags" ${MSVC})
+option(QL_USE_CLANG_TIDY "Use clang-tidy when building" OFF)
+# Deleted from QL 1.27
 option(QL_USE_DISPOSABLE "Use the Disposable class template. Not needed for C++11" OFF)
 option(QL_USE_INDEXED_COUPON "Use indexed coupons instead of par coupons" OFF)
 option(QL_USE_STD_CLASSES "Enable all QL_USE_STD_ options" OFF)
 option(QL_USE_STD_SHARED_PTR "Use standard smart pointers instead of Boost ones" OFF)
+# Deleted from QL 1.27
 option(QL_USE_STD_UNIQUE_PTR "Use std::unique_ptr instead of std::auto_ptr" ON)
 option(QL_USE_STD_FUNCTION "Use std::function and std::bind instead of Boost ones" OFF)
 option(QL_USE_STD_TUPLE "Use std::tuple instead of boost::tuple" OFF)
@@ -73,6 +77,20 @@ endif()
 
 if(NOT DEFINED MSVC_LINK_DYNAMIC_RUNTIME)
     set(MSVC_LINK_DYNAMIC_RUNTIME ON)
+endif()
+
+if (QL_USE_CLANG_TIDY)
+    if (NOT DEFINED QL_CLANG_TIDY)
+        set(QL_CLANG_TIDY clang-tidy)
+    endif()
+    if (NOT DEFINED QL_CLANG_TIDY_OPTIONS)
+        set(QL_CLANG_TIDY_OPTIONS)
+    endif()
+    if (QL_CLANG_TIDY_OPTIONS)
+        set(CMAKE_CXX_CLANG_TIDY "${QL_CLANG_TIDY};${QL_CLANG_TIDY_OPTIONS}")
+    else()
+        set(CMAKE_CXX_CLANG_TIDY "${QL_CLANG_TIDY}")
+    endif()
 endif()
 
 # Project shared libs ON for UNIX
@@ -141,6 +159,13 @@ add_compile_definitions(BOOST_ALL_NO_LIB)
 if (QL_ENABLE_OPENMP)
     find_package(OpenMP REQUIRED)
 endif()
+
+# Prefer pthread flag as per https://cmake.org/cmake/help/latest/module/FindThreads.html
+if (NOT DEFINED THREADS_PREFER_PTHREAD_FLAG)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+endif()
+
+set(QL_THREAD_LIBRARIES)
 
 # Parallel test runner needs library rt on *nix for shm_open, etc.
 if (QL_ENABLE_PARALLEL_UNIT_TEST_RUNNER AND UNIX AND NOT APPLE)

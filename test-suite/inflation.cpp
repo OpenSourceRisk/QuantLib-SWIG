@@ -537,7 +537,6 @@ void InflationTest::testZeroTermStructure() {
 
     // For interpolated fixings, the zero rates on the curve no longer match the data.
     // The helpers still give the correct implied rates, of course.
-    forceLinearInterpolation = false;   // still
     for (Size i=0; i<zcData.size(); i++) {
         BOOST_CHECK_MESSAGE(std::fabs(helpersyes[i]->impliedQuote()
                         - zcData[i].rate/100.0) < eps,
@@ -619,7 +618,43 @@ void InflationTest::testZeroIndexFutureFixing() {
                     << "\n    returned: " << fixing);
 }
 
+void InflationTest::testInterpolatedZeroTermStructure() {
+    BOOST_TEST_MESSAGE("Testing interpolated zero-rate inflation curve...");
 
+    SavedSettings backup;
+
+    Date today = Date(27, January, 2022);
+    Settings::instance().evaluationDate() = today;
+
+    Period lag = 3 * Months;
+
+    std::vector<Date> dates = {
+        today - lag,
+        today + 7 * Days,
+        today + 14 * Days,
+        today + 1 * Months,
+        today + 2 * Months,
+        today + 3 * Months,
+        today + 6 * Months,
+        today + 1 * Years,
+        today + 2 * Years,
+        today + 5 * Years,
+        today + 10 * Years
+    };
+    std::vector<Rate> rates = { 0.01, 0.01, 0.011, 0.012, 0.013, 0.015, 0.018, 0.02, 0.025, 0.03, 0.03 };
+
+    auto curve = ext::make_shared<InterpolatedZeroInflationCurve<Linear>>(
+        today, TARGET(), Actual360(), lag, Monthly, dates, rates);
+
+    auto nodes = curve->nodes();
+
+    BOOST_CHECK_MESSAGE(nodes.size() == dates.size(), "different number of nodes and input dates");
+
+    for (Size i=0; i<dates.size(); ++i) {
+        BOOST_CHECK_MESSAGE(dates[i] == nodes[i].first,
+                            "node " << i << " at " << nodes[i].first << "; " << dates[i] << " expected");
+    }
+}
 
 //===========================================================================================
 // year on year tests, index, termstructure, and swaps
@@ -1016,6 +1051,93 @@ void InflationTest::testPeriod() {
     }
 }
 
+void InflationTest::testCpiFlatInterpolation() {
+    BOOST_TEST_MESSAGE("Testing CPI flat interpolation...");
+
+    SavedSettings backup;
+    IndexHistoryCleaner cleaner;
+
+    Settings::instance().evaluationDate() = Date(10, February, 2022);
+
+    auto testIndex = ext::make_shared<UKRPI>(false);
+    testIndex->addFixing(Date(1, November, 2020), 293.5);
+    testIndex->addFixing(Date(1, December, 2020), 295.4);
+    testIndex->addFixing(Date(1, January,  2021), 294.6);
+    testIndex->addFixing(Date(1, February, 2021), 296.0);
+    testIndex->addFixing(Date(1, March,    2021), 296.9);
+
+    Real calculated = CPI::laggedFixing(testIndex, Date(10, February, 2021), 3 * Months, CPI::Flat);
+    Real expected = 293.5;
+
+    BOOST_CHECK_MESSAGE(std::fabs(calculated-expected) < 1e-8,
+                        "failed to retrieve inflation fixing" <<
+                        "\n    expected:   " << expected <<
+                        "\n    calculated: " << calculated);
+
+    calculated = CPI::laggedFixing(testIndex, Date(12, May, 2021), 3 * Months, CPI::Flat);
+    expected = 296.0;
+
+    BOOST_CHECK_MESSAGE(std::fabs(calculated-expected) < 1e-8,
+                        "failed to retrieve inflation fixing" <<
+                        "\n    expected:   " << expected <<
+                        "\n    calculated: " << calculated);
+
+    calculated = CPI::laggedFixing(testIndex, Date(25, June, 2021), 3 * Months, CPI::Flat);
+    expected = 296.9;
+
+    BOOST_CHECK_MESSAGE(std::fabs(calculated-expected) < 1e-8,
+                        "failed to retrieve inflation fixing" <<
+                        "\n    expected:   " << expected <<
+                        "\n    calculated: " << calculated);
+}
+
+void InflationTest::testCpiInterpolation() {
+    BOOST_TEST_MESSAGE("Testing CPI linear interpolation...");
+
+    SavedSettings backup;
+    IndexHistoryCleaner cleaner;
+
+    Settings::instance().evaluationDate() = Date(10, February, 2022);
+
+    auto testIndex = ext::make_shared<UKRPI>(false);
+    testIndex->addFixing(Date(1, November, 2020), 293.5);
+    testIndex->addFixing(Date(1, December, 2020), 295.4);
+    testIndex->addFixing(Date(1, January,  2021), 294.6);
+    testIndex->addFixing(Date(1, February, 2021), 296.0);
+    testIndex->addFixing(Date(1, March,    2021), 296.9);
+
+    Real calculated = CPI::laggedFixing(testIndex, Date(10, February, 2021), 3 * Months, CPI::Linear);
+    Real expected = 293.5 * (19/28.0) + 295.4 * (9/28.0);
+
+    BOOST_CHECK_MESSAGE(std::fabs(calculated-expected) < 1e-8,
+                        "failed to retrieve inflation fixing" <<
+                        "\n    expected:   " << expected <<
+                        "\n    calculated: " << calculated);
+
+    calculated = CPI::laggedFixing(testIndex, Date(12, May, 2021), 3 * Months, CPI::Linear);
+    expected = 296.0 * (20/31.0) + 296.9 * (11/31.0);
+
+    BOOST_CHECK_MESSAGE(std::fabs(calculated-expected) < 1e-8,
+                        "failed to retrieve inflation fixing" <<
+                        "\n    expected:   " << expected <<
+                        "\n    calculated: " << calculated);
+
+    // this would require April's fixing
+    BOOST_CHECK_THROW(
+        calculated = CPI::laggedFixing(testIndex, Date(25, June, 2021), 3 * Months, CPI::Linear),
+        Error);
+
+    // however, this is a special case
+    calculated = CPI::laggedFixing(testIndex, Date(1, June, 2021), 3 * Months, CPI::Linear);
+    expected = 296.9;
+
+    BOOST_CHECK_MESSAGE(std::fabs(calculated-expected) < 1e-8,
+                        "failed to retrieve inflation fixing" <<
+                        "\n    expected:   " << expected <<
+                        "\n    calculated: " << calculated);
+
+}
+
 test_suite* InflationTest::suite() {
 
     auto* suite = BOOST_TEST_SUITE("Inflation tests");
@@ -1033,9 +1155,13 @@ test_suite* InflationTest::suite() {
     // At the moment we use a simplified rule that the earliest publishing date
     // is the 10th of a month, we ignore the last fixing until dayOfMonth of the eval date >= 10.
     // suite->add(QUANTLIB_TEST_CASE(&InflationTest::testZeroIndexFutureFixing));
+    suite->add(QUANTLIB_TEST_CASE(&InflationTest::testInterpolatedZeroTermStructure));
 
     suite->add(QUANTLIB_TEST_CASE(&InflationTest::testYYIndex));
     suite->add(QUANTLIB_TEST_CASE(&InflationTest::testYYTermStructure));
+
+    suite->add(QUANTLIB_TEST_CASE(&InflationTest::testCpiFlatInterpolation));
+    suite->add(QUANTLIB_TEST_CASE(&InflationTest::testCpiInterpolation));
 
     return suite;
 }

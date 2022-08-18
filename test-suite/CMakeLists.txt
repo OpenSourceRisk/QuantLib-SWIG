@@ -15,6 +15,7 @@ set(QL_TEST_SOURCES
     binaryoption.cpp
     blackdeltacalculator.cpp
     blackformula.cpp
+    bondforward.cpp
     bonds.cpp
     brownianbridge.cpp
     businessdayconventions.cpp
@@ -140,6 +141,7 @@ set(QL_TEST_SOURCES
     squarerootclvmodel.cpp
     stats.cpp
     subperiodcoupons.cpp
+    svivolatility.cpp
     swap.cpp
     swapforwardmappings.cpp
     swaption.cpp
@@ -182,6 +184,7 @@ set(QL_TEST_HEADERS
     binaryoption.hpp
     blackdeltacalculator.hpp
     blackformula.hpp
+    bondforward.hpp
     bonds.hpp
     brownianbridge.hpp
     businessdayconventions.hpp
@@ -308,6 +311,7 @@ set(QL_TEST_HEADERS
     squarerootclvmodel.hpp
     stats.hpp
     subperiodcoupons.hpp
+    svivolatility.hpp
     swap.hpp
     swapforwardmappings.hpp
     swaption.hpp
@@ -335,7 +339,6 @@ set(QL_TEST_HEADERS
 )
 
 set(QL_BENCHMARK_SOURCES
-    main.cpp 
     quantlibbenchmark.cpp
     
     americanoption.cpp                  americanoption.hpp
