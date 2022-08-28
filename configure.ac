@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([QuantLib], [1.27],
+AC_INIT([QuantLib], [1.27.1],
         [quantlib-dev@lists.sourceforge.net],
         [QuantLib])
 AC_PREREQ(2.62)
@@ -375,7 +375,6 @@ if test "$ql_use_std_function" = "yes" ; then
 fi
 AC_MSG_RESULT([$ql_use_std_function])
 
-
 AC_MSG_CHECKING([whether to enable std::tuple])
 AC_ARG_ENABLE([std-tuple],
               AS_HELP_STRING([--enable-std-tuple],
@@ -409,6 +408,25 @@ if test "$ql_use_std_classes" = "yes" ; then
              [Define this if you want to use std::tuple.])
 fi
 AC_MSG_RESULT([$ql_use_std_classes])
+
+AC_MSG_CHECKING([whether to enable the implementation of Null as template functions])
+AC_ARG_ENABLE([null-as-functions],
+              AS_HELP_STRING([--enable-null-as-functions],
+                             [If enabled, Null will be implemented as a set
+                              of template functions.  This allows the code
+                              to work with user-defined Real types but was
+                              reported to cause internal compiler errors
+                              with Visual C++ 2022 in some cases.
+                              If disabled (the default) Null will be
+                              implemented as a class template, as in
+                              previous releases.]),
+              [ql_use_null_functions=$enableval],
+              [ql_use_null_functions=no])
+if test "$ql_use_null_functions" = "yes" ; then
+   AC_DEFINE([QL_NULL_AS_FUNCTIONS],[1],
+             [Define this if you want to enable the implementation of Null as template functions.])
+fi
+AC_MSG_RESULT([$ql_use_null_functions])
 
 
 # manual configurations for specific hosts
