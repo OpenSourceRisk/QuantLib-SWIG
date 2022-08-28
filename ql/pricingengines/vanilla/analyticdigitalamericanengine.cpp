@@ -67,11 +67,11 @@ namespace QuantLib {
         results_.additionalResults["volatility"] = std::sqrt(variance / t_ex);
         results_.additionalResults["timeToExpiry"] = t_ex;
         results_.additionalResults["riskFreeDiscount"] = riskFreeDiscount;
-        results_.additionalResults["dividendDiscount"] = dividendDiscount;        
+        results_.additionalResults["dividendDiscount"] = dividendDiscount;
 
         if(ex->payoffAtExpiry()) {
             AmericanPayoffAtExpiry pricer(spot, riskFreeDiscount,
-                                          dividendDiscount, variance, 
+                                          dividendDiscount, variance,
                                           payoff, knock_in());
             results_.value = pricer.value();
         } else {
@@ -98,4 +98,3 @@ namespace QuantLib {
     }
 
 }
-
