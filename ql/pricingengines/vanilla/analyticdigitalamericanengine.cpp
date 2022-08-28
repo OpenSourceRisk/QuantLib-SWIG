@@ -57,15 +57,21 @@ namespace QuantLib {
         Rate riskFreeDiscount =
             process_->riskFreeRate()->discount(ex->lastDate());
 
+        Real t_ex = process_->blackVolatility()->timeFromReference(ex->lastDate());
+        Real forward = spot / riskFreeDiscount * dividendDiscount;
+
         results_.additionalResults["spot"] = spot;
+        results_.additionalResults["forward"] = forward;
         results_.additionalResults["strike"] = payoff->strike();
         results_.additionalResults["variance"] = variance;
+        results_.additionalResults["volatility"] = std::sqrt(variance / t_ex);
+        results_.additionalResults["timeToExpiry"] = t_ex;
         results_.additionalResults["riskFreeDiscount"] = riskFreeDiscount;
-        results_.additionalResults["dividendDiscount"] = dividendDiscount;        
-        
+        results_.additionalResults["dividendDiscount"] = dividendDiscount;
+
         if(ex->payoffAtExpiry()) {
             AmericanPayoffAtExpiry pricer(spot, riskFreeDiscount,
-                                          dividendDiscount, variance, 
+                                          dividendDiscount, variance,
                                           payoff, knock_in());
             results_.value = pricer.value();
         } else {
@@ -81,7 +87,14 @@ namespace QuantLib {
                                     arguments_.exercise->lastDate());
             results_.rho = pricer.rho(t);
         }
+
+        auto coo = ext::dynamic_pointer_cast<CashOrNothingPayoff>(payoff);
+        Real payout = coo != nullptr ? coo->cashPayoff() : forward;
+        Real valueToPayoutRatio = results_.value / payout;
+
+        results_.additionalResults["payout"] = payout;
+        results_.additionalResults["discountedTouchProbability"] =
+            knock_in() ? valueToPayoutRatio : 1.0 - valueToPayoutRatio;
     }
 
 }
-
