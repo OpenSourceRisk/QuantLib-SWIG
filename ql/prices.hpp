@@ -100,7 +100,8 @@ namespace QuantLib {
         Real open_, close_, high_, low_;
     };
 
-    
+    #ifdef QL_NULL_AS_FUNCTIONS
+
     template <>
     class Null<IntervalPrice> 
     {
@@ -108,6 +109,18 @@ namespace QuantLib {
         Null() = default;
         operator IntervalPrice() const { return {}; }
     };
+
+    #else
+
+    template <>
+    class Null<IntervalPrice>
+    {
+      public:
+        Null() = default;
+        operator IntervalPrice() const { return {}; }
+    };
+
+    #endif
 
 }
 
