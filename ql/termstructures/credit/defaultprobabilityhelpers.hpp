@@ -92,7 +92,7 @@ namespace QuantLib {
                   bool paysAtDefaultTime = true,
                   const Date& startDate = Date(),
                   DayCounter lastPeriodDayCounter = DayCounter(),
-                  boost::optional<bool> rebatesAccrual = true,
+                  bool rebatesAccrual = true,
                   CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
 
         //! \copydoc CdsHelper::CdsHelper
@@ -111,7 +111,7 @@ namespace QuantLib {
                   bool paysAtDefaultTime = true,
                   const Date& startDate = Date(),
                   DayCounter lastPeriodDayCounter = DayCounter(),
-                  boost::optional<bool> rebatesAccrual = true,
+                  bool rebatesAccrual = true,
                   CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
 
         /*! Constructor
@@ -153,7 +153,7 @@ namespace QuantLib {
                       CreditDefaultSwap::ProtectionPaymentTime::atDefault,
                   const Date& startDate = Date(),
                   const DayCounter& lastPeriodDayCounter = DayCounter(),
-                  boost::optional<bool> rebatesAccrual = boost::none,
+                  bool rebatesAccrual = true,
                   CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
 
         //! \copydoc QuantExt::CdsHelper::CdsHelper
@@ -170,7 +170,7 @@ namespace QuantLib {
                       CreditDefaultSwap::ProtectionPaymentTime::atDefault,
                   const Date& startDate = Date(),
                   const DayCounter& lastPeriodDayCounter = DayCounter(),
-                  boost::optional<bool> rebatesAccrual = boost::none,
+                  bool rebatesAccrual = true,
                   CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
 
         void setTermStructure(DefaultProbabilityTermStructure*) override;
@@ -192,7 +192,6 @@ namespace QuantLib {
         Real recoveryRate_;
         Handle<YieldTermStructure> discountCurve_;
         bool settlesAccrual_;
-        bool paysAtDefaultTime_;
         CreditDefaultSwap::ProtectionPaymentTime protectionPaymentTime_;
         DayCounter lastPeriodDC_;
         bool rebatesAccrual_;
@@ -224,7 +223,7 @@ namespace QuantLib {
                         bool paysAtDefaultTime = true,
                         const Date& startDate = Date(),
                         const DayCounter& lastPeriodDayCounter = DayCounter(),
-                        boost::optional<bool> rebatesAccrual = true,
+                        bool rebatesAccrual = true,
                         CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
 
         QL_DEPRECATED
@@ -243,7 +242,7 @@ namespace QuantLib {
             bool paysAtDefaultTime = true,
             const Date& startDate = Date(),
             const DayCounter& lastPeriodDayCounter = DayCounter(), // ISDA: Actual/360(inc)
-            boost::optional<bool> rebatesAccrual = true,           // ISDA: true
+            bool rebatesAccrual = true,           // ISDA: true
             CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
 
         SpreadCdsHelper(const Handle<Quote>& runningSpread,
@@ -261,7 +260,7 @@ namespace QuantLib {
                             CreditDefaultSwap::ProtectionPaymentTime::atDefault,
                         const Date& startDate = Date(),
                         const DayCounter& lastPeriodDayCounter = DayCounter(),
-                        boost::optional<bool> rebatesAccrual = boost::none,
+                        bool rebatesAccrual = true,
                         CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
 
         SpreadCdsHelper(Rate runningSpread,
@@ -279,7 +278,7 @@ namespace QuantLib {
                             CreditDefaultSwap::ProtectionPaymentTime::atDefault,
                         const Date& startDate = Date(),
                         const DayCounter& lastPeriodDayCounter = DayCounter(),
-                        boost::optional<bool> rebatesAccrual = boost::none,
+                        bool rebatesAccrual = true,
                         CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);                    
         
         Real impliedQuote() const override;
@@ -309,7 +308,7 @@ namespace QuantLib {
                          bool paysAtDefaultTime = true,
                          const Date& startDate = Date(),
                          const DayCounter& lastPeriodDayCounter = DayCounter(),
-                         boost::optional<bool> rebatesAccrual = true,
+                         bool rebatesAccrual = true,
                          CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
 
         /*! \note the upfront must be quoted in fractional units. */
@@ -330,7 +329,7 @@ namespace QuantLib {
                          bool paysAtDefaultTime = true,
                          const Date& startDate = Date(),
                          const DayCounter& lastPeriodDayCounter = DayCounter(),
-                         boost::optional<bool> rebatesAccrual = true,
+                         bool rebatesAccrual = true,
                          CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
 
         /*! \note the upfront must be quoted in fractional units. */
@@ -351,7 +350,7 @@ namespace QuantLib {
                              CreditDefaultSwap::ProtectionPaymentTime::atDefault,
                          const Date& startDate = Date(),
                          const DayCounter& lastPeriodDayCounter = DayCounter(),
-                         boost::optional<bool> rebatesAccrual = boost::none,
+                         bool rebatesAccrual = true,
                          CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
 
         /*! \note the upfront must be quoted in fractional units. */
@@ -372,7 +371,7 @@ namespace QuantLib {
                              CreditDefaultSwap::ProtectionPaymentTime::atDefault,
                          const Date& startDate = Date(),
                          const DayCounter& lastPeriodDayCounter = DayCounter(),
-                         boost::optional<bool> rebatesAccrual = boost::none,
+                         bool rebatesAccrual = true,
                          CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
 
         Real impliedQuote() const override;

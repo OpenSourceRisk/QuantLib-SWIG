@@ -114,7 +114,7 @@ namespace QuantLib {
                           const ext::shared_ptr<Claim>& =
                                                   ext::shared_ptr<Claim>(),
                           const DayCounter& lastPeriodDayCounter = DayCounter(),
-                          boost::optional<bool> rebatesAccrual = true,
+                          bool rebatesAccrual = true,
                           const Date& tradeDate = Date(),
                           Natural cashSettlementDays = 3);
         //! CDS quoted as upfront and running spread
@@ -170,7 +170,7 @@ namespace QuantLib {
                           const ext::shared_ptr<Claim>& =
                                                   ext::shared_ptr<Claim>(),
                           const DayCounter& lastPeriodDayCounter = DayCounter(),
-                          boost::optional<bool> rebatesAccrual = true,
+                          bool rebatesAccrual = true,
                           const Date& tradeDate = Date(),
                           Natural cashSettlementDays = 3);
     //! \name Constructors
@@ -198,12 +198,17 @@ namespace QuantLib {
                           guessed from the protection start date and \p schedule date generation rule.
         @param cashSettlementDays  The number of business days from \p tradeDate to cash settlement date.
     */
-    CreditDefaultSwap(Protection::Side side, Real notional, Rate spread, const Schedule& schedule,
-                      BusinessDayConvention paymentConvention, const DayCounter& dayCounter, bool settlesAccrual = true,
-                      ProtectionPaymentTime protectionPaymentTime = atDefault, const Date& protectionStart = Date(),
-                      const boost::shared_ptr<Claim>& = boost::shared_ptr<Claim>(),
+    CreditDefaultSwap(Protection::Side side,
+                      Real notional,
+                      Rate spread,
+                      const Schedule& schedule,
+                      BusinessDayConvention paymentConvention,
+                      const DayCounter& dayCounter, bool settlesAccrual = true,
+                      ProtectionPaymentTime protectionPaymentTime = atDefault,
+                      const Date& protectionStart = Date(),
+                      const ext::shared_ptr<Claim>& claim = ext::shared_ptr<Claim>(),
                       const DayCounter& lastPeriodDayCounter = DayCounter(),
-                      boost::optional<bool> rebatesAccrual = boost::none,
+                      bool rebatesAccrual = true,
                       const Date& tradeDate = Date(),
                       Natural cashSettlementDays = 3);
     //! CDS quoted as upfront and running spread
@@ -231,12 +236,20 @@ namespace QuantLib {
                           guessed from the protection start date and \p schedule date generation rule.
         @param cashSettlementDays  The number of business days from \p tradeDate to cash settlement date.
     */
-    CreditDefaultSwap(Protection::Side side, Real notional, Rate upfront, Rate spread, const Schedule& schedule,
-                      BusinessDayConvention paymentConvention, const DayCounter& dayCounter, bool settlesAccrual = true,
-                      ProtectionPaymentTime protectionPaymentTime = atDefault, const Date& protectionStart = Date(),
-                      const Date& upfrontDate = Date(), const boost::shared_ptr<Claim>& = boost::shared_ptr<Claim>(),
+    CreditDefaultSwap(Protection::Side side,
+                      Real notional,
+                      Rate upfront,
+                      Rate spread,
+                      const Schedule& schedule,
+                      BusinessDayConvention paymentConvention,
+                      const DayCounter& dayCounter,
+                      bool settlesAccrual = true,
+                      ProtectionPaymentTime protectionPaymentTime = atDefault,
+                      const Date& protectionStart = Date(),
+                      const Date& upfrontDate = Date(),
+                      const ext::shared_ptr<Claim>& claim = ext::shared_ptr<Claim>(),
                       const DayCounter& lastPeriodDayCounter = DayCounter(),
-                      boost::optional<bool> rebatesAccrual = boost::none,
+                      bool rebatesAccrual = true,
                       const Date& tradeDate = Date(),
                       Natural cashSettlementDays = 3);
     //! CDS quoted as running-spread only and with amortized notional structure
@@ -263,13 +276,19 @@ namespace QuantLib {
                           guessed from the protection start date and \p schedule date generation rule.
         @param cashSettlementDays  The number of business days from \p tradeDate to cash settlement date.
     */
-    CreditDefaultSwap(Protection::Side side, Real notional, const Leg& amortized_leg, Rate spread,
-                      const Schedule& schedule, BusinessDayConvention paymentConvention, const DayCounter& dayCounter,
-                      bool settlesAccrual = true, ProtectionPaymentTime protectionPaymentTime = atDefault,
+    CreditDefaultSwap(Protection::Side side,
+                      Real notional,
+                      const Leg& amortized_leg,
+                      Rate spread,
+                      const Schedule& schedule,
+                      BusinessDayConvention paymentConvention,
+                      const DayCounter& dayCounter,
+                      bool settlesAccrual = true,
+                      ProtectionPaymentTime protectionPaymentTime = atDefault,
                       const Date& protectionStart = Date(),
-                      const boost::shared_ptr<Claim>& = boost::shared_ptr<Claim>(),
+                      const ext::shared_ptr<Claim>& claim = ext::shared_ptr<Claim>(),
                       const DayCounter& lastPeriodDayCounter = DayCounter(),
-                      boost::optional<bool> rebatesAccrual = boost::none,
+                      bool rebatesAccrual = true,
                       const Date& tradeDate = Date(),
                       Natural cashSettlementDays = 3);
     //! CDS quoted as upfront and running spread and with amortized notional structure
@@ -298,13 +317,20 @@ namespace QuantLib {
                           guessed from the protection start date and \p schedule date generation rule.
         @param cashSettlementDays  The number of business days from \p tradeDate to cash settlement date.
     */
-    CreditDefaultSwap(Protection::Side side, Real notional, const Leg& amortized_leg, Rate upfront, Rate spread,
-                      const Schedule& schedule, BusinessDayConvention paymentConvention, const DayCounter& dayCounter,
-                      bool settlesAccrual = true, ProtectionPaymentTime protectionPaymentTime = atDefault,
-                      const Date& protectionStart = Date(), const Date& upfrontDate = Date(),
-                      const boost::shared_ptr<Claim>& = boost::shared_ptr<Claim>(),
+    CreditDefaultSwap(Protection::Side side,
+                      Real notional,
+                      const Leg& amortized_leg,
+                      Rate upfront, Rate spread,
+                      const Schedule& schedule,
+                      BusinessDayConvention paymentConvention,
+                      const DayCounter& dayCounter,
+                      bool settlesAccrual = true,
+                      ProtectionPaymentTime protectionPaymentTime = atDefault,
+                      const Date& protectionStart = Date(),
+                      const Date& upfrontDate = Date(),
+                      const ext::shared_ptr<Claim>& claim = ext::shared_ptr<Claim>(),
                       const DayCounter& lastPeriodDayCounter = DayCounter(),
-                      boost::optional<bool> rebatesAccrual = boost::none,
+                      bool rebatesAccrual = true,
                       const Date& tradeDate = Date(),
                       Natural cashSettlementDays = 3);
         //@}
@@ -464,8 +490,12 @@ namespace QuantLib {
       private:
         //! Shared initialisation.
         void init(const Schedule& schedule, BusinessDayConvention paymentConvention, const DayCounter& dayCounter,
-                  const DayCounter& lastPeriodDayCounter, boost::optional<bool> rebatesAccrual, const Date& upfrontDate = Date());
+                  const DayCounter& lastPeriodDayCounter, bool rebatesAccrual, const Date& upfrontDate = Date());
     };
+
+
+    std::ostream &operator<<(std::ostream &out,
+                             const CreditDefaultSwap::ProtectionPaymentTime &t);
 
 
     class CreditDefaultSwap::arguments
@@ -509,7 +539,6 @@ namespace QuantLib {
     class CreditDefaultSwap::engine
         : public GenericEngine<CreditDefaultSwap::arguments,
                                CreditDefaultSwap::results> {};
-
 
 }
 

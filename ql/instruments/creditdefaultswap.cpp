@@ -31,6 +31,7 @@
 #include <ql/quotes/simplequote.hpp>
 #include <ql/math/solvers1d/brent.hpp>
 #include <ql/time/calendars/weekendsonly.hpp>
+#include <iostream>
 
 namespace QuantLib {
 
@@ -45,7 +46,7 @@ namespace QuantLib {
                                          const Date& protectionStart,
                                          const ext::shared_ptr<Claim>& claim,
                                          const DayCounter& lastPeriodDayCounter,
-                                         boost::optional<bool> rebatesAccrual,
+                                         bool rebatesAccrual,
                                          const Date& tradeDate,
                                          Natural cashSettlementDays)
     : side_(side), notional_(notional), upfront_(boost::none),
@@ -72,7 +73,7 @@ namespace QuantLib {
                                          const Date& upfrontDate,
                                          const ext::shared_ptr<Claim>& claim,
                                          const DayCounter& lastPeriodDayCounter,
-                                         boost::optional<bool> rebatesAccrual,
+                                         bool rebatesAccrual,
                                          const Date& tradeDate,
                                          Natural cashSettlementDays)
     : side_(side), notional_(notional), upfront_(upfront),
@@ -86,12 +87,20 @@ namespace QuantLib {
         init(schedule, convention, dayCounter, lastPeriodDayCounter, rebatesAccrual, upfrontDate);
     }
 
-    CreditDefaultSwap::CreditDefaultSwap(Protection::Side side, Real notional, Rate spread, const Schedule& schedule,
-                                         BusinessDayConvention convention, const DayCounter& dayCounter,
-                                         bool settlesAccrual, ProtectionPaymentTime protectionPaymentTime,
-                                         const Date& protectionStart, const boost::shared_ptr<Claim>& claim,
-                                         const DayCounter& lastPeriodDayCounter, boost::optional<bool> rebatesAccrual,
-                                         const Date& tradeDate, Natural cashSettlementDays)
+    CreditDefaultSwap::CreditDefaultSwap(Protection::Side side,
+                                         Real notional,
+                                         Rate spread,
+                                         const Schedule& schedule,
+                                         BusinessDayConvention convention,
+                                         const DayCounter& dayCounter,
+                                         bool settlesAccrual,
+                                         ProtectionPaymentTime protectionPaymentTime,
+                                         const Date& protectionStart,
+                                         const boost::shared_ptr<Claim>& claim,
+                                         const DayCounter& lastPeriodDayCounter,
+                                         bool rebatesAccrual,
+                                         const Date& tradeDate,
+                                         Natural cashSettlementDays)
     : side_(side), notional_(notional), upfront_(boost::none), runningSpread_(spread), settlesAccrual_(settlesAccrual),
       paysAtDefaultTime_(protectionPaymentTime == atDefault ? true : false),
       protectionPaymentTime_(protectionPaymentTime), claim_(claim),
@@ -101,13 +110,22 @@ namespace QuantLib {
         init(schedule, convention, dayCounter, lastPeriodDayCounter, rebatesAccrual);
     }
 
-    CreditDefaultSwap::CreditDefaultSwap(Protection::Side side, Real notional, Rate upfront, Rate runningSpread,
-                                         const Schedule& schedule, BusinessDayConvention convention,
-                                         const DayCounter& dayCounter, bool settlesAccrual,
-                                         ProtectionPaymentTime protectionPaymentTime, const Date& protectionStart,
-                                         const Date& upfrontDate, const boost::shared_ptr<Claim>& claim,
-                                         const DayCounter& lastPeriodDayCounter, boost::optional<bool> rebatesAccrual,
-                                         const Date& tradeDate, Natural cashSettlementDays)
+    CreditDefaultSwap::CreditDefaultSwap(Protection::Side side,
+                                         Real notional,
+                                         Rate upfront,
+                                         Rate runningSpread,
+                                         const Schedule& schedule,
+                                         BusinessDayConvention convention,
+                                         const DayCounter& dayCounter,
+                                         bool settlesAccrual,
+                                         ProtectionPaymentTime protectionPaymentTime,
+                                         const Date& protectionStart,
+                                         const Date& upfrontDate,
+                                         const boost::shared_ptr<Claim>& claim,
+                                         const DayCounter& lastPeriodDayCounter,
+                                         bool rebatesAccrual,
+                                         const Date& tradeDate,
+                                         Natural cashSettlementDays)
     : side_(side), notional_(notional), upfront_(upfront), runningSpread_(runningSpread),
       settlesAccrual_(settlesAccrual),
       paysAtDefaultTime_(protectionPaymentTime == atDefault ? true : false),
@@ -118,13 +136,21 @@ namespace QuantLib {
         init(schedule, convention, dayCounter, lastPeriodDayCounter, rebatesAccrual, upfrontDate);
     }
 
-    CreditDefaultSwap::CreditDefaultSwap(Protection::Side side, Real notional, const Leg& amortized_leg, Rate spread,
-                                         const Schedule& schedule, BusinessDayConvention convention,
-                                         const DayCounter& dayCounter, bool settlesAccrual,
-                                         ProtectionPaymentTime protectionPaymentTime, const Date& protectionStart,
-                                         const boost::shared_ptr<Claim>& claim, const DayCounter& lastPeriodDayCounter,
-                                         boost::optional<bool> rebatesAccrual,
-                                         const Date& tradeDate, Natural cashSettlementDays)
+    CreditDefaultSwap::CreditDefaultSwap(Protection::Side side,
+                                         Real notional,
+                                         const Leg& amortized_leg,
+                                         Rate spread,
+                                         const Schedule& schedule,
+                                         BusinessDayConvention convention,
+                                         const DayCounter& dayCounter,
+                                         bool settlesAccrual,
+                                         ProtectionPaymentTime protectionPaymentTime,
+                                         const Date& protectionStart,
+                                         const boost::shared_ptr<Claim>& claim,
+                                         const DayCounter& lastPeriodDayCounter,
+                                         bool rebatesAccrual,
+                                         const Date& tradeDate,
+                                         Natural cashSettlementDays)
     : side_(side), notional_(notional), upfront_(boost::none), runningSpread_(spread), settlesAccrual_(settlesAccrual),
       paysAtDefaultTime_(protectionPaymentTime == atDefault ? true : false),
       protectionPaymentTime_(protectionPaymentTime), claim_(claim), leg_(amortized_leg),
@@ -134,13 +160,23 @@ namespace QuantLib {
         init(schedule, convention, dayCounter, lastPeriodDayCounter, rebatesAccrual);
     }
 
-    CreditDefaultSwap::CreditDefaultSwap(Protection::Side side, Real notional, const Leg& amortized_leg, Rate upfront,
-                                         Rate runningSpread, const Schedule& schedule, BusinessDayConvention convention,
-                                         const DayCounter& dayCounter, bool settlesAccrual,
-                                         ProtectionPaymentTime protectionPaymentTime, const Date& protectionStart,
-                                         const Date& upfrontDate, const boost::shared_ptr<Claim>& claim,
-                                         const DayCounter& lastPeriodDayCounter, boost::optional<bool> rebatesAccrual,
-                                         const Date& tradeDate, Natural cashSettlementDays)
+    CreditDefaultSwap::CreditDefaultSwap(Protection::Side side,
+                                         Real notional,
+                                         const Leg& amortized_leg,
+                                         Rate upfront,
+                                         Rate runningSpread,
+                                         const Schedule& schedule,
+                                         BusinessDayConvention convention,
+                                         const DayCounter& dayCounter,
+                                         bool settlesAccrual,
+                                         ProtectionPaymentTime protectionPaymentTime,
+                                         const Date& protectionStart,
+                                         const Date& upfrontDate,
+                                         const boost::shared_ptr<Claim>& claim,
+                                         const DayCounter& lastPeriodDayCounter,
+                                         bool rebatesAccrual,
+                                         const Date& tradeDate,
+                                         Natural cashSettlementDays)
     : side_(side), notional_(notional), upfront_(upfront), runningSpread_(runningSpread),
       settlesAccrual_(settlesAccrual),
       paysAtDefaultTime_(protectionPaymentTime == atDefault ? true : false),
@@ -154,7 +190,7 @@ namespace QuantLib {
 
     void CreditDefaultSwap::init(const Schedule& schedule, BusinessDayConvention paymentConvention,
                                  const DayCounter& dayCounter, const DayCounter& lastPeriodDayCounter,
-                                 boost::optional<bool> rebatesAccrual, const Date& upfrontDate) {
+                                 bool rebatesAccrual, const Date& upfrontDate) {
 
         QL_REQUIRE(!schedule.empty(), "CreditDefaultSwap needs a non-empty schedule.");
 
@@ -204,8 +240,8 @@ namespace QuantLib {
         maturity_ = schedule.dates().back();
         
         // Deal with the accrual rebate. We use the standard conventions for accrual calculation introduced with the
-        // CDS Big Bang in 2009, but the explicit rebatesAccrual argument dominates if provided.
-        if (rebatesAccrual ? *rebatesAccrual : postBigBang) {
+        // CDS Big Bang in 2009
+        if (rebatesAccrual && postBigBang) {
             accrualRebate_ = boost::make_shared<SimpleCashFlow>(CashFlows::accruedAmount(leg_, false, tradeDate_ + 1),
                  effectiveUpfrontDate);
             Date current = std::max((Date)Settings::instance().evaluationDate(), tradeDate_);
@@ -443,22 +479,6 @@ namespace QuantLib {
                                                    Handle<Quote>(flatRate), dayCounter));
 
         ext::shared_ptr<PricingEngine> engine = buildPricingEngine(probability, recoveryRate, discountCurve, model);
-        // switch (model) {
-        //   case Midpoint:
-        //     engine = ext::make_shared<MidPointCdsEngine>(
-        //         probability, recoveryRate, discountCurve);
-        //     break;
-        //   case ISDA:
-        //     engine = ext::make_shared<IsdaCdsEngine>(
-        //         probability, recoveryRate, discountCurve,
-        //         boost::none,
-        //         IsdaCdsEngine::Taylor,
-        //         IsdaCdsEngine::HalfDayBias,
-        //         IsdaCdsEngine::Piecewise);
-        //     break;
-        //   default:
-        //     QL_FAIL("unknown CDS pricing model: " << model);
-        // }
 
         setupArguments(engine->getArguments());
         const CreditDefaultSwap::results* results =
@@ -578,6 +598,20 @@ namespace QuantLib {
         upfrontNPV = Null<Real>();
         accrualRebateNPV = Null<Real>();
         accrualRebateNPVCurrent = Null<Real>();
+    }
+
+    std::ostream &operator<<(std::ostream &out,
+                             const CreditDefaultSwap::ProtectionPaymentTime &t)  {
+        if (t == CreditDefaultSwap::ProtectionPaymentTime::atDefault)
+            out << "at default";
+        else if (t == CreditDefaultSwap::ProtectionPaymentTime::atPeriodEnd)
+            out << "at period end";
+        else if (t == CreditDefaultSwap::ProtectionPaymentTime::atMaturity)
+            out << "at maturity";
+        else
+            out << "unknown protection payment time";
+
+        return out;
     }
 
 }
