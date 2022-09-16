@@ -31,7 +31,6 @@
 #include <ql/quotes/simplequote.hpp>
 #include <ql/math/solvers1d/brent.hpp>
 #include <ql/time/calendars/weekendsonly.hpp>
-#include <iostream>
 
 namespace QuantLib {
 
@@ -242,12 +241,13 @@ namespace QuantLib {
         // Deal with the accrual rebate. We use the standard conventions for accrual calculation introduced with the
         // CDS Big Bang in 2009
         if (rebatesAccrual && postBigBang) {
-            accrualRebate_ = boost::make_shared<SimpleCashFlow>(CashFlows::accruedAmount(leg_, false, tradeDate_ + 1),
-                 effectiveUpfrontDate);
+            accrualRebate_ = boost::make_shared<SimpleCashFlow>(
+                CashFlows::accruedAmount(leg_, leg_.back()->date() == tradeDate_ + 1, tradeDate_ + 1),
+                effectiveUpfrontDate);
             Date current = std::max((Date)Settings::instance().evaluationDate(), tradeDate_);
             accrualRebateCurrent_ = boost::make_shared<SimpleCashFlow>(
                  CashFlows::accruedAmount(leg_, false, current + 1),
-                 schedule.calendar().advance(current, cashSettlementDays_, Days, paymentConvention));
+                 schedule.calendar().advance(current, cashSettlementDays_, Days, paymentConvention));            
         }
         
         if (!claim_)
