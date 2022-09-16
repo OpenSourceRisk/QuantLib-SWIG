@@ -408,7 +408,6 @@ namespace QuantLib {
                 startDate, lastPeriodDayCounter, rebatesAccrual, model),
       upfrontSettlementDays_(upfrontSettlementDays), runningSpread_(runningSpread) {
         UpfrontCdsHelper::initializeDates();
-        initializeUpfront();
     }
 
     UpfrontCdsHelper::UpfrontCdsHelper(
@@ -436,10 +435,9 @@ namespace QuantLib {
                 startDate, lastPeriodDayCounter, rebatesAccrual, model),
       upfrontSettlementDays_(upfrontSettlementDays), runningSpread_(runningSpread) {
         UpfrontCdsHelper::initializeDates();
-        initializeUpfront();
     }
 
-    void UpfrontCdsHelper::initializeUpfront() {
+    void UpfrontCdsHelper::initializeDates() {
         upfrontDate_ = calendar_.advance(evaluationDate_, upfrontSettlementDays_, Days, paymentConvention_);
     }
 
@@ -460,7 +458,7 @@ namespace QuantLib {
             break;
           case CreditDefaultSwap::Midpoint:
             swap_->setPricingEngine(ext::make_shared<MidPointCdsEngine>(
-                probability_, recoveryRate_, discountCurve_));
+                probability_, recoveryRate_, discountCurve_, true));
             break;
           default:
             QL_FAIL("unknown CDS pricing model: " << model_);

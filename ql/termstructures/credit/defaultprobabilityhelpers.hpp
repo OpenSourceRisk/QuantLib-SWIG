@@ -376,9 +376,9 @@ namespace QuantLib {
                          CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
 
         Real impliedQuote() const override;
-        void initializeUpfront();
         
       private:
+        void initializeDates() override;
         void resetEngine() override;
         Natural upfrontSettlementDays_;
         Date upfrontDate_;
