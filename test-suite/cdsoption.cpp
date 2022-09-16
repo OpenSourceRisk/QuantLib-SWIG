@@ -72,7 +72,7 @@ void CdsOptionTest::testCached() {
            new MidPointCdsEngine(defaultProbability, recoveryRate, riskFree));
 
     CreditDefaultSwap swap(Protection::Seller, notional, 0.001, schedule,
-                           convention, dayCounter);
+                           convention, dayCounter, true, CreditDefaultSwap::ProtectionPaymentTime::atDefault);
     swap.setPricingEngine(swapEngine);
     Rate strike = swap.fairSpread();
 
@@ -80,7 +80,7 @@ void CdsOptionTest::testCached() {
 
     ext::shared_ptr<CreditDefaultSwap> underlying(
          new CreditDefaultSwap(Protection::Seller, notional, strike, schedule,
-                               convention, dayCounter));
+                               convention, dayCounter, true, CreditDefaultSwap::ProtectionPaymentTime::atDefault));
     underlying->setPricingEngine(swapEngine);
 
     ext::shared_ptr<Exercise> exercise(new EuropeanExercise(expiry));
@@ -98,7 +98,7 @@ void CdsOptionTest::testCached() {
 
     underlying = ext::make_shared<CreditDefaultSwap>(
          Protection::Buyer, notional, strike, schedule,
-                               convention, dayCounter);
+         convention, dayCounter, true, CreditDefaultSwap::ProtectionPaymentTime::atDefault);
     underlying->setPricingEngine(swapEngine);
 
     CdsOption option2(underlying, exercise);

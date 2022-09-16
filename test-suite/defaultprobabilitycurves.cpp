@@ -179,7 +179,8 @@ namespace {
                                         settlementDays, calendar,
                                         frequency, convention, rule,
                                         dayCounter, recoveryRate,
-                                        discountCurve)));
+                                        discountCurve, true,
+                                        CreditDefaultSwap::ProtectionPaymentTime::atDefault)));
 
         RelinkableHandle<DefaultProbabilityTermStructure> piecewiseCurve;
         piecewiseCurve.linkTo(
@@ -204,10 +205,9 @@ namespace {
 
             CreditDefaultSwap cds(Protection::Buyer, notional, quote[i],
                                   schedule, convention, dayCounter,
-                                  true, true, protectionStart);
+                                  true, CreditDefaultSwap::ProtectionPaymentTime::atDefault, protectionStart);
             cds.setPricingEngine(ext::shared_ptr<PricingEngine>(
-                           new MidPointCdsEngine(piecewiseCurve, recoveryRate,
-                                                 discountCurve)));
+                           new MidPointCdsEngine(piecewiseCurve, recoveryRate, discountCurve)));
 
             // test
             Rate inputRate = quote[i];
@@ -259,7 +259,8 @@ namespace {
                                          dayCounter, recoveryRate,
                                          discountCurve,
                                          upfrontSettlementDays, 
-                                         true, true, Date(), Actual360(true))));
+                                         true, CreditDefaultSwap::ProtectionPaymentTime::atDefault,
+                                         Date(), Actual360(true))));
 
         RelinkableHandle<DefaultProbabilityTermStructure> piecewiseCurve;
         piecewiseCurve.linkTo(
@@ -289,7 +290,8 @@ namespace {
             CreditDefaultSwap cds(Protection::Buyer, notional,
                                   quote[i], fixedRate,
                                   schedule, convention, dayCounter,
-                                  true, true, protectionStart,
+                                  true, CreditDefaultSwap::ProtectionPaymentTime::atDefault,
+                                  protectionStart,
                                   upfrontDate,
                                   ext::shared_ptr<Claim>(),
                                   Actual360(true),
@@ -385,7 +387,8 @@ void DefaultProbabilityCurveTest::testSingleInstrumentBootstrap() {
                                             settlementDays, calendar,
                                             frequency, convention, rule,
                                             dayCounter, recoveryRate,
-                                            discountCurve));
+                                            discountCurve,
+                                            true, CreditDefaultSwap::ProtectionPaymentTime::atDefault));
 
     PiecewiseDefaultCurve<HazardRate,BackwardFlat> defaultCurve(today, helpers,
                                                                 dayCounter);
@@ -509,7 +512,8 @@ void DefaultProbabilityCurveTest::testIterativeBootstrapRetries() {
     for (map<Period, Rate>::const_iterator it = cdsSpreads.begin(); it != cdsSpreads.end(); ++it) {
         instruments.push_back(ext::shared_ptr<SpreadCdsHelper>(
             new SpreadCdsHelper(it->second, it->first, settlementDays, calendar,
-                                frequency, paymentConvention, rule, dayCounter, recoveryRate, usdYts, true, true, Date(),
+                                frequency, paymentConvention, rule, dayCounter, recoveryRate, usdYts,
+                                true, CreditDefaultSwap::ProtectionPaymentTime::atDefault, Date(),
                                 lastPeriodDayCounter)));
     }
 

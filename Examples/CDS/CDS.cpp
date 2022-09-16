@@ -102,7 +102,7 @@ void example01() {
                                     new SimpleQuote(quoted_spreads[i]))),
                                 tenors[i], settlementDays, calendar, Quarterly, Following,
                                 DateGeneration::TwentiethIMM, Actual365Fixed(),
-                                recovery_rate, tsCurve)));
+                                recovery_rate, tsCurve, true, CreditDefaultSwap::ProtectionPaymentTime::atDefault)));
     }
 
     // Bootstrap hazard rates
@@ -143,7 +143,8 @@ void example01() {
                                .withTerminationDateConvention(Unadjusted)
                                .withRule(DateGeneration::TwentiethIMM);
     CreditDefaultSwap cds_3m(Protection::Seller, nominal, quoted_spreads[0],
-                             cdsSchedule, Following, Actual365Fixed());
+                             cdsSchedule, Following, Actual365Fixed(),
+                             true, CreditDefaultSwap::ProtectionPaymentTime::atDefault);
 
     cdsSchedule = MakeSchedule()
                       .from(settlementDate)
@@ -153,7 +154,8 @@ void example01() {
                       .withTerminationDateConvention(Unadjusted)
                       .withRule(DateGeneration::TwentiethIMM);
     CreditDefaultSwap cds_6m(Protection::Seller, nominal, quoted_spreads[1],
-                             cdsSchedule, Following, Actual365Fixed());
+                             cdsSchedule, Following, Actual365Fixed(),
+                             true, CreditDefaultSwap::ProtectionPaymentTime::atDefault);
 
     cdsSchedule = MakeSchedule()
                       .from(settlementDate)
@@ -163,7 +165,8 @@ void example01() {
                       .withTerminationDateConvention(Unadjusted)
                       .withRule(DateGeneration::TwentiethIMM);
     CreditDefaultSwap cds_1y(Protection::Seller, nominal, quoted_spreads[2],
-                             cdsSchedule, Following, Actual365Fixed());
+                             cdsSchedule, Following, Actual365Fixed(),
+                             true, CreditDefaultSwap::ProtectionPaymentTime::atDefault);
 
     cdsSchedule = MakeSchedule()
                       .from(settlementDate)
@@ -173,7 +176,8 @@ void example01() {
                       .withTerminationDateConvention(Unadjusted)
                       .withRule(DateGeneration::TwentiethIMM);
     CreditDefaultSwap cds_2y(Protection::Seller, nominal, quoted_spreads[3],
-                             cdsSchedule, Following, Actual365Fixed());
+                             cdsSchedule, Following, Actual365Fixed(),
+                             true, CreditDefaultSwap::ProtectionPaymentTime::atDefault);
 
     cds_3m.setPricingEngine(engine);
     cds_6m.setPricingEngine(engine);
@@ -350,7 +354,7 @@ std::copy(cdsSchedule.begin(), cdsSchedule.end(),
     ext::shared_ptr<CreditDefaultSwap> trade =
         ext::shared_ptr<CreditDefaultSwap>(
             new CreditDefaultSwap(Protection::Buyer, 100000000.0, 0.01, sched,
-                                  Following, Actual360(), true, true,
+                                  Following, Actual360(), true, CreditDefaultSwap::ProtectionPaymentTime::atDefault,
                                   Date(22,October,2014), ext::shared_ptr<Claim>(),
                                   Actual360(true), true));
 
@@ -373,7 +377,7 @@ std::copy(cdsSchedule.begin(), cdsSchedule.end(),
 
     ext::shared_ptr<CdsHelper> cds5y(new SpreadCdsHelper(
         0.00672658551, 4 * Years + 6 * Months, 1, WeekendsOnly(), Quarterly,
-        Following, DateGeneration::CDS, Actual360(), 0.4, rateTs, true, true,
+        Following, DateGeneration::CDS, Actual360(), 0.4, rateTs, true, CreditDefaultSwap::ProtectionPaymentTime::atDefault,
         Date(), Actual360(true), true, CreditDefaultSwap::ISDA));
 
     isdaCdsHelper.push_back(cds5y);
@@ -559,27 +563,27 @@ void example03() {
     CreditDefaultSwap::PricingModel model = CreditDefaultSwap::ISDA;
     ext::shared_ptr<CdsHelper> cds6m(new SpreadCdsHelper(
         0.007927, 6 * Months, 1, WeekendsOnly(), Quarterly, Following,
-        DateGeneration::CDS, Actual360(), 0.4, isdaYts, true, true, Date(),
+        DateGeneration::CDS, Actual360(), 0.4, isdaYts, true, CreditDefaultSwap::ProtectionPaymentTime::atDefault, Date(),
         Actual360(true), true, model));
     ext::shared_ptr<CdsHelper> cds1y(new SpreadCdsHelper(
         0.007927, 1 * Years, 1, WeekendsOnly(), Quarterly, Following,
-        DateGeneration::CDS, Actual360(), 0.4, isdaYts, true, true, Date(),
+        DateGeneration::CDS, Actual360(), 0.4, isdaYts, true, CreditDefaultSwap::ProtectionPaymentTime::atDefault, Date(),
         Actual360(true), true, model));
     ext::shared_ptr<CdsHelper> cds3y(new SpreadCdsHelper(
         0.012239, 3 * Years, 1, WeekendsOnly(), Quarterly, Following,
-        DateGeneration::CDS, Actual360(), 0.4, isdaYts, true, true, Date(),
+        DateGeneration::CDS, Actual360(), 0.4, isdaYts, true, CreditDefaultSwap::ProtectionPaymentTime::atDefault, Date(),
         Actual360(true), true, model));
     ext::shared_ptr<CdsHelper> cds5y(new SpreadCdsHelper(
         0.016979, 5 * Years, 1, WeekendsOnly(), Quarterly, Following,
-        DateGeneration::CDS, Actual360(), 0.4, isdaYts, true, true, Date(),
+        DateGeneration::CDS, Actual360(), 0.4, isdaYts, true, CreditDefaultSwap::ProtectionPaymentTime::atDefault, Date(),
         Actual360(true), true, model));
     ext::shared_ptr<CdsHelper> cds7y(new SpreadCdsHelper(
         0.019271, 7 * Years, 1, WeekendsOnly(), Quarterly, Following,
-        DateGeneration::CDS, Actual360(), 0.4, isdaYts, true, true, Date(),
+        DateGeneration::CDS, Actual360(), 0.4, isdaYts, true, CreditDefaultSwap::ProtectionPaymentTime::atDefault, Date(),
         Actual360(true), true, model));
     ext::shared_ptr<CdsHelper> cds10y(new SpreadCdsHelper(
         0.020860, 10 * Years, 1, WeekendsOnly(), Quarterly, Following,
-        DateGeneration::CDS, Actual360(), 0.4, isdaYts, true, true, Date(),
+        DateGeneration::CDS, Actual360(), 0.4, isdaYts, true, CreditDefaultSwap::ProtectionPaymentTime::atDefault, Date(),
         Actual360(true), true, model));
 
     std::vector<ext::shared_ptr<DefaultProbabilityHelper> > isdaCdsHelpers;

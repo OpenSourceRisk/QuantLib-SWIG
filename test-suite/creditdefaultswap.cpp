@@ -90,7 +90,7 @@ void CreditDefaultSwapTest::testCachedValue() {
     Real recoveryRate = 0.4;
 
     CreditDefaultSwap cds(Protection::Seller, notional, fixedRate,
-                          schedule, convention, dayCount, true, true);
+                          schedule, convention, dayCount, true, CreditDefaultSwap::ProtectionPaymentTime::atDefault);
     cds.setPricingEngine(ext::shared_ptr<PricingEngine>(
          new MidPointCdsEngine(probabilityCurve,recoveryRate,discountCurve)));
 
@@ -284,7 +284,7 @@ void CreditDefaultSwapTest::testCachedMarketValue() {
     Real cdsNotional=100.0;
 
     CreditDefaultSwap cds(Protection::Seller, cdsNotional, fixedRate,
-                          schedule, cdsConvention, dayCount, true, true);
+                          schedule, cdsConvention, dayCount, true, CreditDefaultSwap::ProtectionPaymentTime::atDefault);
     cds.setPricingEngine(ext::shared_ptr<PricingEngine>(
                           new MidPointCdsEngine(piecewiseFlatHazardRate,
                                                 recoveryRate,discountCurve)));
@@ -368,7 +368,7 @@ void CreditDefaultSwapTest::testImpliedHazardRate() {
 
         CreditDefaultSwap cds(Protection::Seller, notional, fixedRate,
                               schedule, convention, cdsDayCount,
-                              true, true);
+                              true, CreditDefaultSwap::ProtectionPaymentTime::atDefault);
         cds.setPricingEngine(ext::shared_ptr<PricingEngine>(
                          new MidPointCdsEngine(probabilityCurve,
                                                recoveryRate, discountCurve)));
@@ -404,7 +404,7 @@ void CreditDefaultSwapTest::testImpliedHazardRate() {
 
         CreditDefaultSwap cds2(Protection::Seller, notional, fixedRate,
                                schedule, convention, cdsDayCount,
-                               true, true);
+                               true, CreditDefaultSwap::ProtectionPaymentTime::atDefault);
         cds2.setPricingEngine(ext::shared_ptr<PricingEngine>(
                                new MidPointCdsEngine(probability,recoveryRate,
                                                      discountCurve)));
@@ -466,13 +466,13 @@ void CreditDefaultSwapTest::testFairSpread() {
           new MidPointCdsEngine(probabilityCurve,recoveryRate,discountCurve));
 
     CreditDefaultSwap cds(Protection::Seller, notional, fixedRate,
-                          schedule, convention, dayCount, true, true);
+                          schedule, convention, dayCount, true, CreditDefaultSwap::ProtectionPaymentTime::atDefault);
     cds.setPricingEngine(engine);
 
     Rate fairRate = cds.fairSpread();
 
     CreditDefaultSwap fairCds(Protection::Seller, notional, fairRate,
-                              schedule, convention, dayCount, true, true);
+                              schedule, convention, dayCount, true, CreditDefaultSwap::ProtectionPaymentTime::atDefault);
     fairCds.setPricingEngine(engine);
 
     Real fairNPV = fairCds.NPV();
@@ -533,14 +533,14 @@ void CreditDefaultSwapTest::testFairUpfront() {
                                 discountCurve, true));
 
     CreditDefaultSwap cds(Protection::Seller, notional, upfront, fixedRate,
-                          schedule, convention, dayCount, true, true);
+                          schedule, convention, dayCount, true, CreditDefaultSwap::ProtectionPaymentTime::atDefault);
     cds.setPricingEngine(engine);
 
     Rate fairUpfront = cds.fairUpfront();
 
     CreditDefaultSwap fairCds(Protection::Seller, notional,
                               fairUpfront, fixedRate,
-                              schedule, convention, dayCount, true, true);
+                              schedule, convention, dayCount, true, CreditDefaultSwap::ProtectionPaymentTime::atDefault);
     fairCds.setPricingEngine(engine);
 
     Real fairNPV = fairCds.NPV();
@@ -555,14 +555,14 @@ void CreditDefaultSwapTest::testFairUpfront() {
     // same with null upfront to begin with
     upfront = 0.0;
     CreditDefaultSwap cds2(Protection::Seller, notional, upfront, fixedRate,
-                           schedule, convention, dayCount, true, true);
+                           schedule, convention, dayCount, true, CreditDefaultSwap::ProtectionPaymentTime::atDefault);
     cds2.setPricingEngine(engine);
 
     fairUpfront = cds2.fairUpfront();
 
     CreditDefaultSwap fairCds2(Protection::Seller, notional,
                                fairUpfront, fixedRate,
-                               schedule, convention, dayCount, true, true);
+                               schedule, convention, dayCount, true, CreditDefaultSwap::ProtectionPaymentTime::atDefault);
     fairCds2.setPricingEngine(engine);
 
     fairNPV = fairCds2.NPV();
@@ -742,6 +742,9 @@ void CreditDefaultSwapTest::testAccrualRebateAmounts() {
         Settings::instance().evaluationDate() = input.first;
         CreditDefaultSwap cds = MakeCreditDefaultSwap(maturity, spread)
             .withNominal(notional);
+        BOOST_TEST_MESSAGE("asof " << io::iso_date(input.first)
+                           << " expected " << std::fixed << std::setprecision(4) << input.second
+                           << " calculated " << cds.accrualRebate()->amount());
         QL_CHECK_SMALL(input.second - cds.accrualRebate()->amount(), 0.01);
     }
 }

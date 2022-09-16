@@ -5,6 +5,7 @@
  Copyright (C) 2008 Chris Kenyon
  Copyright (C) 2008 Roland Lichters
  Copyright (C) 2008 StatPro Italia srl
+ Copyright (C) 2017 Quaternion Risk Management Ltd
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -76,6 +77,7 @@ namespace QuantLib {
                                    CDS after the Big Bang, this is typically \c true.
             @param model  The pricing model to use for the helper.
         */
+        QL_DEPRECATED
         CdsHelper(const Handle<Quote>& quote,
                   const Period& tenor,
                   Integer settlementDays,
@@ -90,10 +92,11 @@ namespace QuantLib {
                   bool paysAtDefaultTime = true,
                   const Date& startDate = Date(),
                   DayCounter lastPeriodDayCounter = DayCounter(),
-                  bool rebatesAccrual = true,
+                  boost::optional<bool> rebatesAccrual = true,
                   CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
 
         //! \copydoc CdsHelper::CdsHelper
+        QL_DEPRECATED
         CdsHelper(Rate quote,
                   const Period& tenor,
                   Integer settlementDays,
@@ -108,8 +111,68 @@ namespace QuantLib {
                   bool paysAtDefaultTime = true,
                   const Date& startDate = Date(),
                   DayCounter lastPeriodDayCounter = DayCounter(),
-                  bool rebatesAccrual = true,
+                  boost::optional<bool> rebatesAccrual = true,
                   CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
+
+        /*! Constructor
+        @param quote  The helper's market quote.
+        @param tenor  CDS tenor.
+        @param settlementDays  The number of days from evaluation date to the start of the protection period. Prior to
+                               the CDS Big Bang in 2009, this was typically 1 calendar day. After the CDS Big Bang,
+                               this is typically 0 calendar days i.e. protection starts immediately.
+        @param calendar  CDS calendar. Typically weekends only for standard non-JPY CDS and TYO for JPY.
+        @param frequency  Coupon frequency. Typically 3 months for standard CDS.
+        @param paymentConvention  The convention applied to coupons schedules and settlement dates.
+        @param rule  The date generation rule for generating the CDS schedule. Typically, for CDS prior to the Big
+                     Bang, \c OldCDS should be used. After the Big Bang, \c CDS was typical and since 2015 \c CDS2015
+                     is standard.
+        @param dayCounter  The day counter for CDS fee leg coupons. Typically it is Actual/360, excluding accrual end,
+                           for all but the final coupon period with Actual/360, including accrual end, for the final
+                           coupon. The \p lastPeriodDayCounter below allows for this distinction.
+        @param recoveryRate  The recovery rate of the underlying reference entity.
+        @param discountCurve  A handle to the relevant discount curve.
+        @param startDate  Used to specify an explicit start date for the CDS schedule and the date from which the
+                          CDS maturity is calculated via the \p tenor. Useful for off-the-run index schedules.
+        @param settlesAccrual  Set to \c true if accrued fee is paid on the occurrence of a credit event and set to
+                               \c false if it is not. Typically this is \c true.
+        @param protectionPaymentTime  Time at which protection payments are made when there is a credit event.
+        @param lastPeriodDayCounter  The day counter for the last fee leg coupon. See comment on \p dayCounter.
+        */
+        CdsHelper(const Handle<Quote>& quote,
+                  const Period& tenor,
+                  Integer settlementDays,
+                  const Calendar& calendar,
+                  Frequency frequency,
+                  BusinessDayConvention paymentConvention,
+                  DateGeneration::Rule rule,
+                  const DayCounter& dayCounter,
+                  Real recoveryRate,
+                  const Handle<YieldTermStructure>& discountCurve,
+                  bool settlesAccrual = true,
+                  CreditDefaultSwap::ProtectionPaymentTime protectionPaymentTime =
+                      CreditDefaultSwap::ProtectionPaymentTime::atDefault,
+                  const Date& startDate = Date(),
+                  const DayCounter& lastPeriodDayCounter = DayCounter(),
+                  boost::optional<bool> rebatesAccrual = boost::none,
+                  CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
+
+        //! \copydoc QuantExt::CdsHelper::CdsHelper
+        CdsHelper(Rate quote, const Period& tenor,
+                  Integer settlementDays,
+                  const Calendar& calendar,
+                  Frequency frequency,
+                  BusinessDayConvention paymentConvention,
+                  DateGeneration::Rule rule,
+                  const DayCounter& dayCounter,
+                  Real recoveryRate, const Handle<YieldTermStructure>& discountCurve,
+                  bool settlesAccrual = true,
+                  CreditDefaultSwap::ProtectionPaymentTime protectionPaymentTime =
+                      CreditDefaultSwap::ProtectionPaymentTime::atDefault,
+                  const Date& startDate = Date(),
+                  const DayCounter& lastPeriodDayCounter = DayCounter(),
+                  boost::optional<bool> rebatesAccrual = boost::none,
+                  CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
+
         void setTermStructure(DefaultProbabilityTermStructure*) override;
         ext::shared_ptr<CreditDefaultSwap> swap() const {
             return swap_;
@@ -130,6 +193,7 @@ namespace QuantLib {
         Handle<YieldTermStructure> discountCurve_;
         bool settlesAccrual_;
         bool paysAtDefaultTime_;
+        CreditDefaultSwap::ProtectionPaymentTime protectionPaymentTime_;
         DayCounter lastPeriodDC_;
         bool rebatesAccrual_;
         CreditDefaultSwap::PricingModel model_;
@@ -145,6 +209,7 @@ namespace QuantLib {
     //! Spread-quoted CDS hazard rate bootstrap helper.
     class SpreadCdsHelper : public CdsHelper {
       public:
+        QL_DEPRECATED
         SpreadCdsHelper(const Handle<Quote>& runningSpread,
                         const Period& tenor,
                         Integer settlementDays,
@@ -159,9 +224,10 @@ namespace QuantLib {
                         bool paysAtDefaultTime = true,
                         const Date& startDate = Date(),
                         const DayCounter& lastPeriodDayCounter = DayCounter(),
-                        bool rebatesAccrual = true,
+                        boost::optional<bool> rebatesAccrual = true,
                         CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
 
+        QL_DEPRECATED
         SpreadCdsHelper(
             Rate runningSpread,
             const Period& tenor,
@@ -177,8 +243,45 @@ namespace QuantLib {
             bool paysAtDefaultTime = true,
             const Date& startDate = Date(),
             const DayCounter& lastPeriodDayCounter = DayCounter(), // ISDA: Actual/360(inc)
-            bool rebatesAccrual = true,                            // ISDA: true
+            boost::optional<bool> rebatesAccrual = true,           // ISDA: true
             CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
+
+        SpreadCdsHelper(const Handle<Quote>& runningSpread,
+                        const Period& tenor,
+                        Integer settlementDays,
+                        const Calendar& calendar,
+                        Frequency frequency,
+                        BusinessDayConvention paymentConvention,
+                        DateGeneration::Rule rule,
+                        const DayCounter& dayCounter,
+                        Real recoveryRate,
+                        const Handle<YieldTermStructure>& discountCurve,
+                        bool settlesAccrual = true,
+                        CreditDefaultSwap::ProtectionPaymentTime protectionPaymentTime =
+                            CreditDefaultSwap::ProtectionPaymentTime::atDefault,
+                        const Date& startDate = Date(),
+                        const DayCounter& lastPeriodDayCounter = DayCounter(),
+                        boost::optional<bool> rebatesAccrual = boost::none,
+                        CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
+
+        SpreadCdsHelper(Rate runningSpread,
+                        const Period& tenor,
+                        Integer settlementDays,
+                        const Calendar& calendar,
+                        Frequency frequency,
+                        BusinessDayConvention paymentConvention,
+                        DateGeneration::Rule rule,
+                        const DayCounter& dayCounter,
+                        Real recoveryRate,
+                        const Handle<YieldTermStructure>& discountCurve,
+                        bool settlesAccrual = true,
+                        CreditDefaultSwap::ProtectionPaymentTime protectionPaymentTime =
+                            CreditDefaultSwap::ProtectionPaymentTime::atDefault,
+                        const Date& startDate = Date(),
+                        const DayCounter& lastPeriodDayCounter = DayCounter(),
+                        boost::optional<bool> rebatesAccrual = boost::none,
+                        CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);                    
+        
         Real impliedQuote() const override;
 
       private:
@@ -189,6 +292,7 @@ namespace QuantLib {
     class UpfrontCdsHelper : public CdsHelper {
       public:
         /*! \note the upfront must be quoted in fractional units. */
+        QL_DEPRECATED
         UpfrontCdsHelper(const Handle<Quote>& upfront,
                          Rate runningSpread,
                          const Period& tenor,
@@ -205,10 +309,11 @@ namespace QuantLib {
                          bool paysAtDefaultTime = true,
                          const Date& startDate = Date(),
                          const DayCounter& lastPeriodDayCounter = DayCounter(),
-                         bool rebatesAccrual = true,
+                         boost::optional<bool> rebatesAccrual = true,
                          CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
 
         /*! \note the upfront must be quoted in fractional units. */
+        QL_DEPRECATED
         UpfrontCdsHelper(Rate upfront,
                          Rate runningSpread,
                          const Period& tenor,
@@ -225,12 +330,55 @@ namespace QuantLib {
                          bool paysAtDefaultTime = true,
                          const Date& startDate = Date(),
                          const DayCounter& lastPeriodDayCounter = DayCounter(),
-                         bool rebatesAccrual = true,
+                         boost::optional<bool> rebatesAccrual = true,
                          CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
-        Real impliedQuote() const override;
 
+        /*! \note the upfront must be quoted in fractional units. */
+        UpfrontCdsHelper(const Handle<Quote>& upfront,
+                         Rate runningSpread,
+                         const Period& tenor,
+                         Integer settlementDays,
+                         const Calendar& calendar,
+                         Frequency frequency,
+                         BusinessDayConvention paymentConvention,
+                         DateGeneration::Rule rule,
+                         const DayCounter& dayCounter,
+                         Real recoveryRate,
+                         const Handle<YieldTermStructure>& discountCurve,
+                         Natural upfrontSettlementDays = 3,
+                         bool settlesAccrual = true,
+                         CreditDefaultSwap::ProtectionPaymentTime protectionPaymentTime =
+                             CreditDefaultSwap::ProtectionPaymentTime::atDefault,
+                         const Date& startDate = Date(),
+                         const DayCounter& lastPeriodDayCounter = DayCounter(),
+                         boost::optional<bool> rebatesAccrual = boost::none,
+                         CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
+
+        /*! \note the upfront must be quoted in fractional units. */
+        UpfrontCdsHelper(Rate upfront,
+                         Rate runningSpread,
+                         const Period& tenor,
+                         Integer settlementDays,
+                         const Calendar& calendar,
+                         Frequency frequency,
+                         BusinessDayConvention paymentConvention,
+                         DateGeneration::Rule rule,
+                         const DayCounter& dayCounter,
+                         Real recoveryRate,
+                         const Handle<YieldTermStructure>& discountCurve,
+                         Natural upfrontSettlementDays = 3,
+                         bool settlesAccrual = true,
+                         CreditDefaultSwap::ProtectionPaymentTime protectionPaymentTime =
+                             CreditDefaultSwap::ProtectionPaymentTime::atDefault,
+                         const Date& startDate = Date(),
+                         const DayCounter& lastPeriodDayCounter = DayCounter(),
+                         boost::optional<bool> rebatesAccrual = boost::none,
+                         CreditDefaultSwap::PricingModel model = CreditDefaultSwap::Midpoint);
+
+        Real impliedQuote() const override;
+        void initializeUpfront();
+        
       private:
-        void initializeDates() override;
         void resetEngine() override;
         Natural upfrontSettlementDays_;
         Date upfrontDate_;
