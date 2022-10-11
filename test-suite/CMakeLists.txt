@@ -378,7 +378,7 @@ if (QL_BUILD_TEST_SUITE)
         target_compile_definitions(ql_test_suite PRIVATE BOOST_ALL_DYN_LINK BOOST_TEST_DYN_LINK)
     endif()
     if (QL_ENABLE_PARALLEL_UNIT_TEST_RUNNER OR QL_ENABLE_THREAD_SAFE_OBSERVER_PATTERN)
-        set(QL_TEST_SUITE_LIBRARIES Boost::thread ${RT_LIBRARY})
+        set(QL_TEST_SUITE_LIBRARIES Boost::system Boost::thread ${RT_LIBRARY})
     endif()
     target_link_libraries(ql_test_suite PRIVATE
         ql_library
