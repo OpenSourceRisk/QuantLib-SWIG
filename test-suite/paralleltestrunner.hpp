@@ -83,19 +83,13 @@ namespace {
         const id_map_t& map() const { return idMap_; }
         test_unit_id testSuiteId() const { return testSuiteId_; }
 
-        bool visit(test_unit const& tu) {
+         bool visit(test_unit const& tu) {
             if (tu.p_parent_id == framework::master_test_suite().p_id) {
-                QL_REQUIRE(!tu.p_name.get().compare("QuantLib test suite"),
-                     "could not find QuantLib test suite");
-
                 testSuiteId_ = tu.p_id;
+            } else if (tu.p_type == test_unit_type::TUT_SUITE && tu.p_parent_id == testSuiteId_) {
+                idMap_[tu.p_parent_id].push_back(tu.p_id);
             }
             return test_tree_visitor::visit(tu);
-        }
-
-        void visit(test_case const& tc) {
-            if (test_enabled(tc.p_id) != 0u)
-                idMap_[tc.p_parent_id].push_back(tc.p_id);
         }
 
         std::list<test_unit_id>::size_type numberOfTests() {
@@ -211,6 +205,7 @@ int main( int argc, char* argv[] )
 
             std::vector<char*> localArgs(1, argv[0]);
 
+            std::vector<std::string> logSink;
             for( int i = 1; i < argc; ++i ) {
                 const std::string arg(argv[i]);
 
@@ -220,13 +215,15 @@ int main( int argc, char* argv[] )
                 if (tok.size() == 2 && tok[0] == "--nProc") {
                     nProc = std::stoul(tok[1]);
                 }
+                else if (tok[0] == "--log_sink") {
+                    boost::split(logSink, tok[1], boost::is_any_of("."));
+                    localArgs.push_back(argv[i]);
+                }
                 else if (arg != "--build_info=yes") {
                     cmd << arg << " ";
                     localArgs.push_back(argv[i]);
                 }
             }
-
-            cmd << clientModeStr;
 
             framework::init(init_unit_test_suite,
                             localArgs.size(), &localArgs[0]);
@@ -256,15 +253,16 @@ int main( int argc, char* argv[] )
             message_queue lq(create_only, testRuntimeLogName, nProc,
                 sizeof(RuntimeLog));
 
-            // run root test cases in master process
-            const std::list<test_unit_id> qlRoot = (tcc.map().count(tcc.testSuiteId())) != 0u ?
-                                                       tcc.map().find(tcc.testSuiteId())->second :
-                                                       std::list<test_unit_id>();
-
             // fork worker processes
             std::vector<std::thread> threadGroup;
-            for (unsigned i=0; i < nProc; ++i) {
-                threadGroup.emplace_back([&]() { worker(cmd.str()); });
+            for (unsigned i = 0; i < nProc; ++i) {
+                std::stringstream newCmd;
+                newCmd << cmd.str();
+                if (logSink.size() == 2) {
+                    newCmd << "--log_sink=" << logSink[0] << "_" << i << "." << logSink[1] << " ";
+                }
+                newCmd << clientModeStr;
+                threadGroup.emplace_back([&]() { worker(newCmd.str()); });
             }
 
             struct mutex_remove {
@@ -314,8 +312,6 @@ int main( int argc, char* argv[] )
 
                 ids.push_front(iter->second);
             }
-            QL_REQUIRE(ids.size() + qlRoot.size() == tcc.numberOfTests(),
-                "missing test case in distrubtion list");
 
             testsSortedByRunTime.clear();
 
