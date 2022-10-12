@@ -143,7 +143,7 @@ endif()
 if (NOT DEFINED QL_BOOST_COMPONENTS)
     # Boost thread and unit_test_framework needed for tests and benchmark
     if (QL_BUILD_TEST_SUITE OR QL_BUILD_BENCHMARK)
-        set(QL_BOOST_COMPONENTS thread system unit_test_framework)
+        set(QL_BOOST_COMPONENTS thread unit_test_framework)
     else()
         set(QL_BOOST_COMPONENTS thread)
     endif()
