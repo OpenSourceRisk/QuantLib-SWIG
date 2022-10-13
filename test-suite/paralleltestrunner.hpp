@@ -207,9 +207,8 @@ int main(int argc, char* argv[]) {
             message_queue lq(create_only, testRuntimeLogName, nProc, sizeof(RuntimeLog));
 
             // fork worker processes
-            std::string cmdStr = cmd.str();
             std::vector<std::thread> threadGroup;
-            std::vector<std::string> cmdStrs(nProc, cmdStr);
+            std::vector<std::string> cmdStrs(nProc, cmd.str());
             for (unsigned i = 0; i < nProc; ++i) {
                 std::stringstream newCmd;
                 if (logSink.size() == 2) {
