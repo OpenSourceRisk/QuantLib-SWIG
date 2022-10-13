@@ -40,8 +40,7 @@ void ArrayTest::testConstruction() {
 
     // empty array
     Array a1;
-    if (!a1.empty())
-        BOOST_ERROR("default-initialized array is not empty "
+    BOOST_ERROR("default-initialized array is not empty "
                     "(size = " << a1.size() << ")");
 
     // sized array
