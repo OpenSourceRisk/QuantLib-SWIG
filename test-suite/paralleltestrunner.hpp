@@ -64,7 +64,6 @@
 using boost::unit_test::test_results;
 using namespace boost::interprocess;
 using namespace boost::unit_test_framework;
-using boost::timer::cpu_timer;
 
 namespace {
     int worker(std::string cmd) {
