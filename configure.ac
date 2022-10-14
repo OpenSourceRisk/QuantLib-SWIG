@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([QuantLib], [1.27.1],
+AC_INIT([QuantLib], [1.28-rc],
         [quantlib-dev@lists.sourceforge.net],
         [QuantLib])
 AC_PREREQ(2.62)
@@ -74,8 +74,8 @@ if test "$ql_openmp" = "yes" ; then
    AC_SUBST([CXXFLAGS],["${CXXFLAGS} ${OPENMP_CXXFLAGS}"])
 fi
 
-# Check for C++11 support
-QL_CHECK_CPP11
+# Check for C++14 support
+QL_CHECK_CPP14
 
 # Check for other compiler flags
 QL_CHECK_SYSTEM_HEADER_PREFIX
@@ -431,10 +431,6 @@ AC_MSG_RESULT([$ql_use_null_functions])
 
 # manual configurations for specific hosts
 case $host in
-  powerpc-apple-darwin*)
-    AC_DEFINE([QL_PATCH_DARWIN],[1],
-              [Define if running on a Mac OS X machine.])
-    ;;
   sparc-sun-solaris*)
     AC_DEFINE([QL_PATCH_SOLARIS],[1],
               [Define if running on a Sun Solaris machine.])
