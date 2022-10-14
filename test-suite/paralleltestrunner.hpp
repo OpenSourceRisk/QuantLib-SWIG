@@ -83,7 +83,6 @@ namespace {
                 testSuiteId_ = tu.p_id;
             } else if (tu.p_type == test_unit_type::TUT_SUITE && tu.p_parent_id == testSuiteId_ &&
                        tu.is_enabled()) {
-                std::cout << "TestSuite: " << tu.p_name << ", id=" << tu.p_id << " and parent=" << tu.p_parent_id << std::endl;
                 idMap_[tu.p_parent_id].push_back(tu.p_id);
             }
             return test_tree_visitor::visit(tu);
@@ -351,10 +350,8 @@ int main(int argc, char* argv[]) {
                                            framework::impl::s_frk_state().m_observers)
                 to->test_finish();
 #else
-                // works for BOOST_VERSION > 106100, needed for >106500
-                std::cout << "running id: " << id.id << std::endl;              
+                // works for BOOST_VERSION > 106100, needed for >106500    
                 framework::run(id.id, false);
-                std::cout << "finished running id: " << id.id << std::endl;
 #endif
 
                 auto stopTime = std::chrono::steady_clock::now();
