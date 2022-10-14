@@ -67,6 +67,7 @@ using namespace boost::unit_test_framework;
 
 namespace {
     int worker(std::string cmd) {
+        std::cout << cmd << std::endl;
         return std::system(cmd.c_str());
     }
 
