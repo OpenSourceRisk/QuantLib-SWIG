@@ -67,7 +67,6 @@ using namespace boost::unit_test_framework;
 
 namespace {
     int worker(std::string cmd) {
-        std::cout << cmd << std::endl;
         return std::system(cmd.c_str());
     }
 
@@ -143,7 +142,14 @@ int main(int argc, char* argv[]) {
     const char* const testRuntimeLogName = testRuntimeLogNameStr.c_str();
 
     const std::string clientModeStr = "--client_mode=true";
-    const bool clientMode = (std::string(argv[argc - 1]) == clientModeStr);
+    bool clientMode = false;
+
+    for (int i = 1; i < argc; ++i) {
+        if (argv[i] == clientModeStr) {
+            clientMode = true;
+            break;
+        }
+    }
 
     message_queue::size_type recvd_size;
 
@@ -172,8 +178,6 @@ int main(int argc, char* argv[]) {
             cmd << "\"" << argv[0] << "\" ";
 
             std::vector<char*> localArgs(1, argv[0]);
-
-            std::vector<std::string> logSink;
             for (int i = 1; i < argc; ++i) {
                 const std::string arg(argv[i]);
 
@@ -182,15 +186,11 @@ int main(int argc, char* argv[]) {
                 boost::split(tok, arg, boost::is_any_of("="));
                 if (tok.size() == 2 && tok[0] == "--nProc") {
                     nProc = std::stoul(tok[1]);
-                } else if (tok[0] == "--log_sink") {
-                    boost::split(logSink, tok[1], boost::is_any_of("."));
-                    localArgs.push_back(argv[i]);
                 } else if (arg != "--build_info=yes") {
                     cmd << arg << " ";
                     localArgs.push_back(argv[i]);
                 }
-            }
-
+            }           
 
             framework::init(init_unit_test_suite, localArgs.size(), &localArgs[0]);
             framework::finalize_setup_phase();
@@ -214,12 +214,9 @@ int main(int argc, char* argv[]) {
             std::vector<std::thread> threadGroup;
             std::vector<std::string> cmdStrs(nProc, cmd.str());
             for (unsigned i = 0; i < nProc; ++i) {
-                std::stringstream newCmd;
-                if (logSink.size() == 2) {
-                    newCmd << "--log_sink=" << logSink[0] << "_" << i << "." << logSink[1] << " ";
-                }
-                newCmd << clientModeStr;
-                cmdStrs[i] += newCmd.str();
+                std::stringstream proStr;
+                proStr << "--process_id=" << i << " " << clientModeStr;
+                cmdStrs[i] += proStr.str();
             }
 
             for (unsigned i = 0; i < nProc; ++i) {
@@ -323,7 +320,39 @@ int main(int argc, char* argv[]) {
             std::cout << std::fixed << std::setprecision(0) << seconds << " s" << std::endl;
 
         } else {
-            framework::init(init_unit_test_suite, argc - 1, argv);
+
+            // first get a process id
+            std::string processId;
+            for (int i = 1; i < argc; ++i) {
+                if (boost::starts_with(argv[i], "--process_id")) {
+                    std::vector<std::string> strs;
+                    boost::split(strs, argv[i], boost::is_any_of("="));
+                    if (strs.size() > 1)
+                        processId = strs[1];                    
+                }
+            }
+
+            std::vector<char*> localArgs(1, argv[0]);
+
+            // update the log sink for each sub process
+            for (int i = 1; i < argc; ++i) {
+                const std::string arg(argv[i]);
+
+                std::vector<std::string> tok;
+                boost::split(tok, arg, boost::is_any_of("="));
+                if (tok[0] == "--log_sink") {
+                    std::vector<std::string> logSink;
+                    boost::split(logSink, tok[1], boost::is_any_of("."));
+                    std::string newLog =
+                        tok[0] + "=" + logSink[0] + "_" + processId + "." + logSink[1];
+                    char* pString = new char[newLog.length() + 1];
+                    std::copy(newLog.c_str(), newLog.c_str() + newLog.length() + 1, pString);
+                    localArgs.push_back(pString);
+                } else
+                    localArgs.push_back(argv[i]);
+            }
+                
+            framework::init(init_unit_test_suite, localArgs.size(), &localArgs[0]);
             framework::finalize_setup_phase();
 
             framework::impl::s_frk_state().deduce_run_status(framework::master_test_suite().p_id);
