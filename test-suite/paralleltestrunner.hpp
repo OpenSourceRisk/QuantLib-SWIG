@@ -41,6 +41,7 @@
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
 #include <boost/thread/thread.hpp>
+#include <boost/timer/timer.hpp>
 
 #define BOOST_TEST_NO_MAIN 1
 #include <boost/algorithm/string.hpp>
@@ -80,7 +81,9 @@ namespace {
         bool visit(test_unit const& tu) override {
             if (tu.p_parent_id == framework::master_test_suite().p_id) {
                 testSuiteId_ = tu.p_id;
-            } else if (tu.p_type == test_unit_type::TUT_SUITE && tu.p_parent_id == testSuiteId_) {
+            } else if (tu.p_type == test_unit_type::TUT_SUITE && tu.p_parent_id == testSuiteId_ &&
+                       tu.is_enabled()) {
+                std::cout << "TestSuite: " << tu.p_name << ", id=" << tu.p_id << " and parent=" << tu.p_parent_id << std::endl;
                 idMap_[tu.p_parent_id].push_back(tu.p_id);
             }
             return test_tree_visitor::visit(tu);
@@ -128,6 +131,7 @@ test_suite* init_unit_test_suite(int, char*[]);
 
 int main(int argc, char* argv[]) {
     typedef QuantLib::Time Time;
+    boost::timer::cpu_timer testTimer;
 
     std::string moduleName = BOOST_TEST_MODULE;
     std::string profileFileNameStr = moduleName + "_unit_test_profile.txt";
@@ -303,6 +307,19 @@ int main(int argc, char* argv[]) {
                 thread.join();
             }
 
+            testTimer.stop();
+            double seconds = testTimer.elapsed().wall * 1e-9;
+            int hours = int(seconds / 3600);
+            seconds -= hours * 3600;
+            int minutes = int(seconds / 60);
+            seconds -= minutes * 60;
+            std::cout << std::endl << BOOST_TEST_MODULE << " tests completed in ";
+            if (hours > 0)
+                std::cout << hours << " h ";
+            if (hours > 0 || minutes > 0)
+                std::cout << minutes << " m ";
+            std::cout << std::fixed << std::setprecision(0) << seconds << " s" << std::endl;
+
         } else {
             framework::init(init_unit_test_suite, argc - 1, argv);
             framework::finalize_setup_phase();
@@ -333,7 +350,9 @@ int main(int argc, char* argv[]) {
                 to->test_finish();
 #else
                 // works for BOOST_VERSION > 106100, needed for >106500
+                std::cout << "running id: " << id.id << std::endl;              
                 framework::run(id.id, false);
+                std::cout << "finished running id: " << id.id << std::endl;
 #endif
 
                 auto stopTime = std::chrono::steady_clock::now();
