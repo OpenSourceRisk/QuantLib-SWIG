@@ -348,7 +348,7 @@ int main(int argc, char* argv[]) {
                     char* pString = new char[newLog.length() + 1];
                     std::copy(newLog.c_str(), newLog.c_str() + newLog.length() + 1, pString);
                     localArgs.push_back(pString);
-                } else
+                } else if (tok[0] != "client_mode" && tok[0] != "process_id")
                     localArgs.push_back(argv[i]);
             }
                 
