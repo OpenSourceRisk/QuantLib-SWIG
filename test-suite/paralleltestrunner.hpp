@@ -131,7 +131,6 @@ test_suite* init_unit_test_suite(int, char*[]);
 
 int main(int argc, char* argv[]) {
     typedef QuantLib::Time Time;
-    boost::timer::cpu_timer testTimer;
 
     std::string moduleName = BOOST_TEST_MODULE;
     std::string profileFileNameStr = moduleName + "_unit_test_profile.txt";
@@ -151,6 +150,7 @@ int main(int argc, char* argv[]) {
     try {
         unsigned int priority;
         if (!clientMode) {
+            auto startTime = std::chrono::steady_clock::now();
             std::map<std::string, Time> runTimeLog;
 
             std::ifstream in(profileFileName);
@@ -307,8 +307,10 @@ int main(int argc, char* argv[]) {
                 thread.join();
             }
 
-            testTimer.stop();
-            double seconds = testTimer.elapsed().wall * 1e-9;
+            auto stopTime = std::chrono::steady_clock::now();
+            double seconds =
+                std::chrono::duration_cast<std::chrono::microseconds>(stopTime - startTime)
+                           .count() * 1e-6;
             int hours = int(seconds / 3600);
             seconds -= hours * 3600;
             int minutes = int(seconds / 60);
