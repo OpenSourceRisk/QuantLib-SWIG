@@ -56,18 +56,18 @@ namespace QuantLib {
         */
         //@{
         //! Returns the volatility for a given maturity date and strike rate.
-        Volatility volatility(const Date& maturityDate,
+        virtual Volatility volatility(const Date& maturityDate,
                               Rate strike,
                               const Period &obsLag = Period(-1,Days),
                               bool extrapolate = false) const;
         //! returns the volatility for a given option tenor and strike rate
-        Volatility volatility(const Period& optionTenor,
+        virtual Volatility volatility(const Period& optionTenor,
                               Rate strike,
                               const Period &obsLag = Period(-1,Days),
                               bool extrapolate = false) const;
         /*! Returns the volatility for a given time and strike rate. No adjustments
           due to lags and interpolation are applied to the input time. */
-        Volatility volatility(Time time, Rate strike) const;
+        virtual Volatility volatility(Time time, Rate strike) const;
 
         //! Returns the total integrated variance for a given exercise
         //! date and strike rate.
