@@ -162,7 +162,7 @@ namespace QuantLib {
     }
 
     AverageBMALeg::AverageBMALeg(Schedule schedule, ext::shared_ptr<BMAIndex> index)
-    : schedule_(std::move(schedule)), index_(std::move(index)), paymentAdjustment_(Following) {}
+    : schedule_(std::move(schedule)), index_(std::move(index)) {}
 
 
     AverageBMALeg& AverageBMALeg::withNotionals(Real notional) {

@@ -252,7 +252,6 @@ namespace QuantLib {
       subtractInflationNominal_(true), spreads_(std::vector<Real>(1, 0)),
       exCouponAdjustment_(Following), exCouponEndOfMonth_(false) {}
 
-
     CPILeg& CPILeg::withObservationInterpolation(CPI::InterpolationType interp) {
         observationInterpolation_ = interp;
         return *this;

@@ -99,7 +99,7 @@ namespace QuantLib {
         std::vector<Real> notionals_;
         DayCounter paymentDayCounter_;
         Calendar paymentCalendar_;
-        BusinessDayConvention paymentAdjustment_;
+        BusinessDayConvention paymentAdjustment_ = Following;
         std::vector<Real> gearings_;
         std::vector<Spread> spreads_;
     };
