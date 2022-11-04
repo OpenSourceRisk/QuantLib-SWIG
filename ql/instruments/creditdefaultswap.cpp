@@ -226,10 +226,10 @@ namespace QuantLib {
         if (effectiveUpfrontDate == Date()) {
             effectiveUpfrontDate = schedule.calendar().advance(tradeDate_, cashSettlementDays_, Days, paymentConvention);
         }
-        QL_REQUIRE(effectiveUpfrontDate >= protectionStart_, "The cash settlement date must not "
-                   << "be before the protection start date.");
-        
-        // Create the upfront payment. Should always be created as some downstream engines don't expect nullptr.
+        QL_REQUIRE(effectiveUpfrontDate >= protectionStart_,
+                   "The cash settlement date must not be before the protection start date.");
+
+        // Create the upfront payment, if one is provided.
         Real upfrontAmount = 0.0;
         if (upfront_)
             upfrontAmount = *upfront_ * notional_;

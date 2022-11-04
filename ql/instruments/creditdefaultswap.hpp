@@ -193,6 +193,11 @@ namespace QuantLib {
         @param lastPeriodDayCounter  Day-count convention for accrual in last period. Mainly to
                                      allow for possibility of including maturity date in the last
                                      period's coupon accrual which is standard.
+        @param rebatesAccrual  The protection seller pays the accrued 
+                               scheduled current coupon at the start 
+                               of the contract. The rebate date is not
+                               provided but computed to be two days after
+                               protection start.
         @param tradeDate  The contract's trade date. It will be used with the \p cashSettlementDays to determine 
                           the date on which the cash settlement amount is paid. If not given, the trade date is 
                           guessed from the protection start date and \p schedule date generation rule.
@@ -231,6 +236,11 @@ namespace QuantLib {
         @param lastPeriodDayCounter  Day-count convention for accrual in last period. Mainly to
                                      allow for possibility of including maturity date in the last
                                      period's coupon accrual which is standard.
+        @param rebatesAccrual  The protection seller pays the accrued 
+                               scheduled current coupon at the start 
+                               of the contract. The rebate date is not
+                               provided but computed to be two days after
+                               protection start.
         @param tradeDate  The contract's trade date. It will be used with the \p cashSettlementDays to determine
                           the date on which the cash settlement amount is paid. If not given, the trade date is
                           guessed from the protection start date and \p schedule date generation rule.
@@ -271,6 +281,11 @@ namespace QuantLib {
         @param lastPeriodDayCounter  Day-count convention for accrual in last period. Mainly to
                                      allow for possibility of including maturity date in the last
                                      period's coupon accrual which is standard.
+        @param rebatesAccrual  The protection seller pays the accrued 
+                               scheduled current coupon at the start 
+                               of the contract. The rebate date is not
+                               provided but computed to be two days after
+                               protection start.
         @param tradeDate  The contract's trade date. It will be used with the \p cashSettlementDays to determine 
                           the date on which the cash settlement amount is paid. If not given, the trade date is 
                           guessed from the protection start date and \p schedule date generation rule.
@@ -312,6 +327,11 @@ namespace QuantLib {
         @param lastPeriodDayCounter  Day-count convention for accrual in last period. Mainly to
                                      allow for possibility of including maturity date in the last
                                      period's coupon accrual which is standard.
+        @param rebatesAccrual  The protection seller pays the accrued 
+                               scheduled current coupon at the start 
+                               of the contract. The rebate date is not
+                               provided but computed to be two days after
+                               protection start.
         @param tradeDate  The contract's trade date. It will be used with the \p cashSettlementDays to determine
                           the date on which the cash settlement amount is paid. If not given, the trade date is
                           guessed from the protection start date and \p schedule date generation rule.

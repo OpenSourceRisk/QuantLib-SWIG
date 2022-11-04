@@ -149,6 +149,8 @@ namespace QuantLib {
     /*! \relates Matrix */
     Matrix operator+(const Matrix&, const Matrix&);
     /*! \relates Matrix */
+    Matrix operator-(const Matrix&);
+    /*! \relates Matrix */
     Matrix operator-(const Matrix&, const Matrix&);
     /*! \relates Matrix */
     Matrix operator*(const Matrix&, Real);
@@ -266,8 +268,7 @@ namespace QuantLib {
                    m.rows_ << "x" << m.columns_ << ", " <<
                    rows_ << "x" << columns_ << ") cannot be "
                    "added");
-        std::transform(begin(),end(),m.begin(),
-                       begin(),std::plus<Real>());
+        std::transform(begin(), end(), m.begin(), begin(), std::plus<>());
         return *this;
     }
 
@@ -277,8 +278,7 @@ namespace QuantLib {
                    m.rows_ << "x" << m.columns_ << ", " <<
                    rows_ << "x" << columns_ << ") cannot be "
                    "subtracted");
-        std::transform(begin(),end(),m.begin(),begin(),
-                       std::minus<Real>());
+        std::transform(begin(), end(), m.begin(), begin(), std::minus<>());
         return *this;
     }
 
@@ -497,8 +497,13 @@ namespace QuantLib {
                    m2.rows() << "x" << m2.columns() << ") cannot be "
                    "added");
         Matrix temp(m1.rows(),m1.columns());
-        std::transform(m1.begin(),m1.end(),m2.begin(),temp.begin(),
-                       std::plus<Real>());
+        std::transform(m1.begin(), m1.end(), m2.begin(), temp.begin(), std::plus<>());
+        return temp;
+    }
+
+    inline Matrix operator-(const Matrix& m1) {
+        Matrix temp(m1.rows(), m1.columns());
+        std::transform(m1.begin(), m1.end(), temp.begin(), std::negate<Real>());
         return temp;
     }
 
@@ -510,8 +515,7 @@ namespace QuantLib {
                    m2.rows() << "x" << m2.columns() << ") cannot be "
                    "subtracted");
         Matrix temp(m1.rows(),m1.columns());
-        std::transform(m1.begin(),m1.end(),m2.begin(),temp.begin(),
-                       std::minus<Real>());
+        std::transform(m1.begin(), m1.end(), m2.begin(), temp.begin(), std::minus<>());
         return temp;
     }
 
