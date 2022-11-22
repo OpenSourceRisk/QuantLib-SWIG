@@ -154,6 +154,9 @@ using QuantLib::LogLinear;
 using QuantLib::Cubic;
 using QuantLib::Bicubic;
 using QuantLib::ConvexMonotone;
+using QuantLib::DefaultLogCubic;
+using QuantLib::MonotonicLogCubic;
+using QuantLib::KrugerLog;
 
 class MonotonicCubic : public Cubic {
   public:
@@ -175,28 +178,6 @@ class Kruger : public Cubic {
   public:
     Kruger()
     : Cubic(QuantLib::CubicInterpolation::Kruger) {}
-};
-
-class DefaultLogCubic : public QuantLib::LogCubic {
-  public:
-    DefaultLogCubic()
-    : QuantLib::LogCubic(QuantLib::CubicInterpolation::Kruger) {}
-};
-
-class MonotonicLogCubic : public QuantLib::LogCubic {
-  public:
-    MonotonicLogCubic()
-    : QuantLib::LogCubic(QuantLib::CubicInterpolation::Spline, true,
-                         QuantLib::CubicInterpolation::SecondDerivative, 0.0,
-                         QuantLib::CubicInterpolation::SecondDerivative, 0.0) {}
-};
-
-class KrugerLog : public QuantLib::LogCubic {
-  public:
-    KrugerLog()
-    : QuantLib::LogCubic(QuantLib::CubicInterpolation::Kruger, false,
-                         QuantLib::CubicInterpolation::SecondDerivative, 0.0,
-                         QuantLib::CubicInterpolation::SecondDerivative, 0.0) {}
 };
 
 class SplineLogCubic : public QuantLib::LogCubic {
@@ -240,10 +221,10 @@ class SafeSABRInterpolation {
                           Real beta,
                           Real nu,
                           Real rho,
-                          bool alphaIsFixed,
-                          bool betaIsFixed,
-                          bool nuIsFixed,
-                          bool rhoIsFixed,
+                          bool alphaIsFixed = false,
+                          bool betaIsFixed = false,
+                          bool nuIsFixed = false,
+                          bool rhoIsFixed = false,
                           bool vegaWeighted = true,
                           const ext::shared_ptr<EndCriteria>& endCriteria
                                   = ext::shared_ptr<EndCriteria>(),
@@ -252,7 +233,7 @@ class SafeSABRInterpolation {
                           const Real errorAccept=0.0020,
                           const bool useMaxError=false,
                           const Size maxGuesses=50,
-			  const Real shift = 0.0)
+                          const Real shift = 0.0)
     : x_(x), y_(y), forward_(forward),
       f_(x_.begin(),x_.end(),y_.begin(),
          t, forward_, alpha, beta, nu, rho,
@@ -280,6 +261,9 @@ class SafeSABRInterpolation {
     #if defined(SWIGCSHARP)
     %rename(call) operator();
     #endif
+    #if !defined(SWIGJAVA) && !defined(SWIGCSHARP)
+    %feature("kwargs") SafeSABRInterpolation;
+    #endif
   public:
     SafeSABRInterpolation(const Array& x, const Array& y,
                           Time t,
@@ -288,10 +272,10 @@ class SafeSABRInterpolation {
                           Real beta,
                           Real nu,
                           Real rho,
-                          bool alphaIsFixed,
-                          bool betaIsFixed,
-                          bool nuIsFixed,
-                          bool rhoIsFixed,
+                          bool alphaIsFixed = false,
+                          bool betaIsFixed = false,
+                          bool nuIsFixed = false,
+                          bool rhoIsFixed = false,
                           bool vegaWeighted = true,
                           const ext::shared_ptr<EndCriteria>& endCriteria
                                   = ext::shared_ptr<EndCriteria>(),
@@ -300,7 +284,7 @@ class SafeSABRInterpolation {
                           const Real errorAccept=0.0020,
                           const bool useMaxError=false,
                           const Size maxGuesses=50,
-			  const Real shift = 0.0);
+                          const Real shift = 0.0);
     Real operator()(Real x, bool allowExtrapolation=false) const;
     Real alpha() const;
     Real beta() const;
