@@ -48,15 +48,15 @@ namespace QuantLib {
                                          bool rebatesAccrual,
                                          const Date& tradeDate,
                                          Natural cashSettlementDays)
-    : side_(side), notional_(notional), upfront_(boost::none),
-      runningSpread_(spread), settlesAccrual_(settlesAccrual),
+    : side_(side), notional_(notional), upfront_(boost::none), runningSpread_(spread),
+      schedule_(schedule), paymentConvention_(convention), settlesAccrual_(settlesAccrual),
       paysAtDefaultTime_(paysAtDefaultTime),
-      protectionPaymentTime_(settlesAccrual ? atDefault : atPeriodEnd),
-      claim_(claim),
+      protectionPaymentTime_(settlesAccrual ? atDefault : atPeriodEnd), claim_(claim),
       protectionStart_(protectionStart == Null<Date>() ? schedule[0] : protectionStart),
-      tradeDate_(tradeDate), cashSettlementDays_(cashSettlementDays) {
+      tradeDate_(tradeDate), cashSettlementDays_(cashSettlementDays),
+      rebatesAccrual_(rebatesAccrual) {
 
-        init(schedule, convention, dayCounter, lastPeriodDayCounter, rebatesAccrual);
+        init(dayCounter, lastPeriodDayCounter);
     }
 
     CreditDefaultSwap::CreditDefaultSwap(Protection::Side side,
@@ -75,15 +75,15 @@ namespace QuantLib {
                                          bool rebatesAccrual,
                                          const Date& tradeDate,
                                          Natural cashSettlementDays)
-    : side_(side), notional_(notional), upfront_(upfront),
-      runningSpread_(runningSpread), settlesAccrual_(settlesAccrual),
+    : side_(side), notional_(notional), upfront_(upfront), runningSpread_(runningSpread),
+      schedule_(schedule), paymentConvention_(convention), settlesAccrual_(settlesAccrual),
       paysAtDefaultTime_(paysAtDefaultTime),
-      protectionPaymentTime_(settlesAccrual ? atDefault : atPeriodEnd),
-      claim_(claim),
+      protectionPaymentTime_(settlesAccrual ? atDefault : atPeriodEnd), claim_(claim),
       protectionStart_(protectionStart == Null<Date>() ? schedule[0] : protectionStart),
-      tradeDate_(tradeDate), cashSettlementDays_(cashSettlementDays) {
+      tradeDate_(tradeDate), cashSettlementDays_(cashSettlementDays),
+      rebatesAccrual_(rebatesAccrual) {
 
-        init(schedule, convention, dayCounter, lastPeriodDayCounter, rebatesAccrual, upfrontDate);
+        init(dayCounter, lastPeriodDayCounter, upfrontDate);
     }
 
     CreditDefaultSwap::CreditDefaultSwap(Protection::Side side,
@@ -100,13 +100,15 @@ namespace QuantLib {
                                          bool rebatesAccrual,
                                          const Date& tradeDate,
                                          Natural cashSettlementDays)
-    : side_(side), notional_(notional), upfront_(boost::none), runningSpread_(spread), settlesAccrual_(settlesAccrual),
+    : side_(side), notional_(notional), upfront_(boost::none), runningSpread_(spread),
+      schedule_(schedule), paymentConvention_(convention), settlesAccrual_(settlesAccrual),
       paysAtDefaultTime_(protectionPaymentTime == atDefault ? true : false),
       protectionPaymentTime_(protectionPaymentTime), claim_(claim),
-      protectionStart_(protectionStart == Date() ? schedule[0] : protectionStart), tradeDate_(tradeDate),
-      cashSettlementDays_(cashSettlementDays) {
+      protectionStart_(protectionStart == Date() ? schedule[0] : protectionStart),
+      tradeDate_(tradeDate), cashSettlementDays_(cashSettlementDays),
+      rebatesAccrual_(rebatesAccrual) {
 
-        init(schedule, convention, dayCounter, lastPeriodDayCounter, rebatesAccrual);
+        init(dayCounter, lastPeriodDayCounter);
     }
 
     CreditDefaultSwap::CreditDefaultSwap(Protection::Side side,
@@ -126,13 +128,14 @@ namespace QuantLib {
                                          const Date& tradeDate,
                                          Natural cashSettlementDays)
     : side_(side), notional_(notional), upfront_(upfront), runningSpread_(runningSpread),
-      settlesAccrual_(settlesAccrual),
+      schedule_(schedule), paymentConvention_(convention), settlesAccrual_(settlesAccrual),
       paysAtDefaultTime_(protectionPaymentTime == atDefault ? true : false),
       protectionPaymentTime_(protectionPaymentTime), claim_(claim),
-      protectionStart_(protectionStart == Date() ? schedule[0] : protectionStart), tradeDate_(tradeDate),
-      cashSettlementDays_(cashSettlementDays) {
+      protectionStart_(protectionStart == Date() ? schedule[0] : protectionStart),
+      tradeDate_(tradeDate), cashSettlementDays_(cashSettlementDays),
+      rebatesAccrual_(rebatesAccrual) {
 
-        init(schedule, convention, dayCounter, lastPeriodDayCounter, rebatesAccrual, upfrontDate);
+        init(dayCounter, lastPeriodDayCounter, upfrontDate);
     }
 
     CreditDefaultSwap::CreditDefaultSwap(Protection::Side side,
@@ -150,13 +153,15 @@ namespace QuantLib {
                                          bool rebatesAccrual,
                                          const Date& tradeDate,
                                          Natural cashSettlementDays)
-    : side_(side), notional_(notional), upfront_(boost::none), runningSpread_(spread), settlesAccrual_(settlesAccrual),
+    : side_(side), notional_(notional), upfront_(boost::none), runningSpread_(spread),
+      schedule_(schedule), paymentConvention_(convention), settlesAccrual_(settlesAccrual),
       paysAtDefaultTime_(protectionPaymentTime == atDefault ? true : false),
       protectionPaymentTime_(protectionPaymentTime), claim_(claim), leg_(amortized_leg),
-      protectionStart_(protectionStart == Date() ? schedule[0] : protectionStart), tradeDate_(tradeDate),
-      cashSettlementDays_(cashSettlementDays) {
+      protectionStart_(protectionStart == Date() ? schedule[0] : protectionStart),
+      tradeDate_(tradeDate), cashSettlementDays_(cashSettlementDays),
+      rebatesAccrual_(rebatesAccrual) {
 
-        init(schedule, convention, dayCounter, lastPeriodDayCounter, rebatesAccrual);
+        init(dayCounter, lastPeriodDayCounter);
     }
 
     CreditDefaultSwap::CreditDefaultSwap(Protection::Side side,
@@ -177,44 +182,45 @@ namespace QuantLib {
                                          const Date& tradeDate,
                                          Natural cashSettlementDays)
     : side_(side), notional_(notional), upfront_(upfront), runningSpread_(runningSpread),
-      settlesAccrual_(settlesAccrual),
+      schedule_(schedule), paymentConvention_(convention), settlesAccrual_(settlesAccrual),
       paysAtDefaultTime_(protectionPaymentTime == atDefault ? true : false),
-      protectionPaymentTime_(protectionPaymentTime), claim_(claim),
-      leg_(amortized_leg), protectionStart_(protectionStart == Date() ? schedule[0] : protectionStart),
-      tradeDate_(tradeDate), cashSettlementDays_(cashSettlementDays) {
+      protectionPaymentTime_(protectionPaymentTime), claim_(claim), leg_(amortized_leg),
+      protectionStart_(protectionStart == Date() ? schedule[0] : protectionStart),
+      tradeDate_(tradeDate), cashSettlementDays_(cashSettlementDays),
+      rebatesAccrual_(rebatesAccrual) {
 
-        init(schedule, convention, dayCounter, lastPeriodDayCounter, rebatesAccrual, upfrontDate);
+        init(dayCounter, lastPeriodDayCounter, upfrontDate);
     }
 
 
-    void CreditDefaultSwap::init(const Schedule& schedule, BusinessDayConvention paymentConvention,
-                                 const DayCounter& dayCounter, const DayCounter& lastPeriodDayCounter,
-                                 bool rebatesAccrual, const Date& upfrontDate) {
+    void CreditDefaultSwap::init(const DayCounter& dayCounter,
+                                 const DayCounter& lastPeriodDayCounter,
+                                 const Date& upfrontDate) {
 
-        QL_REQUIRE(!schedule.empty(), "CreditDefaultSwap needs a non-empty schedule.");
+        QL_REQUIRE(!schedule_.empty(), "CreditDefaultSwap needs a non-empty schedule.");
 
-        bool postBigBang = false;
-        if (schedule.hasRule()) {
-            DateGeneration::Rule rule = schedule.rule();
-            postBigBang = rule == DateGeneration::CDS || rule == DateGeneration::CDS2015;
+        postBigBang_ = false;
+        if (schedule_.hasRule()) {
+            DateGeneration::Rule rule = schedule_.rule();
+            postBigBang_ = rule == DateGeneration::CDS || rule == DateGeneration::CDS2015;
         }
         
-        if (!postBigBang) {
-            QL_REQUIRE(protectionStart_ <= schedule[0], "CreditDefaultSwap: protection can not start after accrual");
+        if (!postBigBang_) {
+            QL_REQUIRE(protectionStart_ <= schedule_[0], "CreditDefaultSwap: protection can not start after accrual");
         }
         
         // If the leg_ has not already been populated via amortised leg ctor, populate it.
         if (leg_.empty()) {
-            leg_ = FixedRateLeg(schedule)
+            leg_ = FixedRateLeg(schedule_)
                 .withNotionals(notional_)
                 .withCouponRates(runningSpread_, dayCounter)
-                .withPaymentAdjustment(paymentConvention)
+                .withPaymentAdjustment(paymentConvention_)
                 .withLastPeriodDayCounter(lastPeriodDayCounter);
         }
         
         // Deduce the trade date if not given.
         if (tradeDate_ == Date()) {
-            if (postBigBang) {
+            if (postBigBang_) {
                 tradeDate_ = protectionStart_;
             } else {
                 tradeDate_ = protectionStart_ - 1;
@@ -222,37 +228,43 @@ namespace QuantLib {
         }
         
         // Deduce the cash settlement date if not given.
-        Date effectiveUpfrontDate = upfrontDate;
-        if (effectiveUpfrontDate == Date()) {
-            effectiveUpfrontDate = schedule.calendar().advance(tradeDate_, cashSettlementDays_, Days, paymentConvention);
+        effectiveUpfrontDate_ = upfrontDate;
+        if (effectiveUpfrontDate_ == Date()) {
+            effectiveUpfrontDate_ = schedule_.calendar().advance(tradeDate_, cashSettlementDays_,
+                                                                 Days, paymentConvention_);
         }
-        QL_REQUIRE(effectiveUpfrontDate >= protectionStart_,
+        QL_REQUIRE(effectiveUpfrontDate_ >= protectionStart_,
                    "The cash settlement date must not be before the protection start date.");
 
         // Create the upfront payment, if one is provided.
         Real upfrontAmount = 0.0;
         if (upfront_)
             upfrontAmount = *upfront_ * notional_;
-        upfrontPayment_ = boost::make_shared<SimpleCashFlow>(upfrontAmount, effectiveUpfrontDate);
-        
+        upfrontPayment_ = boost::make_shared<SimpleCashFlow>(upfrontAmount, effectiveUpfrontDate_);
+
         // Set the maturity date.
-        maturity_ = schedule.dates().back();
-        
-        // Deal with the accrual rebate. We use the standard conventions for accrual calculation introduced with the
-        // CDS Big Bang in 2009
-        if (rebatesAccrual && postBigBang) {
-            accrualRebate_ = boost::make_shared<SimpleCashFlow>(
-                CashFlows::accruedAmount(leg_, leg_.back()->date() == tradeDate_ + 1, tradeDate_ + 1),
-                effectiveUpfrontDate);
-            Date current = std::max((Date)Settings::instance().evaluationDate(), tradeDate_);
-            accrualRebateCurrent_ = boost::make_shared<SimpleCashFlow>(
-                 CashFlows::accruedAmount(leg_, false, current + 1),
-                 schedule.calendar().advance(current, cashSettlementDays_, Days, paymentConvention));            
-        }
+        maturity_ = schedule_.dates().back();
         
         if (!claim_)
             claim_ = boost::make_shared<FaceValueClaim>();
         registerWith(claim_);
+    }
+
+    void CreditDefaultSwap::performCalculations() const {
+        Instrument::performCalculations();
+        // Deal with the accrual rebate. We use the standard conventions for accrual calculation introduced with the
+        // CDS Big Bang in 2009
+        if (rebatesAccrual_ && postBigBang_) {
+            accrualRebate_ = boost::make_shared<SimpleCashFlow>(
+                CashFlows::accruedAmount(leg_, leg_.back()->date() == tradeDate_ + 1,
+                                         tradeDate_ + 1),
+                effectiveUpfrontDate_);
+            Date current = std::max((Date)Settings::instance().evaluationDate(), tradeDate_);
+            accrualRebateCurrent_ = boost::make_shared<SimpleCashFlow>(
+                CashFlows::accruedAmount(leg_, false, current + 1),
+                schedule_.calendar().advance(current, cashSettlementDays_, Days,
+                                             paymentConvention_));
+        }
     }
 
     Protection::Side CreditDefaultSwap::side() const {
@@ -552,6 +564,7 @@ namespace QuantLib {
     }
 
     const ext::shared_ptr<SimpleCashFlow>& CreditDefaultSwap::accrualRebate() const {
+        calculate();
         return accrualRebate_;
     }
 
