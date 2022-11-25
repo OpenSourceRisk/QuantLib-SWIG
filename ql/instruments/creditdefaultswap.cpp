@@ -251,7 +251,6 @@ namespace QuantLib {
     }
 
     void CreditDefaultSwap::performCalculations() const {
-        Instrument::performCalculations();
         // Deal with the accrual rebate. We use the standard conventions for accrual calculation introduced with the
         // CDS Big Bang in 2009
         if (rebatesAccrual_ && postBigBang_) {
@@ -265,6 +264,7 @@ namespace QuantLib {
                 schedule_.calendar().advance(current, cashSettlementDays_, Days,
                                              paymentConvention_));
         }
+        Instrument::performCalculations();
     }
 
     Protection::Side CreditDefaultSwap::side() const {
