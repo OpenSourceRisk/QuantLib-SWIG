@@ -483,6 +483,7 @@ namespace QuantLib {
                                Real accuracy,
                                PricingModel model) const {
 
+        calculate();
         ext::shared_ptr<SimpleQuote> flatRate = ext::make_shared<SimpleQuote>(0.0);
 
         Handle<DefaultProbabilityTermStructure> probability =
@@ -510,6 +511,7 @@ namespace QuantLib {
                               const DayCounter& dayCounter,
                               PricingModel model) const {
 
+        calculate();
         ext::shared_ptr<SimpleQuote> flatRate = ext::make_shared<SimpleQuote>(0.0);
 
         Handle<DefaultProbabilityTermStructure> probability =
@@ -569,6 +571,7 @@ namespace QuantLib {
     }
 
     const ext::shared_ptr<SimpleCashFlow>& CreditDefaultSwap::accrualRebateCurrent() const {
+        calculate();
         return accrualRebateCurrent_;
     }
 
