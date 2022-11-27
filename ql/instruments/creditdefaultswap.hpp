@@ -470,6 +470,7 @@ namespace QuantLib {
                                 PricingModel model = Midpoint) const;
         //@}
       protected:
+        void performCalculations() const override;
         //! \name Instrument interface
         //@{
         void setupExpired() const override;
@@ -485,16 +486,21 @@ namespace QuantLib {
         Real notional_;
         boost::optional<Rate> upfront_;
         Rate runningSpread_;
+        Schedule schedule_;
+        BusinessDayConvention paymentConvention_;
         bool settlesAccrual_, paysAtDefaultTime_;
         ProtectionPaymentTime protectionPaymentTime_;
         ext::shared_ptr<Claim> claim_;
         Leg leg_;
         ext::shared_ptr<SimpleCashFlow> upfrontPayment_;
-        ext::shared_ptr<SimpleCashFlow> accrualRebate_;
-        ext::shared_ptr<SimpleCashFlow> accrualRebateCurrent_;
+        mutable ext::shared_ptr<SimpleCashFlow> accrualRebate_;
+        mutable ext::shared_ptr<SimpleCashFlow> accrualRebateCurrent_;
         Date protectionStart_;
         Date tradeDate_;
         Natural cashSettlementDays_;
+        bool rebatesAccrual_;
+        bool postBigBang_;
+        Date effectiveUpfrontDate_;
         Date maturity_;
         // results
         mutable Rate fairUpfront_;
@@ -509,8 +515,9 @@ namespace QuantLib {
 
       private:
         //! Shared initialisation.
-        void init(const Schedule& schedule, BusinessDayConvention paymentConvention, const DayCounter& dayCounter,
-                  const DayCounter& lastPeriodDayCounter, bool rebatesAccrual, const Date& upfrontDate = Date());
+        void init(const DayCounter& dayCounter,
+                  const DayCounter& lastPeriodDayCounter,
+                  const Date& upfrontDate = Date());
     };
 
 
