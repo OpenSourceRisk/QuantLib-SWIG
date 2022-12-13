@@ -71,10 +71,14 @@ namespace QuantLib {
             Real y = a * values[0] + sqrt(1-a*a) * values[j+1];
             Real p = CumulativeNormalDistribution()(y);
 
-            if (dts->defaultProbability(tmax) < p || dts->hazardRate(dts->referenceDate() + 1.0 * Days ,true) < QL_EPSILON)
+            if (dts->defaultProbability(tmax) < p)
                 pool_->setTime(name, tmax+1);
-            else
-                pool_->setTime(name, Brent().solve(Root(dts,p),accuracy_,0,1));
+            else{
+                int guess = 0;
+                while(dts->defaultProbability(guess) < p && guess < tmax)
+                    guess++;
+                pool_->setTime(name, Brent().solve(Root(dts,p),accuracy_,guess,1));
+            }
         }
     }
 
