@@ -142,7 +142,7 @@ namespace QuantLib {
         /*! Calling setSeasonality with no arguments means unsetting
             as the default is used to choose unsetting.
         */
-        void setSeasonality(const ext::shared_ptr<Seasonality>& seasonality =
+        virtual void setSeasonality(const ext::shared_ptr<Seasonality>& seasonality =
                                             ext::shared_ptr<Seasonality>());
         ext::shared_ptr<Seasonality> seasonality() const;
         bool hasSeasonality() const;
