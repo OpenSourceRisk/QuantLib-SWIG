@@ -74,10 +74,7 @@ namespace QuantLib {
             if (dts->defaultProbability(tmax) < p)
                 pool_->setTime(name, tmax+1);
             else{
-                int guess = 0;
-                while(dts->defaultProbability(guess) < p && guess < tmax)
-                    guess++;
-                pool_->setTime(name, Brent().solve(Root(dts,p),accuracy_,guess,1));
+                pool_->setTime(name, Brent().solve(Root(dts,p),accuracy_,0.0,tmax));
             }
         }
     }
