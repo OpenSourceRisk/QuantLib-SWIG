@@ -20,6 +20,7 @@
 
 #include <ql/experimental/credit/randomdefaultmodel.hpp>
 #include <ql/math/solvers1d/brent.hpp>
+#include <ql/math/solvers1d/bisection.hpp>
 #include <utility>
 
 using namespace std;
@@ -73,8 +74,16 @@ namespace QuantLib {
 
             if (dts->defaultProbability(tmax) < p)
                 pool_->setTime(name, tmax+1);
-            else{
-                pool_->setTime(name, Brent().solve(Root(dts,p),accuracy_,0.0,tmax));
+            else {
+                 try {
+                     Brent brent;
+                     brent.setLowerBound(0.0);
+                     brent.setUpperBound(tmax);
+                     pool_->setTime(name, brent.solve(Root(dts,p),accuracy_, tmax/2.0, 1));
+                 }
+                 catch(...){
+                     pool_->setTime(name, Bisection().solve(Root(dts,p), accuracy_, tmax/2.0, 0.0, tmax));
+                 }
             }
         }
     }
