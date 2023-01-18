@@ -60,7 +60,7 @@ namespace QuantLib {
         //! the business day convention used in tenor to date conversion
         virtual BusinessDayConvention businessDayConvention() const;
         //! period/date conversion
-        Date optionDateFromTenor(const Period&) const;
+        virtual Date optionDateFromTenor(const Period&) const;
         //! the minimum strike for which the term structure can return vols
         virtual Rate minStrike() const = 0;
         //! the maximum strike for which the term structure can return vols
