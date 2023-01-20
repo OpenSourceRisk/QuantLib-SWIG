@@ -67,7 +67,7 @@ namespace QuantLib {
         //! \name VolatilityTermStructure interface
         //@{
         //! period/date conversion
-        Date optionDateFromTenor(const Period&) const;
+        Date optionDateFromTenor(const Period&) const override;
         //@}
         const ext::shared_ptr<InterestRateIndex>& index() const;
         //! \name Visitability
