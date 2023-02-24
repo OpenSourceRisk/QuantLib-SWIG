@@ -46,7 +46,8 @@ namespace QuantLib {
         //! \name InterestRateIndex interface
         //@{
         Date maturityDate(const Date& valueDate) const override;
-        Rate forecastFixing(const Date& fixingDate) const override;
+        Rate forecastFixing(const Date& fixingDate) const override;        
+        Rate forecastFixing(const Time& fixingTime) const;
         // @}
         //! \name Inspectors
         //@{

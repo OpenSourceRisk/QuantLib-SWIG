@@ -1845,6 +1845,7 @@
     <ClInclude Include="ql\utilities\null_deleter.hpp" />
     <ClInclude Include="ql\utilities\observablevalue.hpp" />
     <ClInclude Include="ql\utilities\steppingiterator.hpp" />
+	<ClInclude Include="ql\utilities\time.hpp" />
     <ClInclude Include="ql\utilities\tracing.hpp" />
     <ClInclude Include="ql\utilities\vectors.hpp" />
     <ClInclude Include="ql\auto_link.hpp" />
@@ -2793,6 +2794,7 @@
     <ClCompile Include="ql\time\weekday.cpp" />
     <ClCompile Include="ql\utilities\dataformatters.cpp" />
     <ClCompile Include="ql\utilities\dataparsers.cpp" />
+	<ClInclude Include="ql\utilities\time.cpp" />
     <ClCompile Include="ql\utilities\tracing.cpp" />
     <ClCompile Include="ql\cashflow.cpp" />
     <ClCompile Include="ql\currency.cpp" />
