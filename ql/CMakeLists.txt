@@ -916,6 +916,7 @@ set(QL_SOURCES
     timegrid.cpp
     utilities/dataformatters.cpp
     utilities/dataparsers.cpp
+    utilities/time.cpp
     utilities/tracing.cpp
     version.cpp
 )
@@ -2186,6 +2187,7 @@ set(QL_HEADERS
     utilities/null_deleter.hpp
     utilities/observablevalue.hpp
     utilities/steppingiterator.hpp
+    utilities/time.hpp
     utilities/tracing.hpp
     utilities/vectors.hpp
     volatilitymodel.hpp
