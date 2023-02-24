@@ -53,8 +53,8 @@ namespace QuantLib {
     }
 
     Rate IborIndex::forecastFixing(const Time& fixingTime) const {
-        QL_REQUIRE(fixingTime > 0.0, "\n cannot calculate forward rate, " \
-                   "fixing time must be positive");
+        QL_REQUIRE(fixingTime >= 0.0, "\n cannot calculate forward rate, " \
+                   "fixing time must not be negative");
         QL_REQUIRE(!termStructure_.empty(),
                    "null term structure set to this instance of " << name());
         Time tenorTime = periodToTime(tenor_);
