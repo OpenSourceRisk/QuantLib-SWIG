@@ -21,7 +21,6 @@
 
 #include <ql/indexes/iborindex.hpp>
 #include <ql/termstructures/yieldtermstructure.hpp>
-#include <ql/utilities/time.hpp>
 #include <utility>
 
 namespace QuantLib {
@@ -50,17 +49,6 @@ namespace QuantLib {
                    ":\n non positive time (" << t <<
                    ") using " << dayCounter_.name() << " daycounter");
         return forecastFixing(d1, d2, t);
-    }
-
-    Rate IborIndex::forecastFixing(const Time& fixingTime) const {
-        QL_REQUIRE(fixingTime > 0.0, "\n cannot calculate forward rate, " \
-                   "fixing time must be positive");
-        QL_REQUIRE(!termStructure_.empty(),
-                   "null term structure set to this instance of " << name());
-        Time tenorTime = periodToTime(tenor_);
-        DiscountFactor disc1 = termStructure_->discount(fixingTime);
-        DiscountFactor disc2 = termStructure_->discount(fixingTime + tenorTime);
-        return (disc1 / disc2 - 1.0) / tenorTime;
     }
 
     Date IborIndex::maturityDate(const Date& valueDate) const {

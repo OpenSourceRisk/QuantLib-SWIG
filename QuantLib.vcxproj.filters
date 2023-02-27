@@ -2244,10 +2244,7 @@
     <ClInclude Include="ql\utilities\steppingiterator.hpp">
       <Filter>utilities</Filter>
     </ClInclude>
-	<ClInclude Include="ql\utilities\time.hpp">
-      <Filter>utilities</Filter>
-	</ClInclude>
-	<ClInclude Include="ql\utilities\tracing.hpp">
+    <ClInclude Include="ql\utilities\tracing.hpp">
       <Filter>utilities</Filter>
     </ClInclude>
     <ClInclude Include="ql\utilities\vectors.hpp">
@@ -5532,9 +5529,6 @@
       <Filter>utilities</Filter>
     </ClCompile>
     <ClCompile Include="ql\utilities\dataparsers.cpp">
-      <Filter>utilities</Filter>
-    </ClCompile>
-    <ClCompile Include="ql\utilities\time.cpp">
       <Filter>utilities</Filter>
     </ClCompile>
     <ClCompile Include="ql\utilities\tracing.cpp">

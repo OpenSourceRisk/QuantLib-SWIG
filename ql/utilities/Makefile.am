@@ -12,14 +12,12 @@ this_include_HEADERS = \
 	null_deleter.hpp \
     observablevalue.hpp \
     steppingiterator.hpp \
-	time.hpp \
     tracing.hpp \
     vectors.hpp
 
 cpp_files = \
     dataformatters.cpp \
     dataparsers.cpp \
-	time.cpp \
     tracing.cpp
 
 if UNITY_BUILD
