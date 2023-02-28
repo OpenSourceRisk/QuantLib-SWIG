@@ -73,6 +73,16 @@ namespace QuantLib {
               inflation curve is bootstrapped.
           */
           virtual bool isConsistent(const InflationTermStructure& iTS) const;
+
+          //! Takes a seasonality adjusted zeroRate and remove the seasonality adjustment
+          virtual Rate deseasonalisedZeroRate(const Date& d,
+                                              Rate r,
+                                              const InflationTermStructure& iTS) const = 0;
+          
+          //! Takes a seasonality adjusted yoy rate and remove the seasonality adjustment
+          virtual Rate deseasonalisedYoYRate(const Date& d,
+                                              Rate r,
+                                              const InflationTermStructure& iTS) const = 0;
           //@}
 
           virtual ~Seasonality() = default;
@@ -154,6 +164,12 @@ namespace QuantLib {
             Rate
             correctYoYRate(const Date& d, Rate r, const InflationTermStructure& iTS) const override;
             bool isConsistent(const InflationTermStructure& iTS) const override;
+            Rate deseasonalisedZeroRate(const Date& d,
+                                        Rate r,
+                                        const InflationTermStructure& iTS) const override;
+            Rate deseasonalisedYoYRate(const Date& d,
+                                       Rate r,
+                                       const InflationTermStructure& iTS) const override;
             //@}
 
             //Destructor
@@ -164,6 +180,12 @@ namespace QuantLib {
             virtual void validate() const;
             virtual Rate seasonalityCorrection(Rate r, const Date &d, const DayCounter &dc,
                                                const Date &curveBaseDate, bool isZeroRate) const;
+            
+            virtual Rate removeSeasonalityAdjustment(Rate r,
+                                               const Date& d,
+                                               const DayCounter& dc,
+                                               const Date& curveBaseDate,
+                                               bool isZeroRate) const;
     };
 
 
@@ -184,6 +206,12 @@ namespace QuantLib {
                                    const DayCounter& dc,
                                    const Date& curveBaseDate,
                                    bool isZeroRate) const override;
+
+        Rate removeSeasonalityAdjustment(Rate r,
+                                         const Date& d,
+                                         const DayCounter& dc,
+                                         const Date& curveBaseDate,
+                                         bool isZeroRate) const override;
     };
 
 }  // end of namespace QuantLib
