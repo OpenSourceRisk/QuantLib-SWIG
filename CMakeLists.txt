@@ -170,7 +170,6 @@ if (NOT DEFINED THREADS_PREFER_PTHREAD_FLAG)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
 endif()
 
-#QL1.29 MergeConflict theirs
 # Add Threads dependency when any of the threading features are enabled
 if (QL_ENABLE_PARALLEL_UNIT_TEST_RUNNER OR QL_ENABLE_SESSIONS OR QL_ENABLE_THREAD_SAFE_OBSERVER_PATTERN)
     find_package(Threads REQUIRED)
@@ -181,11 +180,6 @@ if (QL_ENABLE_PARALLEL_UNIT_TEST_RUNNER OR QL_ENABLE_SESSIONS OR QL_ENABLE_THREA
     else()
         set(QL_THREAD_LIBRARIES Threads::Threads)
     endif()
-set(QL_THREAD_LIBRARIES)
-# QL1.29 MergeConflict ours
-# Parallel test runner needs library rt on *nix for shm_open, etc.
-#if (QL_ENABLE_PARALLEL_UNIT_TEST_RUNNER AND UNIX AND NOT APPLE)
-#    find_library(RT_LIBRARY rt REQUIRED)
 endif()
 
 # If available, use PIC for shared libs and PIE for executables
