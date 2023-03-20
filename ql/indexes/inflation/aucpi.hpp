@@ -37,7 +37,7 @@ namespace QuantLib {
               bool revised,
               const Handle<ZeroInflationTermStructure>& ts = {})
         : ZeroInflationIndex(
-              "CPI", AustraliaRegion(), revised, frequency, Period(2, Months), AUDCurrency(), ts) {}
+              "CPI", AustraliaRegion(), revised, frequency, Period(1, Months), AUDCurrency(), ts) {}
         // QL1.29 MergeConflict ours
         // Period(1, Months)
         /*! \deprecated Use the constructor without the "interpolated" parameter.

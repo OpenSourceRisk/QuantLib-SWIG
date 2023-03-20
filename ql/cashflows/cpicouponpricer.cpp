@@ -122,12 +122,6 @@ namespace QuantLib {
 
         if (fixing == Null<Rate>())
             fixing = I1 / I0;
-        //std::cout << " adjustedFixing " << fixing << std::endl;
-        // no adjustment
-        // QL 1.27:
-        //if (fixing == Null<Rate>())
-        //    fixing = coupon_->indexFixing() / coupon_->baseCPI();
-        // no further adjustment
         return fixing;
     }
 
