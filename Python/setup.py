@@ -145,12 +145,12 @@ class my_build_ext(build_ext):
             extra_link_args = ['/subsystem:windows', machinetype]
 
             if self.debug:
-                if self.static:
+                if self.static or 'QL_STATIC_RUNTIME' in os.environ:
                     extra_compile_args.append('/MTd')
                 else:
                     extra_compile_args.append('/MDd')
             else:
-                if self.static:
+                if self.static or 'QL_STATIC_RUNTIME' in os.environ:
                     extra_compile_args.append('/MT')
                 else:
                     extra_compile_args.append('/MD')
@@ -212,7 +212,7 @@ classifiers = [
 ]
 
 setup(name             = "QuantLib",
-      version          = "1.28",
+      version          = "1.29",
       description      = "Python bindings for the QuantLib library",
       long_description = """
 QuantLib (https://www.quantlib.org/) is a C++ library for financial quantitative

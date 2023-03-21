@@ -105,6 +105,8 @@ class IndexedCashFlow : public CashFlow {
     Real notional() const;
     Date baseDate() const;
     Date fixingDate() const;
+    Real baseFixing() const;
+    Real indexFixing() const;
     ext::shared_ptr<Index> index() const;
     bool growthOnly() const;
 };
@@ -636,10 +638,12 @@ Leg _FixedRateLeg(const Schedule& schedule,
                   BusinessDayConvention exCouponConvention = Unadjusted,
                   bool exCouponEndOfMonth = false,
                   const Calendar& paymentCalendar = Calendar(),
-                  const Natural paymentLag = 0) {
+                  const Natural paymentLag = 0,
+                  Compounding comp = Simple,
+                  Frequency freq = Annual) {
     return QuantLib::FixedRateLeg(schedule)
         .withNotionals(nominals)
-        .withCouponRates(couponRates,dayCount)
+        .withCouponRates(couponRates, dayCount, comp, freq)
         .withPaymentAdjustment(paymentAdjustment)
         .withPaymentCalendar(paymentCalendar.empty() ? schedule.calendar() : paymentCalendar)
         .withPaymentLag(paymentLag)
@@ -665,7 +669,9 @@ Leg _FixedRateLeg(const Schedule& schedule,
                   BusinessDayConvention exCouponConvention = Unadjusted,
                   bool exCouponEndOfMonth = false,
                   const Calendar& paymentCalendar = Calendar(),
-                  Natural paymentLag = 0);
+                  Natural paymentLag = 0,
+                  Compounding compounding = Simple,
+                  Frequency compoundingFrequency = Annual);
 
 %{
 Leg _IborLeg(const std::vector<Real>& nominals,
@@ -1111,6 +1117,29 @@ class CashFlows {
                     bool includeSettlementDateFlows,
                     Date settlementDate = Date(),
                     Date npvDate = Date());
+
+    %extend {
+        static std::pair<Real,Real> npvbps(
+                   const Leg& leg,
+                   const ext::shared_ptr<YieldTermStructure>& discountCurve,
+                   bool includeSettlementDateFlows,
+                   const Date& settlementDate = Date(),
+                   const Date& npvDate = Date()) {
+            return QuantLib::CashFlows::npvbps(leg, *discountCurve,
+                                               includeSettlementDateFlows,
+                                               settlementDate, npvDate);
+        }
+        static std::pair<Real,Real> npvbps(
+                   const Leg& leg,
+                   const Handle<YieldTermStructure>& discountCurve,
+                   bool includeSettlementDateFlows,
+                   const Date& settlementDate = Date(),
+                   const Date& npvDate = Date()) {
+            return QuantLib::CashFlows::npvbps(leg, **discountCurve,
+                                               includeSettlementDateFlows,
+                                               settlementDate, npvDate);
+        }
+    }
 
     %extend {
         static Rate atmRate(

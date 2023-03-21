@@ -40,6 +40,7 @@ using QuantLib::Preceding;
 using QuantLib::ModifiedPreceding;
 using QuantLib::Unadjusted;
 using QuantLib::HalfMonthModifiedFollowing;
+using QuantLib::Nearest;
 %}
 
 enum BusinessDayConvention {
@@ -48,7 +49,8 @@ enum BusinessDayConvention {
     Preceding,
     ModifiedPreceding,
     Unadjusted,
-    HalfMonthModifiedFollowing
+    HalfMonthModifiedFollowing,
+    Nearest
 };
 
 %{
@@ -294,7 +296,7 @@ namespace QuantLib {
       public:
         enum Market { Settlement, NYSE, GovernmentBond,
                       NERC, LiborImpact, FederalReserve };
-        UnitedStates(Market m = Settlement);
+        UnitedStates(Market m);
     };
 
     // others

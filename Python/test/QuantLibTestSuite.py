@@ -26,7 +26,10 @@ from marketelements import MarketElementTest
 from integrals import IntegralTest
 from solvers1d import Solver1DTest
 from termstructures import TermStructureTest
-from bonds import FixedRateBondTest, FixedRateBondKwargsTest
+from bonds import (
+    FixedRateBondTest,
+    FixedRateBondKwargsTest,
+    AmortizingFixedRateBondTest)
 from ratehelpers import (
     FixedRateBondHelperTest,
     FxSwapRateHelperTest,
@@ -45,7 +48,7 @@ from americanquantooption import AmericanQuantoOptionTest
 from extrapolation import ExtrapolationTest
 from fdm import FdmTest
 from swaption import SwaptionTest
-from volatilities import SviSmileSectionTest, SwaptionVolatilityCubeTest
+from volatilities import SviSmileSectionTest, SwaptionVolatilityCubeTest, AndreasenHugeVolatilityTest
 from inflation import InflationTest
 from coupons import (
     CashFlowsTest,
@@ -73,6 +76,7 @@ def test():
     suite.addTest(unittest.makeSuite(TermStructureTest, 'test'))
     suite.addTest(unittest.makeSuite(FixedRateBondTest, 'test'))
     suite.addTest(unittest.makeSuite(FixedRateBondKwargsTest, 'test'))
+    suite.addTest(unittest.makeSuite(AmortizingFixedRateBondTest, 'test'))
     suite.addTest(unittest.makeSuite(FixedRateBondHelperTest, 'test'))
     suite.addTest(unittest.makeSuite(CmsTest, 'test'))
     suite.addTest(unittest.makeSuite(AssetSwapTest, 'test'))
@@ -101,6 +105,7 @@ def test():
     suite.addTest(unittest.makeSuite(ZeroCouponSwapTest, "test"))
     suite.addTest(unittest.makeSuite(CurrencyTest, "test"))
     suite.addTest(unittest.makeSuite(SviSmileSectionTest, "test"))
+    suite.addTest(unittest.makeSuite(AndreasenHugeVolatilityTest, "test"))
 
     result = unittest.TextTestRunner(verbosity=2).run(suite)
 
