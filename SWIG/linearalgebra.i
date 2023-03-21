@@ -595,7 +595,7 @@ class Matrix {
         #if defined(SWIGPYTHON)
         MatrixRow __getitem__(Integer i) {
             Integer rows_ = static_cast<Integer>($self->rows());
-            if (i >= 0 && i < $self->rows())
+            if (i >= 0 && i < rows_)
                 return MatrixRow((*$self)[i], $self->columns());
             else if (i < 0 && -i <= rows_)
                 return MatrixRow((*$self)[rows_+i], $self->columns());
