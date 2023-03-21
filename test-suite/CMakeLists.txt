@@ -81,7 +81,6 @@ set(QL_TEST_SOURCES
     inflationcpicapfloor.cpp
     inflationcpiswap.cpp
     inflationvolatility.cpp
-	inflationzciisinterpolation.cpp
     instruments.cpp
     integrals.cpp
     interestrates.cpp
@@ -250,7 +249,6 @@ set(QL_TEST_HEADERS
     inflationcpicapfloor.hpp
     inflationcpiswap.hpp
     inflationvolatility.hpp
-	inflationzciisinterpolation.hpp
     instruments.hpp
     integrals.hpp
     interestrates.hpp
@@ -383,8 +381,12 @@ if (QL_BUILD_TEST_SUITE)
     target_link_libraries(ql_test_suite PRIVATE
         ql_library
         ql_unit_test_main
-        Boost::unit_test_framework
-        ${QL_TEST_SUITE_LIBRARIES})
+        ${QL_THREAD_LIBRARIES})
+    if(MSVC AND CMAKE_UNITY_BUILD)
+        # for Unity builds, we need to add /bigobj
+        target_compile_options(ql_test_suite PRIVATE "/bigobj")
+    endif()
+        
     if (QL_INSTALL_TEST_SUITE)
         install(TARGETS ql_test_suite RUNTIME DESTINATION ${QL_INSTALL_BINDIR})
     endif()
@@ -402,8 +404,12 @@ IF (QL_BUILD_BENCHMARK)
     endif()
     target_link_libraries(ql_benchmark PRIVATE
         ql_library
-        Boost::unit_test_framework
-        ${QL_BENCHMARK_LIBRARIES})
+        ql_unit_test_main
+        ${QL_THREAD_LIBRARIES})
+    if(MSVC AND CMAKE_UNITY_BUILD)
+        # for Unity builds, we need to add /bigobj
+        target_compile_options(ql_benchmark PRIVATE "/bigobj")
+    endif()
     if (QL_INSTALL_BENCHMARK)
         install(TARGETS ql_benchmark RUNTIME DESTINATION ${QL_INSTALL_BINDIR})
     endif()

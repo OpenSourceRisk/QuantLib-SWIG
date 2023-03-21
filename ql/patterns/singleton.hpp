@@ -26,14 +26,32 @@
 
 #include <ql/qldefines.hpp>
 
+#ifdef QL_ENABLE_SESSIONS
+#    include <boost/thread/locks.hpp>
+#    include <boost/thread/shared_mutex.hpp>
+#else
+#    ifdef QL_ENABLE_SINGLETON_THREAD_SAFE_INIT
+#        include <boost/atomic.hpp>
+#        include <boost/thread/mutex.hpp>
+#        if !defined(BOOST_ATOMIC_ADDRESS_LOCK_FREE)
+#            ifdef BOOST_MSVC
+#                pragma message("Thread-safe singleton initialization may degrade performances.")
+#            else
+#                warning Thread-safe singleton initialization may degrade performances.
+#            endif
+#        endif
+#    endif
+#endif
+
 #include <ql/shared_ptr.hpp>
 #include <ql/types.hpp>
-#include <map>
+#include <type_traits>
 
 namespace QuantLib {
 
     //! Basic support for the singleton pattern.
     /*! The typical use of this class is:
+
         \code
         class Foo : public Singleton<Foo> {
             friend class Singleton<Foo>;
@@ -43,14 +61,16 @@ namespace QuantLib {
             ...
         };
         \endcode
-        which, albeit sub-optimal, frees one from the concerns of
-        creating and managing the unique instance and can serve later
-        as a single implemementation point should synchronization
-        features be added.
 
-        Global can be used to distinguish Singletons that are local to a session
-        (Global = false) or that are global across all sessions (B = true).
-        This is only relevant if QL_ENABLE_SESSIONS is enabled.
+        which, albeit sub-optimal, frees one from the concerns of creating and managing the unique instance
+        and can serve later as a single implemementation point should synchronization features be added.
+
+        Global can be used to distinguish Singletons that are local to a session (Global = false) or that are global
+        across all sessions (B = true).  This is only relevant if QL_ENABLE_SESSIONS is enabled.
+
+        Notice that the creation and retrieval of (local or global) singleton instances through instance() is thread
+        safe, but obviously subsequent operations on the singleton have to be synchronized within the singleton
+        implementation itself.
 
         \ingroup patterns
     */
@@ -72,10 +92,18 @@ namespace QuantLib {
 
     // template definitions
 
+#ifdef QL_ENABLE_SESSIONS
+
+#if (defined(__GNUC__) && !defined(__clang__)) && (((__GNUC__ == 8) && (__GNUC_MINOR__ < 4)) || (__GNUC__ < 8))
+#pragma message("Singleton::instance() is always compiled with `-O0` for versions of GCC below 8.4 when sessions are enabled.")
+#pragma message("This is to work around the following compiler bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91757")
+#pragma message("If possible, please update your compiler to a more recent version.")
+#pragma GCC push_options
+#pragma GCC optimize("-O0")
+#endif
+
     template <class T, class Global>
     T& Singleton<T, Global>::instance() {
-
-#ifdef QL_ENABLE_SESSIONS
         if(Global()) {
             static T global_instance;
             return global_instance;
@@ -83,11 +111,38 @@ namespace QuantLib {
             thread_local static T local_instance;
             return local_instance;
         }
+    }
+
+#if (defined(__GNUC__) && !defined(__clang__)) && (((__GNUC__ == 8) && (__GNUC_MINOR__ < 4)) || (__GNUC__ < 8))
+#pragma GCC pop_options
+#endif
+
 #else
+
+    template <class T, class Global>
+    T& Singleton<T, Global>::instance() {
         static T instance;
         return instance;
-#endif
     }
+
+#endif
+
+    // backwards compatibility
+
+#if defined(QL_THREAD_KEY)
+    /*! \deprecated This typedef is obsolete. Do not use it.
+                    Deprecated in version 1.29.
+    */
+    QL_DEPRECATED
+    typedef QL_THREAD_KEY ThreadKey;
+#else
+    /*! \deprecated This typedef is obsolete. Do not use it.
+                    Deprecated in version 1.29.
+    */
+    QL_DEPRECATED
+    typedef Integer ThreadKey;
+#endif
+
 }
 
 #endif
