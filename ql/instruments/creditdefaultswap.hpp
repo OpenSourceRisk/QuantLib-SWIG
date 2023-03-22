@@ -108,8 +108,8 @@ namespace QuantLib {
                           const Schedule& schedule,
                           BusinessDayConvention paymentConvention,
                           const DayCounter& dayCounter,
-                          bool settlesAccrual = true,
-                          bool paysAtDefaultTime = true,
+                          bool settlesAccrual,
+                          bool paysAtDefaultTime,
                           const Date& protectionStart = Date(),
                           const ext::shared_ptr<Claim>& =
                                                   ext::shared_ptr<Claim>(),
@@ -163,8 +163,8 @@ namespace QuantLib {
                           const Schedule& schedule,
                           BusinessDayConvention paymentConvention,
                           const DayCounter& dayCounter,
-                          bool settlesAccrual = true,
-                          bool paysAtDefaultTime = true,
+                          bool settlesAccrual,
+                          bool paysAtDefaultTime,
                           const Date& protectionStart = Date(),
                           const Date& upfrontDate = Date(),
                           const ext::shared_ptr<Claim>& =
@@ -173,7 +173,7 @@ namespace QuantLib {
                           bool rebatesAccrual = true,
                           const Date& tradeDate = Date(),
                           Natural cashSettlementDays = 3);
-    //! \name Constructors
+        //! \name Constructors
     //@{
     //! CDS quoted as running-spread only
     /*! @param side  Whether the protection is bought or sold.
