@@ -66,8 +66,8 @@ namespace QuantLib {
         virtual Real defaultProbability(const Date& d1, const Date& d2) const override;
         virtual Real expectedLoss(const Date& defaultDate, const Date& d1, const Date& d2, const Real notional) const override;
 
-        Handle<DefaultProbabilityTermStructure> probability_;
-        Real recoveryRate_;
+        mutable Handle<DefaultProbabilityTermStructure> probability_;
+        mutable Real recoveryRate_;
     };
 
 }
