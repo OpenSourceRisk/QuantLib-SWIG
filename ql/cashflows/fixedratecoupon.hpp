@@ -106,6 +106,7 @@ namespace QuantLib {
                                          const Calendar&,
                                          BusinessDayConvention,
                                          bool endOfMonth = false);
+        FixedRateLeg& withPaymentDates(const std::vector<Date>& paymentDates);
         operator Leg() const;
       private:
         Schedule schedule_;
@@ -119,6 +120,7 @@ namespace QuantLib {
         Calendar exCouponCalendar_;
         BusinessDayConvention exCouponAdjustment_ = Following;
         bool exCouponEndOfMonth_ = false;
+        std::vector<Date> paymentDates_;
     };
 
     inline void FixedRateCoupon::accept(AcyclicVisitor& v) {

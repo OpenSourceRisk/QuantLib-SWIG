@@ -156,6 +156,7 @@ namespace QuantLib {
                                     bool endOfMonth = false);
         IborLeg& withIndexedCoupons(boost::optional<bool> b = true);
         IborLeg& withAtParCoupons(bool b = true);
+        IborLeg& withPaymentDates(const std::vector<Date>& paymentDates);
         operator Leg() const;
 
       private:
@@ -176,6 +177,7 @@ namespace QuantLib {
         BusinessDayConvention exCouponAdjustment_ = Unadjusted;
         bool exCouponEndOfMonth_ = false;
         boost::optional<bool> useIndexedCoupons_;
+        std::vector<Date> paymentDates_;
     };
 
 }

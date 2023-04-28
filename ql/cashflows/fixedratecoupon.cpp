@@ -169,17 +169,29 @@ namespace QuantLib {
         return *this;
     }
 
+    FixedRateLeg& FixedRateLeg::withPaymentDates(const std::vector<Date>& paymentDates) {
+        paymentDates_ = paymentDates;
+        return *this;
+    }
+
+
     FixedRateLeg::operator Leg() const {
 
         QL_REQUIRE(!couponRates_.empty(), "no coupon rates given");
         QL_REQUIRE(!notionals_.empty(), "no notional given");
+        QL_REQUIRE(paymentDates_.empty() || paymentDates_.size() == schedule_.size() - 1,
+                   "Expected the number of explicit payment dates ("
+                       << paymentDates_.size() << ") to equal the number of calculation periods ("
+                       << schedule_.size() - 1 << ")");
 
         Leg leg;
         leg.reserve(schedule_.size()-1);
 
         // first period might be short or long
         Date start = schedule_.date(0), end = schedule_.date(1);
-        Date paymentDate = paymentCalendar_.advance(end, paymentLag_, Days, paymentAdjustment_);
+        Date paymentDate = paymentDates_.empty() ? paymentCalendar_.advance(end, paymentLag_, Days,
+                                                                            paymentAdjustment_) :
+                                                   paymentDates_[0];
         Date exCouponDate;
         InterestRate rate = couponRates_[0];
         Real nominal = notionals_[0];
@@ -208,7 +220,10 @@ namespace QuantLib {
         // regular periods
         for (Size i=2; i<schedule_.size()-1; ++i) {
             start = end; end = schedule_.date(i);
-            Date paymentDate = paymentCalendar_.advance(end, paymentLag_, Days, paymentAdjustment_);
+            Date paymentDate =
+                paymentDates_.empty() ?
+                    paymentCalendar_.advance(end, paymentLag_, Days, paymentAdjustment_) :
+                    paymentDates_[i - 1];
             if (exCouponPeriod_ != Period())
             {
                 exCouponDate = exCouponCalendar_.advance(paymentDate,
@@ -232,7 +247,10 @@ namespace QuantLib {
             // last period might be short or long
             Size N = schedule_.size();
             start = end; end = schedule_.date(N-1);
-            Date paymentDate = paymentCalendar_.advance(end, paymentLag_, Days, paymentAdjustment_);
+            Date paymentDate =
+                paymentDates_.empty() ?
+                    paymentCalendar_.advance(end, paymentLag_, Days, paymentAdjustment_) :
+                    paymentDates_[N - 2];
             if (exCouponPeriod_ != Period())
             {
                 exCouponDate = exCouponCalendar_.advance(paymentDate,
