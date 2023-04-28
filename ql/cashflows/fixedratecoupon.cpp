@@ -179,7 +179,7 @@ namespace QuantLib {
 
         QL_REQUIRE(!couponRates_.empty(), "no coupon rates given");
         QL_REQUIRE(!notionals_.empty(), "no notional given");
-        QL_REQUIRE(paymentDates_.empty() || paymentDates.size() == schedule_.size() - 1,
+        QL_REQUIRE(paymentDates_.empty() || paymentDates_.size() == schedule_.size() - 1,
                    "Expected the number of explicit payment dates ("
                        << paymentDates_.size() << ") to equal the number of calculation periods ("
                        << schedule_.size() - 1 << ")");
