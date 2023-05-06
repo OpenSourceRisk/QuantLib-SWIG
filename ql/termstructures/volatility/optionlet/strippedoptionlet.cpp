@@ -160,8 +160,12 @@ namespace QuantLib {
 
     const vector<Time>& StrippedOptionlet::atmOptionletRates() const {
         calculate();
-        for (Size i=0; i<nOptionletDates_; ++i)
+        QL_REQUIRE(boost::dynamic_pointer_cast<OvernightIndex>(iborIndex_) == nullptr,
+                   "StrippedOptionlet::atmOptionletRates() not implemented for overnight index "
+                       << iborIndex_->name());
+        for (Size i=0; i<nOptionletDates_; ++i) {
             optionletAtmRates_[i] = iborIndex_->fixing(optionletDates_[i], true);
+        }
         return optionletAtmRates_;
     }
 
