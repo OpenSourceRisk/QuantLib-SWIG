@@ -62,13 +62,12 @@ namespace QuantLib {
     }
 
     Real BlackVarianceCurve::blackVarianceImpl(Time t, Real) const {
-        if (t<=times_.back()) {
-            return varianceCurve_(t, true);
+        if (t <= times_.back()) {
+            return std::max(varianceCurve_(t, true), 0.0);
         } else {
             // extrapolate with flat vol
-            return varianceCurve_(times_.back(), true)*t/times_.back();
+            return std::max(varianceCurve_(times_.back(), true), 0.0) * t / times_.back();
         }
     }
-
 }
 
