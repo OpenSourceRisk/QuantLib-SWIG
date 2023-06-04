@@ -42,6 +42,7 @@
 #include <ql/time/daycounters/thirty360.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
+#include <ql/optional.hpp>
 #include <map>
 
 #include <iomanip>
@@ -702,7 +703,7 @@ void CreditDefaultSwapTest::testIsdaEngine() {
                     ext::make_shared<FlatHazardRate>(0, WeekendsOnly(), h, Actual365Fixed()));
 
                 ext::shared_ptr<IsdaCdsEngine> engine = ext::make_shared<IsdaCdsEngine>(
-                    probabilityCurve, recovery, discountCurve, boost::none, IsdaCdsEngine::Taylor,
+                    probabilityCurve, recovery, discountCurve, ext::nullopt, IsdaCdsEngine::Taylor,
                     IsdaCdsEngine::HalfDayBias, IsdaCdsEngine::Piecewise);
 
                 ext::shared_ptr<CreditDefaultSwap> conventionalTrade =
@@ -864,7 +865,7 @@ void CreditDefaultSwapTest::testIsdaCalculatorReconcileSingleQuote ()
         ext::make_shared<FlatHazardRate>(0, WeekendsOnly(), h, Actual365Fixed()));
 
     ext::shared_ptr<IsdaCdsEngine> engine = ext::make_shared<IsdaCdsEngine>(
-        probabilityCurve, recovery, discountCurve, boost::none, IsdaCdsEngine::Taylor,
+        probabilityCurve, recovery, discountCurve, ext::nullopt, IsdaCdsEngine::Taylor,
         IsdaCdsEngine::HalfDayBias, IsdaCdsEngine::Piecewise);
 
     ext::shared_ptr<CreditDefaultSwap> conventionalTrade =
@@ -984,7 +985,7 @@ void CreditDefaultSwapTest::testIsdaCalculatorReconcileSingleWithIssueDateInTheP
         ext::make_shared<FlatHazardRate>(0, WeekendsOnly(), h, Actual365Fixed()));
 
     ext::shared_ptr<IsdaCdsEngine> engine = ext::make_shared<IsdaCdsEngine>(
-        probabilityCurve, recovery, discountCurve, boost::none, IsdaCdsEngine::Taylor,
+        probabilityCurve, recovery, discountCurve, ext::nullopt, IsdaCdsEngine::Taylor,
         IsdaCdsEngine::HalfDayBias, IsdaCdsEngine::Piecewise);
 
     ext::shared_ptr<CreditDefaultSwap> conventionalTrade =

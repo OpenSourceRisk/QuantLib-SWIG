@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([QuantLib], [1.29],
+AC_INIT([QuantLib], [1.30],
         [quantlib-dev@lists.sourceforge.net],
         [QuantLib])
 AC_PREREQ(2.62)
@@ -332,6 +332,37 @@ if test "$ql_use_intraday" = "yes" ; then
              [Define this if you want to enable high resolution date class.])
 fi
 AC_MSG_RESULT([$ql_use_intraday])
+
+AC_MSG_CHECKING([whether to enable std::any instead of boost::any])
+AC_ARG_ENABLE([std-any],
+              AS_HELP_STRING([--enable-std-any],
+                             [If enabled, std::any and related classes and
+                              functions will be used instead of boost::any.
+                              This requires C++17. If disabled (the default)
+                              the Boost facilities are used.]),
+              [ql_use_std_any=$enableval],
+              [ql_use_std_any=no])
+if test "$ql_use_std_any" = "yes" ; then
+   AC_DEFINE([QL_USE_STD_ANY],[1],
+             [Define this if you want to use std::any.])
+fi
+AC_MSG_RESULT([$ql_use_std_any])
+
+AC_MSG_CHECKING([whether to enable std::optional instead of boost::optional])
+AC_ARG_ENABLE([std-optional],
+              AS_HELP_STRING([--enable-std-optional],
+                             [If enabled, std::optional and related
+                              classes and functions will be used instead
+                              of boost::optional. This requires C++17.
+                              If disabled (the default) the Boost facilities
+                              are used.]),
+              [ql_use_std_optional=$enableval],
+              [ql_use_std_optional=no])
+if test "$ql_use_std_optional" = "yes" ; then
+   AC_DEFINE([QL_USE_STD_OPTIONAL],[1],
+             [Define this if you want to use std::optional.])
+fi
+AC_MSG_RESULT([$ql_use_std_optional])
 
 AC_MSG_CHECKING([whether to enable standard smart pointers])
 AC_ARG_ENABLE([std-pointers],

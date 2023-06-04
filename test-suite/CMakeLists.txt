@@ -50,6 +50,9 @@ set(QL_TEST_SOURCES
     dividendoption.cpp
     doublebarrieroption.cpp
     doublebinaryoption.cpp
+    equitycashflow.cpp
+    equityindex.cpp
+    equitytotalreturnswap.cpp
     europeanoption.cpp
     everestoption.cpp
     exchangerate.cpp
@@ -218,6 +221,9 @@ set(QL_TEST_HEADERS
     dividendoption.hpp
     doublebarrieroption.hpp
     doublebinaryoption.hpp
+    equityindex.hpp
+    equitycashflow.hpp
+    equitytotalreturnswap.hpp
     europeanoption.hpp
     everestoption.hpp
     exchangerate.hpp

@@ -31,6 +31,9 @@
 #include <ql/quotes/simplequote.hpp>
 #include <ql/math/solvers1d/brent.hpp>
 #include <ql/time/calendars/weekendsonly.hpp>
+#include <ql/time/schedule.hpp>
+#include <ql/optional.hpp>
+#include <utility>
 
 namespace QuantLib {
 
@@ -48,10 +51,10 @@ namespace QuantLib {
                                          bool rebatesAccrual,
                                          const Date& tradeDate,
                                          Natural cashSettlementDays)
-    : side_(side), notional_(notional), upfront_(boost::none), runningSpread_(spread),
+    : side_(side), notional_(notional), upfront_(ext::nullopt), runningSpread_(spread),
       schedule_(schedule), paymentConvention_(convention), settlesAccrual_(settlesAccrual),
       paysAtDefaultTime_(paysAtDefaultTime),
-      protectionPaymentTime_(settlesAccrual ? atDefault : atPeriodEnd), claim_(claim),
+      protectionPaymentTime_(settlesAccrual ? atDefault : atPeriodEnd), claim_(std::move(claim)),
       protectionStart_(protectionStart == Null<Date>() ? schedule[0] : protectionStart),
       tradeDate_(tradeDate), cashSettlementDays_(cashSettlementDays),
       rebatesAccrual_(rebatesAccrual) {
@@ -279,7 +282,7 @@ namespace QuantLib {
         return runningSpread_;
     }
 
-    boost::optional<Rate> CreditDefaultSwap::upfront() const {
+    ext::optional<Rate> CreditDefaultSwap::upfront() const {
         return upfront_;
     }
 
@@ -464,7 +467,7 @@ namespace QuantLib {
           case ISDA:
             engine = ext::make_shared<IsdaCdsEngine>(
                 p, r, d,
-                boost::none,
+                ext::nullopt,
                 IsdaCdsEngine::Taylor,
                 IsdaCdsEngine::HalfDayBias,
                 IsdaCdsEngine::Piecewise);
@@ -520,23 +523,6 @@ namespace QuantLib {
                                                    Handle<Quote>(flatRate), dayCounter));
 
         ext::shared_ptr<PricingEngine> engine = buildPricingEngine(probability, conventionalRecovery, discountCurve, model);
-        // ext::shared_ptr<PricingEngine> engine;
-        // switch (model) {
-        //   case Midpoint:
-        //     engine = ext::make_shared<MidPointCdsEngine>(
-        //         probability, conventionalRecovery, discountCurve);
-        //     break;
-        //   case ISDA:
-        //     engine = ext::make_shared<IsdaCdsEngine>(
-        //         probability, conventionalRecovery, discountCurve,
-        //         boost::none,
-        //         IsdaCdsEngine::Taylor,
-        //         IsdaCdsEngine::HalfDayBias,
-        //         IsdaCdsEngine::Piecewise);
-        //     break;
-        //   default:
-        //     QL_FAIL("unknown CDS pricing model: " << model);
-        // }
 
         setupArguments(engine->getArguments());
         const CreditDefaultSwap::results* results =

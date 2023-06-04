@@ -33,6 +33,7 @@
 #include <ql/indexes/iborindex.hpp>
 #include <ql/patterns/singleton.hpp>
 #include <ql/time/schedule.hpp>
+#include <ql/optional.hpp>
 
 namespace QuantLib {
 
@@ -154,7 +155,7 @@ namespace QuantLib {
                                     const Calendar&,
                                     BusinessDayConvention,
                                     bool endOfMonth = false);
-        IborLeg& withIndexedCoupons(boost::optional<bool> b = true);
+        IborLeg& withIndexedCoupons(ext::optional<bool> b = true);
         IborLeg& withAtParCoupons(bool b = true);
         IborLeg& withPaymentDates(const std::vector<Date>& paymentDates);
         operator Leg() const;
