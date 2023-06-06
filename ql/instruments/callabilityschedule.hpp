@@ -89,6 +89,8 @@ namespace QuantLib {
         //@}
       private:
         boost::optional<boost::variant<Bond::Price, InterestRate>> variable_;
+        // QuantLib-v1.30:
+        ext::optional<Bond::Price> price_;
         Type type_;
         Date date_;
     };

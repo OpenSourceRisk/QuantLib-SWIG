@@ -2,6 +2,7 @@
 
 /*
  Copyright (C) 2011 Chris Kenyon
+ Copyright (C) 2022 Quaternion Risk Management Ltd
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -68,16 +69,11 @@ namespace QuantLib {
                   const Date& refPeriodEnd = Date(),
                   const Date& exCouponDate = Date());
 
-        /*! \deprecated Use the other constructor instead.
-                        Deprecated in version 1.26.
-        */
-        QL_DEPRECATED
-        CPICoupon(Real baseCPI,
+        CPICoupon(const Date& baseDate, // user provided, could be arbitrary
                   const Date& paymentDate,
                   Real nominal,
                   const Date& startDate,
                   const Date& endDate,
-                  Natural fixingDays,
                   const ext::shared_ptr<ZeroInflationIndex>& index,
                   const Period& observationLag,
                   CPI::InterpolationType observationInterpolation,
@@ -88,13 +84,32 @@ namespace QuantLib {
                   const Date& refPeriodEnd = Date(),
                   const Date& exCouponDate = Date());
 
-        /* Allow baseCPI to be Null but then baseDate is required*/
-        CPICoupon(Real baseCPI, // user provided, can be null<Real>()
-                  const Date& baseDate, // user provided
+        CPICoupon(Real baseCPI, // user provided, could be arbitrary
+                  const Date& baseDate,
                   const Date& paymentDate,
                   Real nominal,
                   const Date& startDate,
                   const Date& endDate,
+                  const ext::shared_ptr<ZeroInflationIndex>& index,
+                  const Period& observationLag,
+                  CPI::InterpolationType observationInterpolation,
+                  const DayCounter& dayCounter,
+                  Real fixedRate, // aka gearing
+                  Spread spread = 0.0,
+                  const Date& refPeriodStart = Date(),
+                  const Date& refPeriodEnd = Date(),
+                  const Date& exCouponDate = Date());
+
+        /*! \deprecated Use the other constructor instead.
+                        Deprecated in version 1.26.
+        */
+        QL_DEPRECATED
+        CPICoupon(Real baseCPI,
+                  const Date& paymentDate,
+                  Real nominal,
+                  const Date& startDate,
+                  const Date& endDate,
+                  Natural fixingDays,
                   const ext::shared_ptr<ZeroInflationIndex>& index,
                   const Period& observationLag,
                   CPI::InterpolationType observationInterpolation,
@@ -125,9 +140,10 @@ namespace QuantLib {
                      i.e. the observationInterpolation.
         */
         Rate baseCPI() const;
-        //! base fixing date 
-        //! use the base date to compute the base fixing if baseCPI is Null
+
+        //! base date for the base fixing of the CPI index
         Date baseDate() const;
+
         //! how do you observe the index?  as-is, flat, linear?
         CPI::InterpolationType observationInterpolation() const;
 
@@ -270,6 +286,8 @@ namespace QuantLib {
                                          const Calendar&,
                                          BusinessDayConvention,
                                          bool endOfMonth = false);
+        CPILeg& withBaseDate(const Date& baseDate);
+
         operator Leg() const;
 
       private:
@@ -290,6 +308,7 @@ namespace QuantLib {
         Calendar exCouponCalendar_;
         BusinessDayConvention exCouponAdjustment_ = Following;
         bool exCouponEndOfMonth_ = false;
+        Date baseDate_ = Null<Date>();
     };
 
 
@@ -315,8 +334,8 @@ namespace QuantLib {
         return baseCPI_;
     }
 
-    inline Date CPICoupon::baseDate() const { 
-        return baseDate_; 
+    inline Date CPICoupon::baseDate() const {
+        return baseDate_;
     }
 
     inline CPI::InterpolationType CPICoupon::observationInterpolation() const {

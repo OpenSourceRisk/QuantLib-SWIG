@@ -1,7 +1,7 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
- Copyright (C) 2015 Thema Consulting SA
+ Copyright (C) 2023 Marcin Rybacki
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -17,26 +17,20 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/experimental/barrieroption/doublebarriertype.hpp>
-#include <ql/types.hpp>
-#include <ql/errors.hpp>
+#ifndef quantlib_test_equitytotalreturnswap_hpp
+#define quantlib_test_equitytotalreturnswap_hpp
 
-namespace QuantLib {
+#include <boost/test/unit_test.hpp>
 
-    std::ostream& operator<<(std::ostream& out,
-                             DoubleBarrier::Type type) {
-        switch (type) {
-          case DoubleBarrier::KnockIn:
-            return out << "KnockIn";
-          case DoubleBarrier::KnockOut:
-            return out << "KnockOut";
-          case DoubleBarrier::KIKO:
-            return out << "KI lo+KO up";
-          case DoubleBarrier::KOKI:
-            return out << "KO lo+KI up";
-          default:
-            QL_FAIL("unknown DoubleBarrier::Type (" << Integer(type) << ")");
-        }
-    }
+class EquityTotalReturnSwapTest {
+  public:
+    static void testFairMargin();
+    static void testErrorWhenNegativeNominal();
+    static void testErrorWhenNoPaymentCalendar();
+    static void testEquityLegNPV();
+    static void testTRSNPV();
 
-}
+    static boost::unit_test_framework::test_suite* suite();
+};
+
+#endif
