@@ -34,17 +34,6 @@
     #error using an old version of QuantLib, please update
 #endif
 
-#ifdef BOOST_MSVC
-#ifdef QL_ENABLE_THREAD_SAFE_OBSERVER_PATTERN
-#define BOOST_LIB_NAME boost_thread
-#include <boost/config/auto_link.hpp>
-#undef BOOST_LIB_NAME
-#define BOOST_LIB_NAME boost_system
-#include <boost/config/auto_link.hpp>
-#undef BOOST_LIB_NAME
-#endif
-#endif
-
 #if defined (SWIGJAVA) || defined (SWIGCSHARP) 
   #ifndef QL_ENABLE_THREAD_SAFE_OBSERVER_PATTERN
     #ifdef BOOST_MSVC
@@ -129,6 +118,7 @@ QL_DEPRECATED_DISABLE_WARNING
 %include bonds.i
 %include bondfunctions.i
 %include calendars.i
+%include calibratedmodel.i
 %include calibrationhelpers.i
 %include capfloor.i
 %include cashflows.i
@@ -161,6 +151,7 @@ QL_DEPRECATED_DISABLE_WARNING
 %include interestrate.i
 %include interpolation.i
 %include linearalgebra.i
+%include localvolatilities.i
 %include lmm.i
 %include lookbackoptions.i
 %include marketelements.i
