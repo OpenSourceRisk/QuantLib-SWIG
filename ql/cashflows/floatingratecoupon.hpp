@@ -57,6 +57,19 @@ namespace QuantLib {
                            DayCounter dayCounter = DayCounter(),
                            bool isInArrears = false,
                            const Date& exCouponDate = Date());
+        FloatingRateCoupon(const Date& paymentDate,
+                           Real nominal,
+                           const Date& startDate,
+                           const Date& endDate,
+                           const Date& fixingDate,
+                           const ext::shared_ptr<InterestRateIndex>& index,
+                           Real gearing = 1.0,
+                           Spread spread = 0.0,
+                           const Date& refPeriodStart = Date(),
+                           const Date& refPeriodEnd = Date(),
+                           DayCounter dayCounter = DayCounter(),
+                           bool isInArrears = false,
+                           const Date& exCouponDate = Date());
 
         //! \name LazyObject interface
         //@{
@@ -80,7 +93,7 @@ namespace QuantLib {
         //! floating index
         const ext::shared_ptr<InterestRateIndex>& index() const;
         //! fixing days
-        Natural fixingDays() const { return fixingDays_; }
+        Natural fixingDays() const;
         //! fixing date
         virtual Date fixingDate() const;
         //! index gearing, i.e. multiplicative coefficient for the index
@@ -113,6 +126,7 @@ namespace QuantLib {
         Real gearing_;
         Spread spread_;
         bool isInArrears_;
+        Date fixingDate_;
         ext::shared_ptr<FloatingRateCouponPricer> pricer_;
         mutable Real rate_;
     };

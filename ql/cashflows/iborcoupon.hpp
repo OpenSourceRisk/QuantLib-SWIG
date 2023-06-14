@@ -53,6 +53,19 @@ namespace QuantLib {
                    const DayCounter& dayCounter = DayCounter(),
                    bool isInArrears = false,
                    const Date& exCouponDate = Date());
+        IborCoupon(const Date& paymentDate,
+                   Real nominal,
+                   const Date& startDate,
+                   const Date& endDate,
+                   const Date& fixingDate,
+                   const ext::shared_ptr<IborIndex>& index,
+                   Real gearing = 1.0,
+                   Spread spread = 0.0,
+                   const Date& refPeriodStart = Date(),
+                   const Date& refPeriodEnd = Date(),
+                   const DayCounter& dayCounter = DayCounter(),
+                   bool isInArrears = false,
+                   const Date& exCouponDate = Date());
         //! \name Inspectors
         //@{
         const ext::shared_ptr<IborIndex>& iborIndex() const { return iborIndex_; }
@@ -90,7 +103,6 @@ namespace QuantLib {
       private:
         friend class IborCouponPricer;
         ext::shared_ptr<IborIndex> iborIndex_;
-        Date fixingDate_;
         // computed by coupon pricer (depending on par coupon flag) and stored here
         void initializeCachedData() const;
         mutable bool cachedDataIsInitialized_ = false;
