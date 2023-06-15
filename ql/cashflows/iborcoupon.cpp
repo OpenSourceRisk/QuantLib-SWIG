@@ -49,9 +49,26 @@ namespace QuantLib {
                          fixingDays, iborIndex, gearing, spread,
                          refPeriodStart, refPeriodEnd,
                          dayCounter, isInArrears, exCouponDate),
-      iborIndex_(iborIndex) {
-        fixingDate_ = fixingDate();
-    }
+      iborIndex_(iborIndex) {}
+
+    IborCoupon::IborCoupon(const Date& paymentDate,
+                           Real nominal,
+                           const Date& startDate,
+                           const Date& endDate,
+                           const Date& fixingDate,
+                           const ext::shared_ptr<IborIndex>& iborIndex,
+                           Real gearing,
+                           Spread spread,
+                           const Date& refPeriodStart,
+                           const Date& refPeriodEnd,
+                           const DayCounter& dayCounter,
+                           bool isInArrears,
+                           const Date& exCouponDate)
+    : FloatingRateCoupon(paymentDate, nominal, startDate, endDate,
+                         fixingDate, iborIndex, gearing, spread,
+                         refPeriodStart, refPeriodEnd,
+                         dayCounter, isInArrears, exCouponDate),
+      iborIndex_(iborIndex) {}
 
     void IborCoupon::initializeCachedData() const {
         auto p = ext::dynamic_pointer_cast<IborCouponPricer>(pricer_);
