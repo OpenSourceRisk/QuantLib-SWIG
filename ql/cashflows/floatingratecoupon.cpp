@@ -84,6 +84,10 @@ namespace QuantLib {
         if (dayCounter_.empty())
             dayCounter_ = index_->dayCounter();
 
+        QL_REQUIRE(index_->fixingCalendar().isBusinessDay(fixingDate),
+                   "FloatingRateCoupon: fixing date " << fixingDate
+                                                      << " not valid for fixing calendar "
+                                                      << index_->fixingCalendar());
         fixingDate_ = fixingDate;
 
         registerWith(index_);
