@@ -1144,9 +1144,11 @@ class FdmStepConditionProxy : public StepCondition<Array> {
     void applyTo(Array& a, Time t) const {
         PyObject* pyArray = SWIG_NewPointerObj(
             SWIG_as_voidptr(&a), SWIGTYPE_p_Array, 0);
-            
+        /*            
         PyObject* pyResult 
             = PyObject_CallMethod(callback_, "applyTo", "Od",pyArray, t);
+        */
+        PyObject_CallMethod(callback_, "applyTo", "Od",pyArray, t);
 
         Py_XDECREF(pyArray);
     }
