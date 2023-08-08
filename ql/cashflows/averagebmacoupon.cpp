@@ -129,12 +129,14 @@ namespace QuantLib {
                                                  new AverageBMACouponPricer));
     }
 
-    Date AverageBMACoupon::fixingDate() const {
-        QL_FAIL("no single fixing date for average-BMA coupon");
-    }
-
     std::vector<Date> AverageBMACoupon::fixingDates() const {
         return fixingSchedule_.dates();
+    }
+
+    Date AverageBMACoupon::fixingDate() const {
+        QL_REQUIRE(fixingSchedule_.dates().size() >= 2,
+                   "AverageBMACoupon::fixingDate(): expected at least 2 dates in fixing schedule");
+        return *std::next(fixingSchedule_.dates().end(), -2);
     }
 
     Rate AverageBMACoupon::indexFixing() const {

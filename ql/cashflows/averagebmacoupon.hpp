@@ -56,7 +56,7 @@ namespace QuantLib {
 
         //! \name FloatingRateCoupon interface
         //@{
-        //! not applicable here; use fixingDates() instead
+        //! the date when the coupon is fully determined
         Date fixingDate() const override;
         //! fixing dates of the rates to be averaged
         std::vector<Date> fixingDates() const;
