@@ -242,8 +242,9 @@ class HestonProcess : public StochasticProcess {
                        Discretization d = QuadraticExponentialMartingale);
 
         Handle<Quote> s0();
-      Handle<YieldTermStructure> dividendYield();
-      Handle<YieldTermStructure> riskFreeRate();
+        Handle<YieldTermStructure> dividendYield();
+        Handle<YieldTermStructure> riskFreeRate();
+        Real pdf(Real x, Real v, Time t, Real eps=1e-3) const;
 };
 
 %{
