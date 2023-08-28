@@ -26,8 +26,8 @@
 #include <ql/cashflows/iborcoupon.hpp>
 #include <ql/cashflows/lineartsrpricer.hpp>
 #include <ql/indexes/iborindex.hpp>
-#include <ql/instruments/vanillaswap.hpp>
 #include <ql/instruments/overnightindexedswap.hpp>
+#include <ql/instruments/vanillaswap.hpp>
 #include <ql/math/integrals/kronrodintegral.hpp>
 #include <ql/math/solvers1d/brent.hpp>
 #include <ql/pricingengines/blackformula.hpp>
@@ -123,15 +123,23 @@ namespace QuantLib {
 
         today_ = QuantLib::Settings::instance().evaluationDate();
 
-        if (paymentDate_ > today_ && !couponDiscountCurve_.empty())
-            couponDiscountRatio_ =
-                couponDiscountCurve_->discount(paymentDate_) /
-                discountCurve_->discount(paymentDate_);
-        else
-            couponDiscountRatio_ = 1.;
+        Real couponCurvePaymentDiscount;
+        if (!couponDiscountCurve_.empty() && paymentDate_ > couponDiscountCurve_->referenceDate()) {
+            couponCurvePaymentDiscount = couponDiscountCurve_->discount(paymentDate_);
+        } else {
+            couponCurvePaymentDiscount = 1.0;
+        }
 
-        spreadLegValue_ = spread_ * coupon_->accrualPeriod() *
-                          discountCurve_->discount(paymentDate_) *
+        if (paymentDate_ > discountCurve_->referenceDate()) {
+            discountCurvePaymentDiscount_ = discountCurve_->discount(paymentDate_);
+        } else {
+            discountCurvePaymentDiscount_ = 1.0;
+        }
+
+
+        couponDiscountRatio_ = couponCurvePaymentDiscount / discountCurvePaymentDiscount_;
+
+        spreadLegValue_ = spread_ * coupon_->accrualPeriod() * discountCurvePaymentDiscount_ *
                           couponDiscountRatio_;
 
         if (fixingDate_ > today_) {
@@ -139,7 +147,7 @@ namespace QuantLib {
             swapTenor_ = swapIndex_->tenor();
 
             Leg swapFixedLeg;
-            if(auto on = boost::dynamic_pointer_cast<OvernightIndexedSwapIndex>(swapIndex_)) {
+            if(auto on = ext::dynamic_pointer_cast<OvernightIndexedSwapIndex>(swapIndex_)) {
                 onSwap_ = on->underlyingSwap(fixingDate_);
                 swapRateValue_ = onSwap_->fairRate();
                 annuity_ = 1.0E4 * std::fabs(onSwap_->fixedLegBPS());
@@ -371,8 +379,7 @@ namespace QuantLib {
 
     Rate LinearTsrPricer::swapletRate() const {
         return swapletPrice() /
-               (coupon_->accrualPeriod() *
-                discountCurve_->discount(paymentDate_) * couponDiscountRatio_);
+               (coupon_->accrualPeriod() * discountCurvePaymentDiscount_ * couponDiscountRatio_);
     }
 
     Real LinearTsrPricer::capletPrice(Rate effectiveCap) const {
@@ -381,10 +388,8 @@ namespace QuantLib {
             // the fixing is determined
             const Rate Rs = std::max(
                 coupon_->swapIndex()->fixing(fixingDate_) - effectiveCap, 0.);
-            Rate price =
-                (gearing_ * Rs) *
-                (coupon_->accrualPeriod() *
-                 discountCurve_->discount(paymentDate_) * couponDiscountRatio_);
+            Rate price = (gearing_ * Rs) * (coupon_->accrualPeriod() *
+                                            discountCurvePaymentDiscount_ * couponDiscountRatio_);
             return price;
         } else {
             Real capletPrice = optionletPrice(Option::Call, effectiveCap);
@@ -394,8 +399,7 @@ namespace QuantLib {
 
     Rate LinearTsrPricer::capletRate(Rate effectiveCap) const {
         return capletPrice(effectiveCap) /
-               (coupon_->accrualPeriod() *
-                discountCurve_->discount(paymentDate_) * couponDiscountRatio_);
+               (coupon_->accrualPeriod() * discountCurvePaymentDiscount_ * couponDiscountRatio_);
     }
 
     Real LinearTsrPricer::floorletPrice(Rate effectiveFloor) const {
@@ -404,10 +408,8 @@ namespace QuantLib {
             // the fixing is determined
             const Rate Rs = std::max(
                 effectiveFloor - coupon_->swapIndex()->fixing(fixingDate_), 0.);
-            Rate price =
-                (gearing_ * Rs) *
-                (coupon_->accrualPeriod() *
-                 discountCurve_->discount(paymentDate_) * couponDiscountRatio_);
+            Rate price = (gearing_ * Rs) * (coupon_->accrualPeriod() *
+                                            discountCurvePaymentDiscount_ * couponDiscountRatio_);
             return price;
         } else {
             Real floorletPrice = optionletPrice(Option::Put, effectiveFloor);
@@ -417,8 +419,7 @@ namespace QuantLib {
 
     Rate LinearTsrPricer::floorletRate(Rate effectiveFloor) const {
         return floorletPrice(effectiveFloor) /
-               (coupon_->accrualPeriod() *
-                discountCurve_->discount(paymentDate_) * couponDiscountRatio_);
+               (coupon_->accrualPeriod() * discountCurvePaymentDiscount_ * couponDiscountRatio_);
     }
 
     Real LinearTsrPricer::swapletPrice() const {
@@ -427,14 +428,12 @@ namespace QuantLib {
             const Rate Rs = coupon_->swapIndex()->fixing(fixingDate_);
             Rate price =
                 (gearing_ * Rs + spread_) *
-                (coupon_->accrualPeriod() *
-                 discountCurve_->discount(paymentDate_) * couponDiscountRatio_);
+                (coupon_->accrualPeriod() * discountCurvePaymentDiscount_ * couponDiscountRatio_);
             return price;
         } else {
             Real atmCapletPrice = optionletPrice(Option::Call, swapRateValue_);
             Real atmFloorletPrice = optionletPrice(Option::Put, swapRateValue_);
-            return gearing_ * (coupon_->accrualPeriod() *
-                                   discountCurve_->discount(paymentDate_) *
+            return gearing_ * (coupon_->accrualPeriod() * discountCurvePaymentDiscount_ *
                                    swapRateValue_ * couponDiscountRatio_ +
                                atmCapletPrice - atmFloorletPrice) +
                    spreadLegValue_;
