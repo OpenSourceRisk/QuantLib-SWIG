@@ -61,11 +61,13 @@ class LocalVolSurface : public LocalVolTermStructure {
     LocalVolSurface(const Handle<BlackVolTermStructure>& blackTS,
                     const Handle<YieldTermStructure>& riskFreeTS,
                     const Handle<YieldTermStructure>& dividendTS,
-                    const Handle<Quote>& underlying);
+                    const Handle<Quote>& underlying,
+                    bool floorNegativeValues = false);
     LocalVolSurface(const Handle<BlackVolTermStructure>& blackTS,
                     const Handle<YieldTermStructure>& riskFreeTS,
                     const Handle<YieldTermStructure>& dividendTS,
-                    Real underlying);
+                    Real underlying,
+                    bool floorNegativeValues = false);
 };
 
 
