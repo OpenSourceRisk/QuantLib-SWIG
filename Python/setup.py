@@ -78,10 +78,10 @@ class my_wrap(Command):
                  ' is recommended. \nSome features may not work.'
                  .format(swig_version))
         swig_dir = os.path.join("..","SWIG")
-        os.system('swig -python -c++ -modern ' +
+        os.system('swig -python -c++ ' +
                   '-I%s ' % swig_dir +
                   '-outdir QuantLib -o QuantLib/quantlib_wrap.cpp ' +
-                  'quantlib.i')
+                  '%s/quantlib.i' % swig_dir)
 
 class my_build(build):
     user_options = build.user_options + [
@@ -212,7 +212,7 @@ classifiers = [
 ]
 
 setup(name             = "QuantLib",
-      version          = "1.30",
+      version          = "1.31.1",
       description      = "Python bindings for the QuantLib library",
       long_description = """
 QuantLib (https://www.quantlib.org/) is a C++ library for financial quantitative
