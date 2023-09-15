@@ -6,6 +6,7 @@
  Copyright (C) 2008 Roland Lichters
  Copyright (C) 2008 StatPro Italia srl
  Copyright (C) 2017 Quaternion Risk Management Ltd
+ Copyright (C) 2023 Andrea Pellegatta
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -353,9 +354,8 @@ namespace QuantLib {
                 recoveryRate, discountCurve, settlesAccrual, paysAtDefaultTime,
                 startDate, lastPeriodDayCounter, rebatesAccrual, model),
       upfrontSettlementDays_(upfrontSettlementDays),
-      runningSpread_(runningSpread) {
-        UpfrontCdsHelper::initializeDates();
-    }
+      upfrontDate_(upfrontDate()),
+      runningSpread_(runningSpread) {}
 
     // deprecated 
     UpfrontCdsHelper::UpfrontCdsHelper(
@@ -382,8 +382,11 @@ namespace QuantLib {
                 recoveryRate, discountCurve, settlesAccrual, paysAtDefaultTime,
                 startDate, lastPeriodDayCounter, rebatesAccrual, model),
       upfrontSettlementDays_(upfrontSettlementDays),
-      runningSpread_(runningSpread) {
-        UpfrontCdsHelper::initializeDates();
+      upfrontDate_(upfrontDate()),
+      runningSpread_(runningSpread) {}
+
+    Date UpfrontCdsHelper::upfrontDate() {
+        return calendar_.advance(evaluationDate_, upfrontSettlementDays_, Days, paymentConvention_);
     }
 
     UpfrontCdsHelper::UpfrontCdsHelper(
@@ -441,7 +444,12 @@ namespace QuantLib {
     }
 
     void UpfrontCdsHelper::initializeDates() {
+// <<<<<<< HEAD
         upfrontDate_ = calendar_.advance(evaluationDate_, upfrontSettlementDays_, Days, paymentConvention_);
+// =======
+//         CdsHelper::initializeDates();
+//         upfrontDate_ = upfrontDate();
+// >>>>>>> v1.31.1
     }
 
     void UpfrontCdsHelper::resetEngine() {

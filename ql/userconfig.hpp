@@ -76,9 +76,23 @@
 #endif
 
 /* Define this to enable a date resolution down to microseconds and
-   allow for accurate intraday pricing.*/
+   allow for accurate intraday pricing. */
 #ifndef QL_HIGH_RESOLUTION_DATE
 //#    define QL_HIGH_RESOLUTION_DATE
+#endif
+
+/* Define this if you want to throw an exception when a notification
+   loop is detected.  Enabling this option is recommended but might
+   cause existing code to throw. */
+#ifndef QL_THROW_IN_CYCLES
+//#    define QL_THROW_IN_CYCLES
+#endif
+
+/* Undefine this if you want lazy objects to forward all notifications
+   instead of just the first.  Disabling this option is safer in some
+   cases but can be a lot slower. */
+#ifndef QL_FASTER_LAZY_OBJECTS
+#    define QL_FASTER_LAZY_OBJECTS
 #endif
 
 /* Define this to use std::any instead of boost::any. */

@@ -29,6 +29,7 @@
 #include <ql/math/array.hpp>
 #include <ql/utilities/steppingiterator.hpp>
 #include <initializer_list>
+#include <iterator>
 
 namespace QuantLib {
 
@@ -79,18 +80,18 @@ namespace QuantLib {
 
         typedef Real* iterator;
         typedef const Real* const_iterator;
-        typedef boost::reverse_iterator<iterator> reverse_iterator;
-        typedef boost::reverse_iterator<const_iterator> const_reverse_iterator;
+        typedef std::reverse_iterator<iterator> reverse_iterator;
+        typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
         typedef Real* row_iterator;
         typedef const Real* const_row_iterator;
-        typedef boost::reverse_iterator<row_iterator> reverse_row_iterator;
-        typedef boost::reverse_iterator<const_row_iterator>
+        typedef std::reverse_iterator<row_iterator> reverse_row_iterator;
+        typedef std::reverse_iterator<const_row_iterator>
                                                 const_reverse_row_iterator;
         typedef step_iterator<iterator> column_iterator;
         typedef step_iterator<const_iterator> const_column_iterator;
-        typedef boost::reverse_iterator<column_iterator>
+        typedef std::reverse_iterator<column_iterator>
                                                    reverse_column_iterator;
-        typedef boost::reverse_iterator<const_column_iterator>
+        typedef std::reverse_iterator<const_column_iterator>
                                              const_reverse_column_iterator;
         //! \name Iterator access
         //@{
@@ -141,7 +142,7 @@ namespace QuantLib {
 
         //! \name Utilities
         //@{
-        void swap(Matrix&);
+        void swap(Matrix&) noexcept;
         //@}
       private:
         std::unique_ptr<Real[]> data_;
@@ -205,7 +206,7 @@ namespace QuantLib {
     Matrix outerProduct(Iterator1 v1begin, Iterator1 v1end, Iterator2 v2begin, Iterator2 v2end);
 
     /*! \relates Matrix */
-    void swap(Matrix&, Matrix&);
+    void swap(Matrix&, Matrix&) noexcept;
 
     /*! \relates Matrix */
     std::ostream& operator<<(std::ostream&, const Matrix&);
@@ -287,11 +288,10 @@ namespace QuantLib {
         return !this->operator==(to); 
     }
 
-    inline void Matrix::swap(Matrix& from) {
-        using std::swap;
+    inline void Matrix::swap(Matrix& from) noexcept {
         data_.swap(from.data_);
-        swap(rows_,from.rows_);
-        swap(columns_,from.columns_);
+        std::swap(rows_, from.rows_);
+        std::swap(columns_, from.columns_);
     }
 
     inline const Matrix& Matrix::operator+=(const Matrix& m) {
@@ -555,7 +555,7 @@ namespace QuantLib {
         return std::move(m1);
     }
 
-    inline Matrix operator+(Matrix&& m1, Matrix&& m2) {
+    inline Matrix operator+(Matrix&& m1, Matrix&& m2) { // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
         QL_REQUIRE(m1.rows() == m2.rows() &&
                    m1.columns() == m2.columns(),
                    "matrices with different sizes (" <<
@@ -611,7 +611,7 @@ namespace QuantLib {
         return std::move(m1);
     }
 
-    inline Matrix operator-(Matrix&& m1, Matrix&& m2) {
+    inline Matrix operator-(Matrix&& m1, Matrix&& m2) { // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
         QL_REQUIRE(m1.rows() == m2.rows() &&
                    m1.columns() == m2.columns(),
                    "matrices with different sizes (" <<
@@ -729,7 +729,7 @@ namespace QuantLib {
         return result;
     }
 
-    inline void swap(Matrix& m1, Matrix& m2) {
+    inline void swap(Matrix& m1, Matrix& m2) noexcept {
         m1.swap(m2);
     }
 

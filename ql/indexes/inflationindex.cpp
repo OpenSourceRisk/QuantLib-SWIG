@@ -326,7 +326,33 @@ namespace QuantLib {
         return clonedIndex;
     }
 
-    // these still need to be fixed to latest versions
+
+    YoYInflationIndex::YoYInflationIndex(const ext::shared_ptr<ZeroInflationIndex>& underlyingIndex,
+                                         bool interpolated,
+                                         Handle<YoYInflationTermStructure> yoyInflation)
+    : InflationIndex("YYR_" + underlyingIndex->familyName(), underlyingIndex->region(),
+                     underlyingIndex->revised(), underlyingIndex->frequency(),
+                     underlyingIndex->availabilityLag(), underlyingIndex->currency()),
+      interpolated_(interpolated), ratio_(true), underlyingIndex_(underlyingIndex),
+      yoyInflation_(std::move(yoyInflation)) {
+        registerWith(underlyingIndex_);
+        registerWith(yoyInflation_);
+    }
+
+    QL_DEPRECATED_DISABLE_WARNING
+
+    YoYInflationIndex::YoYInflationIndex(const std::string& familyName,
+                                         const Region& region,
+                                         bool revised,
+                                         bool interpolated,
+                                         Frequency frequency,
+                                         const Period& availabilityLag,
+                                         const Currency& currency,
+                                         Handle<YoYInflationTermStructure> yoyInflation)
+    : YoYInflationIndex(familyName, region, revised, interpolated, false,
+                        frequency, availabilityLag, currency, std::move(yoyInflation)) {}
+
+    QL_DEPRECATED_ENABLE_WARNING
 
     YoYInflationIndex::YoYInflationIndex(const std::string& familyName,
                                          const Region& region,
@@ -339,6 +365,9 @@ namespace QuantLib {
                                          Handle<YoYInflationTermStructure> yoyInflation)
     : InflationIndex(familyName, region, revised, frequency, availabilityLag, currency),
       interpolated_(interpolated), ratio_(ratio), yoyInflation_(std::move(yoyInflation)) {
+        if (ratio)
+            underlyingIndex_ = ext::make_shared<ZeroInflationIndex>(familyName, region, revised,
+                                                                    frequency, availabilityLag, currency);
         registerWith(yoyInflation_);
     }
 
@@ -346,13 +375,26 @@ namespace QuantLib {
     Rate YoYInflationIndex::fixing(const Date& fixingDate,
         bool /*forecastTodaysFixing*/) const {
 
+// <<<<<<< HEAD
         if (needsForecast(fixingDate)) {
+// =======
+//         Date today = Settings::instance().evaluationDate();
+//         Date todayMinusLag = today - availabilityLag_;
+//         std::pair<Date,Date> lim = inflationPeriod(todayMinusLag, frequency_);
+//         Date lastFix = lim.first-1;
+
+//         Date flatMustForecastOn = lastFix+1;
+//         Date interpMustForecastOn = lastFix+1 - Period(frequency_);
+
+//         if (interpolated() && fixingDate >= interpMustForecastOn) {
+// >>>>>>> v1.31.1
             return forecastFixing(fixingDate);
         }
         else {
 
             // four cases with ratio() and interpolated()
 
+// <<<<<<< HEAD
             const TimeSeries<Real>& ts = timeSeries();
             if (ratio()) {
 
@@ -407,6 +449,17 @@ namespace QuantLib {
 
             }
             else { // NOT ratio
+// =======
+//         const TimeSeries<Real>& ts = timeSeries();
+//         if (ratio()) {
+
+//             auto interpolationType = interpolated() ? CPI::Linear : CPI::Flat;
+
+//             Rate pastFixing = CPI::laggedFixing(underlyingIndex_, fixingDate, Period(0, Months), interpolationType);
+//             Rate previousFixing = CPI::laggedFixing(underlyingIndex_, fixingDate - 1*Years, Period(0, Months), interpolationType);
+
+//             return pastFixing/previousFixing - 1.0;
+// >>>>>>> v1.31.1
 
                 if (interpolated()) { // NOT ratio, IS interpolated
 
@@ -456,10 +509,13 @@ namespace QuantLib {
 
     ext::shared_ptr<YoYInflationIndex> YoYInflationIndex::clone(
                            const Handle<YoYInflationTermStructure>& h) const {
-        return ext::make_shared<YoYInflationIndex>(
-                      familyName_, region_, revised_,
-                                            interpolated_, ratio_, frequency_,
-                                            availabilityLag_, currency_, h);
+        if (ratio_) {
+            return ext::make_shared<YoYInflationIndex>(underlyingIndex_, interpolated_, h);
+        } else {
+            return ext::make_shared<YoYInflationIndex>(familyName_, region_, revised_,
+                                                       interpolated_, frequency_,
+                                                       availabilityLag_, currency_, h);
+        }
     }
 
 
