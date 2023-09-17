@@ -509,6 +509,7 @@ namespace QuantLib {
 
     ext::shared_ptr<YoYInflationIndex> YoYInflationIndex::clone(
                            const Handle<YoYInflationTermStructure>& h) const {
+        /*
         if (ratio_) {
             return ext::make_shared<YoYInflationIndex>(underlyingIndex_, interpolated_, h);
         } else {
@@ -516,6 +517,13 @@ namespace QuantLib {
                                                        interpolated_, frequency_,
                                                        availabilityLag_, currency_, h);
         }
+        */
+        return ext::make_shared<YoYInflationIndex>(
+                      familyName_, region_, revised_,
+                      interpolated_, ratio_, frequency_,
+                      availabilityLag_, currency_, h);
+
+
     }
 
 
