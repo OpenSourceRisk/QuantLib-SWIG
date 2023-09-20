@@ -263,8 +263,10 @@ namespace QuantLib {
             year-on-year values; if `ratio` is true, they must be the
             past fixings of the underlying index.
 
-            Deprecated in QL version 1.31 but needed in ORE
+            \deprecated Use one of the other constructors instead.
+                        Deprecated in version 1.31.
         */
+        QL_DEPRECATED
         YoYInflationIndex(
             const std::string& familyName,
             const Region& region,

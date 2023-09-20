@@ -792,7 +792,7 @@ void InflationTest::testRatioYYIndex() {
     auto ukrpi = ext::make_shared<UKRPI>();
 
     YoYInflationIndex yyeuhicpr(euhicp, true);
-    if (yyeuhicpr.name() != "EU YYR_HICP"
+    if (yyeuhicpr.name() != "EU HICP"
         || yyeuhicpr.frequency() != Monthly
         || yyeuhicpr.revised()
         || !yyeuhicpr.interpolated()
@@ -808,7 +808,7 @@ void InflationTest::testRatioYYIndex() {
     }
 
     YoYInflationIndex yyukrpir(ukrpi, false);
-    if (yyukrpir.name() != "UK YYR_RPI"
+    if (yyukrpir.name() != "UK RPI"
         || yyukrpir.frequency() != Monthly
         || yyukrpir.revised()
         || yyukrpir.interpolated()
