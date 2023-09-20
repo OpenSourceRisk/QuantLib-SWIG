@@ -25,7 +25,6 @@
      of worker processes will be equal to the number of CPU cores.
  */
 
-
 #pragma once
 
 #include <ql/errors.hpp>

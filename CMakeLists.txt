@@ -5,14 +5,14 @@ cmake_policy(SET CMP0091 NEW)
 
 # Version info
 set(QUANTLIB_VERSION_MAJOR 1)
-set(QUANTLIB_VERSION_MINOR 30)
-set(QUANTLIB_VERSION_PATCH 0)
+set(QUANTLIB_VERSION_MINOR 31)
+set(QUANTLIB_VERSION_PATCH 1)
 set(QUANTLIB_VERSION ${QUANTLIB_VERSION_MAJOR}.${QUANTLIB_VERSION_MINOR}.${QUANTLIB_VERSION_PATCH})
 
 # Project Info
 set(PACKAGE_NAME          "QuantLib")
 set(PACKAGE_VERSION       "${QUANTLIB_VERSION}")
-set(PACKAGE_VERSION_HEX   "0x013000f0")
+set(PACKAGE_VERSION_HEX   "0x013101f0")
 set(PACKAGE_STRING        "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 set(PACKAGE_TARNAME       "${PACKAGE_NAME}-${PACKAGE_VERSION}")
 set(PACKAGE_BUGREPORT     "https://github.com/lballabio/QuantLib/issues/")
@@ -53,6 +53,8 @@ option(QL_ERROR_FUNCTIONS "Error messages should include current function inform
 option(QL_ERROR_LINES "Error messages should include file and line information" OFF)
 option(QL_EXTRA_SAFETY_CHECKS "Extra safety checks should be performed" OFF)
 option(QL_HIGH_RESOLUTION_DATE "Enable date resolution down to microseconds" OFF)
+option(QL_THROW_IN_CYCLES "Throw an exception when a notification loop is detected" OFF)
+option(QL_FASTER_LAZY_OBJECTS "Cause lazy objects to forward just the first notification instead of every one" ON)
 option(QL_NULL_AS_FUNCTIONS "Enable the implementation of Null as template functions" OFF)
 option(QL_INSTALL_BENCHMARK "Install benchmark" ON)
 option(QL_INSTALL_EXAMPLES "Install examples" ON)
@@ -119,7 +121,7 @@ if (QL_ENABLE_DEFAULT_WARNING_LEVEL)
         # warning level 3
         # There are also specific warnings disabled for MSCV in cmake/Platform.cmake.
         add_compile_options(-W3)
-    else()
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
         # lots of warnings
         add_compile_options(-Wall -Wno-unknown-pragmas)
     endif()
@@ -135,7 +137,7 @@ if (QL_COMPILE_WARNING_AS_ERROR)
         # or set them manually
         if (MSVC)
             add_compile_options(-WX)
-        else()
+        elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
             add_compile_options(-Werror)
         endif()
     endif()
@@ -244,6 +246,15 @@ set(QL_VERSION ${PACKAGE_VERSION})
 set(QL_HEX_VERSION ${PACKAGE_VERSION_HEX})
 configure_file(ql/config.hpp.cfg ql/config.hpp @ONLY)
 configure_file(ql/qldefines.hpp.cfg ql/qldefines.hpp @ONLY)
+
+
+# Generate quantlib-config
+# Define the variables to be substituted in the input file
+set(prefix ${CMAKE_INSTALL_PREFIX})
+set(exec_prefix "\${prefix}")
+set(includedir "\${prefix}/include")
+set(libdir "\${exec_prefix}/lib")
+configure_file(quantlib-config.in quantlib-config @ONLY)
 
 include(Platform)
 

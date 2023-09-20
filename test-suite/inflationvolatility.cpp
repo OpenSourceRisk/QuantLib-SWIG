@@ -100,8 +100,8 @@ namespace inflation_volatility_test {
         Date eval = Date(Day(23), Month(11), Year(2007));
         Settings::instance().evaluationDate() = eval;
 
-        yoyIndexUK = ext::shared_ptr<YoYInflationIndex>(new YYUKRPIr(true, yoyUK));
-        yoyIndexEU = ext::shared_ptr<YoYInflationIndex>(new YYEUHICPr(true, yoyEU));
+        yoyIndexUK = ext::make_shared<YoYInflationIndex>(ext::make_shared<UKRPI>(), true, yoyUK);
+        yoyIndexEU = ext::make_shared<YoYInflationIndex>(ext::make_shared<EUHICP>(), true, yoyEU);
 
         // nominal yield curve (interpolated; times assume year parts have 365 days)
         Real timesEUR[] = {0.0109589, 0.0684932, 0.263014, 0.317808, 0.567123, 0.816438,
@@ -284,8 +284,6 @@ void InflationVolTest::testYoYPriceSurfaceToVol() {
 
     using namespace inflation_volatility_test;
 
-    SavedSettings backup;
-
     setup();
 
     // first get the price surface set up
@@ -373,8 +371,6 @@ void InflationVolTest::testYoYPriceSurfaceToATM() {
                        "to YoY inflation term structure...");
 
     using namespace inflation_volatility_test;
-
-    SavedSettings backup;
 
     setup();
 

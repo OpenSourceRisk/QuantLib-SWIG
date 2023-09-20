@@ -37,7 +37,7 @@ namespace QuantLib {
         OISRateHelper(Natural settlementDays,
                       const Period& tenor, // swap maturity
                       const Handle<Quote>& fixedRate,
-                      ext::shared_ptr<OvernightIndex> overnightIndex,
+                      const ext::shared_ptr<OvernightIndex>& overnightIndex,
                       // exogenous discounting curve
                       Handle<YieldTermStructure> discountingCurve = {},
                       bool telescopicValueDates = false,
@@ -92,15 +92,21 @@ namespace QuantLib {
     //! Rate helper for bootstrapping over Overnight Indexed Swap rates
     class DatedOISRateHelper : public RateHelper {
       public:
-        DatedOISRateHelper(
-            const Date& startDate,
-            const Date& endDate,
-            const Handle<Quote>& fixedRate,
-            const ext::shared_ptr<OvernightIndex>& overnightIndex,
-            // exogenous discounting curve
-            Handle<YieldTermStructure> discountingCurve = {},
-            bool telescopicValueDates = false,
-            RateAveraging::Type averagingMethod = RateAveraging::Compound);
+        DatedOISRateHelper(const Date& startDate,
+                           const Date& endDate,
+                           const Handle<Quote>& fixedRate,
+                           const ext::shared_ptr<OvernightIndex>& overnightIndex,
+                           // exogenous discounting curve
+                           Handle<YieldTermStructure> discountingCurve = {},
+                           bool telescopicValueDates = false,
+                           RateAveraging::Type averagingMethod = RateAveraging::Compound,
+                           Natural paymentLag = 0,
+                           BusinessDayConvention paymentConvention = Following,
+                           Frequency paymentFrequency = Annual,
+                           const Calendar& paymentCalendar = Calendar(),
+                           const Period& forwardStart = 0 * Days,
+                           Spread overnightSpread = 0.0,
+                           ext::optional<bool> endOfMonth = ext::nullopt);
         //! \name RateHelper interface
         //@{
         Real impliedQuote() const override;
@@ -110,7 +116,7 @@ namespace QuantLib {
         //@{
         void accept(AcyclicVisitor&) override;
         //@}
-    protected:
+      protected:
         ext::shared_ptr<OvernightIndexedSwap> swap_;
         RelinkableHandle<YieldTermStructure> termStructureHandle_;
 
