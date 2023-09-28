@@ -90,6 +90,10 @@ namespace QuantLib {
         //! the settlementDays used for reference date calculation
         virtual Natural settlementDays() const;
         //@}
+        //! \name Setter
+        //! adjust the reference date
+        void setAdjustReferenceDate(const bool b);
+        //@{
         //! \name Observer interface
         //@{
         void update() override;
@@ -108,6 +112,7 @@ namespace QuantLib {
         mutable Date referenceDate_;
         Natural settlementDays_;
         DayCounter dayCounter_;
+        bool adjustReferenceDate_ = true;
     };
 
     // inline definitions
