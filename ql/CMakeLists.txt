@@ -237,6 +237,7 @@ set(QL_SOURCES
     indexes/bmaindex.cpp
     indexes/equityindex.cpp
     indexes/ibor/bibor.cpp
+    indexes/ibor/corra.cpp
     indexes/ibor/eonia.cpp
     indexes/ibor/estr.cpp
     indexes/ibor/euribor.cpp
@@ -258,6 +259,7 @@ set(QL_SOURCES
     indexes/swap/jpyliborswap.cpp
     indexes/swap/usdliborswap.cpp
     indexes/swapindex.cpp
+    instrument.cpp
     instruments/asianoption.cpp
     instruments/assetswap.cpp
     instruments/averagetype.cpp
@@ -912,6 +914,7 @@ set(QL_SOURCES
     time/daycounters/simpledaycounter.cpp
     time/daycounters/thirty360.cpp
     time/daycounters/thirty365.cpp
+    time/daycounters/yearfractiontodate.cpp
     time/ecb.cpp
     time/frequency.cpp
     time/imm.cpp
@@ -1249,6 +1252,8 @@ set(QL_HEADERS
     indexes/ibor/cadlibor.hpp
     indexes/ibor/cdor.hpp
     indexes/ibor/chflibor.hpp
+    indexes/ibor/corra.hpp
+    indexes/ibor/destr.hpp
     indexes/ibor/dkklibor.hpp
     indexes/ibor/eonia.hpp
     indexes/ibor/estr.hpp
@@ -1268,6 +1273,7 @@ set(QL_HEADERS
     indexes/ibor/shibor.hpp
     indexes/ibor/sofr.hpp
     indexes/ibor/sonia.hpp
+    indexes/ibor/swestr.hpp
     indexes/ibor/thbfix.hpp
     indexes/ibor/tibor.hpp
     indexes/ibor/tona.hpp
@@ -2185,6 +2191,7 @@ set(QL_HEADERS
     time/daycounters/simpledaycounter.hpp
     time/daycounters/thirty360.hpp
     time/daycounters/thirty365.hpp
+    time/daycounters/yearfractiontodate.hpp
     time/ecb.hpp
     time/frequency.hpp
     time/imm.hpp

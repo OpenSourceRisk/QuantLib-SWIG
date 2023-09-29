@@ -143,7 +143,7 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (static runtime)|x64'">QuantLib-x64-mt-s</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">QuantLib-mt</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">QuantLib-x64-mt</TargetName>
-  </PropertyGroup>  
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
@@ -842,6 +842,8 @@
     <ClInclude Include="ql\indexes\ibor\cadlibor.hpp" />
     <ClInclude Include="ql\indexes\ibor\cdor.hpp" />
     <ClInclude Include="ql\indexes\ibor\chflibor.hpp" />
+    <ClInclude Include="ql\indexes\ibor\corra.hpp" />
+    <ClInclude Include="ql\indexes\ibor\destr.hpp" />
     <ClInclude Include="ql\indexes\ibor\dkklibor.hpp" />
     <ClInclude Include="ql\indexes\ibor\eonia.hpp" />
     <ClInclude Include="ql\indexes\ibor\estr.hpp" />
@@ -861,6 +863,7 @@
     <ClInclude Include="ql\indexes\ibor\shibor.hpp" />
     <ClInclude Include="ql\indexes\ibor\sofr.hpp" />
     <ClInclude Include="ql\indexes\ibor\sonia.hpp" />
+    <ClInclude Include="ql\indexes\ibor\swestr.hpp" />
     <ClInclude Include="ql\indexes\ibor\thbfix.hpp" />
     <ClInclude Include="ql\indexes\ibor\tibor.hpp" />
     <ClInclude Include="ql\indexes\ibor\tona.hpp" />
@@ -1840,6 +1843,7 @@
     <ClInclude Include="ql\time\daycounters\simpledaycounter.hpp" />
     <ClInclude Include="ql\time\daycounters\thirty360.hpp" />
     <ClInclude Include="ql\time\daycounters\thirty365.hpp" />
+    <ClInclude Include="ql\time\daycounters\yearfractiontodate.hpp" />
     <ClInclude Include="ql\time\ecb.hpp" />
     <ClInclude Include="ql\time\frequency.hpp" />
     <ClInclude Include="ql\time\imm.hpp" />
@@ -2136,6 +2140,7 @@
     <ClCompile Include="ql\indexes\bmaindex.cpp" />
     <ClCompile Include="ql\indexes\equityindex.cpp" />
     <ClCompile Include="ql\indexes\ibor\bibor.cpp" />
+    <ClCompile Include="ql\indexes\ibor\corra.cpp" />
     <ClCompile Include="ql\indexes\ibor\eonia.cpp" />
     <ClCompile Include="ql\indexes\ibor\estr.cpp" />
     <ClCompile Include="ql\indexes\ibor\euribor.cpp" />
@@ -2802,6 +2807,7 @@
     <ClCompile Include="ql\time\daycounters\simpledaycounter.cpp" />
     <ClCompile Include="ql\time\daycounters\thirty360.cpp" />
     <ClCompile Include="ql\time\daycounters\thirty365.cpp" />
+    <ClCompile Include="ql\time\daycounters\yearfractiontodate.cpp" />
     <ClCompile Include="ql\time\ecb.cpp" />
     <ClCompile Include="ql\time\frequency.cpp" />
     <ClCompile Include="ql\time\imm.cpp" />
@@ -2820,6 +2826,7 @@
     <ClCompile Include="ql\exchangerate.cpp" />
     <ClCompile Include="ql\exercise.cpp" />
     <ClCompile Include="ql\index.cpp" />
+    <ClCompile Include="ql\instrument.cpp" />
     <ClCompile Include="ql\interestrate.cpp" />
     <ClCompile Include="ql\money.cpp" />
     <ClCompile Include="ql\optional.cpp" />

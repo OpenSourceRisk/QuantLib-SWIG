@@ -154,8 +154,6 @@ namespace {
 void HestonSLVModelTest::testBlackScholesFokkerPlanckFwdEquation() {
     BOOST_TEST_MESSAGE("Testing Fokker-Planck forward equation for BS process...");
 
-    SavedSettings backup;
-
     const DayCounter dc = ActualActual(ActualActual::ISDA);
     const Date todaysDate = Date(28, Dec, 2012);
     Settings::instance().evaluationDate() = todaysDate;
@@ -270,8 +268,6 @@ namespace {
 void HestonSLVModelTest::testSquareRootZeroFlowBC() {
     BOOST_TEST_MESSAGE("Testing zero-flow BC for the square root process...");
 
-    SavedSettings backup;
-
     const Real kappa = 1.0;
     const Real theta = 0.4;
     const Real sigma = 0.8;
@@ -362,8 +358,6 @@ void HestonSLVModelTest::testTransformedZeroFlowBC() {
     BOOST_TEST_MESSAGE("Testing zero-flow BC for transformed "
                        "Fokker-Planck forward equation...");
 
-    SavedSettings backup;
-
     const Real kappa = 1.0;
     const Real theta = 0.4;
     const Real sigma = 2.0;
@@ -428,8 +422,6 @@ void HestonSLVModelTest::testSquareRootEvolveWithStationaryDensity() {
 
     // Documentation for this test case:
     // http://www.spanderen.de/2013/05/04/fokker-planck-equation-feller-constraint-and-boundary-conditions/
-    SavedSettings backup;
-
     const Real kappa = 2.5;
     const Real theta = 0.2;
     const Size vGrid = 100;
@@ -506,8 +498,6 @@ void HestonSLVModelTest::testSquareRootLogEvolveWithStationaryDensity() {
 
     // Documentation for this test case:
     // nowhere yet :)
-    SavedSettings backup;
-
     const Real kappa = 2.5;
     const Real theta = 0.2;
     const Size vGrid = 1000;
@@ -568,8 +558,6 @@ void HestonSLVModelTest::testSquareRootLogEvolveWithStationaryDensity() {
 void HestonSLVModelTest::testSquareRootFokkerPlanckFwdEquation() {
     BOOST_TEST_MESSAGE("Testing Fokker-Planck forward equation "
                        "for the square root process with Dirac start...");
-
-    SavedSettings backup;
 
     const Real kappa = 1.2;
     const Real theta = 0.4;
@@ -638,14 +626,11 @@ namespace {
                        const ext::shared_ptr<FdmMesherComposite>& mesher) {
 
         std::vector<Real> x, y;
-        const ext::shared_ptr<FdmLinearOpLayout> layout = mesher->layout();
 
-        x.reserve(layout->dim()[0]);
-        y.reserve(layout->dim()[1]);
+        x.reserve(mesher->layout()->dim()[0]);
+        y.reserve(mesher->layout()->dim()[1]);
 
-        const FdmLinearOpIterator endIter = layout->end();
-        for (FdmLinearOpIterator iter = layout->begin(); iter != endIter;
-              ++iter) {
+        for (const auto& iter : *mesher->layout()) {
             if (iter.coordinates()[1] == 0U) {
                 x.push_back(mesher->location(iter, 0));
             }
@@ -682,8 +667,6 @@ namespace {
 
     void hestonFokkerPlanckFwdEquationTest(
         const FokkerPlanckFwdTestCase& testCase) {
-
-        SavedSettings backup;
 
         const DayCounter dc = ActualActual(ActualActual::ISDA);
         const Date todaysDate = Date(28, Dec, 2014);
@@ -809,7 +792,6 @@ namespace {
         Array p = FdmHestonGreensFct(mesher, process, testCase.trafoType)
                 .get(eT, testCase.greensAlgorithm);
 
-        const ext::shared_ptr<FdmLinearOpLayout> layout = mesher->layout();
         const Real strikes[] = { 50, 80, 90, 100, 110, 120, 150, 200 };
 
         Time t=eT;
@@ -834,8 +816,7 @@ namespace {
                                                          strike));
 
                 Array pd(p.size());
-                for (FdmLinearOpIterator iter = layout->begin();
-                    iter != layout->end(); ++iter) {
+                for (const auto& iter : *mesher->layout()) {
                     const Size idx = iter.index();
                     const Real s = std::exp(mesher->location(iter, 0));
 
@@ -1054,8 +1035,6 @@ void HestonSLVModelTest::testHestonFokkerPlanckFwdEquationLogLVLeverage() {
     BOOST_TEST_MESSAGE("Testing Fokker-Planck forward equation "
                        "for the Heston process Log Transformation with leverage LV limiting case...");
 
-    SavedSettings backup;
-
     const DayCounter dc = ActualActual(ActualActual::ISDA);
     const Date todaysDate = Date(28, Dec, 2012);
     Settings::instance().evaluationDate() = todaysDate;
@@ -1125,9 +1104,7 @@ void HestonSLVModelTest::testHestonFokkerPlanckFwdEquationLogLVLeverage() {
     const Real bsV0 = squared(lvProcess->blackVolatility()->blackVol(0.0, s0, true));
 
     SquareRootProcessRNDCalculator rndCalculator(v0, kappa, theta, sigma);
-    const ext::shared_ptr<FdmLinearOpLayout> layout = mesher->layout();
-    for (FdmLinearOpIterator iter = layout->begin(); iter != layout->end();
-         ++iter) {
+    for (const auto& iter : *mesher->layout()) {
         const Real x = mesher->location(iter, 0);
         if (v != mesher->location(iter, 1)) {
             v = mesher->location(iter, 1);
@@ -1192,8 +1169,7 @@ void HestonSLVModelTest::testHestonFokkerPlanckFwdEquationLogLVLeverage() {
 			ext::make_shared<CashOrNothingPayoff>(Option::Put, Real(strike), 1.0));
 
         Array pd(p.size());
-        for (FdmLinearOpIterator iter = layout->begin();
-            iter != layout->end(); ++iter) {
+        for (const auto& iter : *mesher->layout()) {
             const Size idx = iter.index();
             const Real s = std::exp(mesher->location(iter, 0));
 
@@ -1223,8 +1199,6 @@ void HestonSLVModelTest::testHestonFokkerPlanckFwdEquationLogLVLeverage() {
 void HestonSLVModelTest::testBlackScholesFokkerPlanckFwdEquationLocalVol() {
     BOOST_TEST_MESSAGE(
             "Testing Fokker-Planck forward equation for BS Local Vol process...");
-
-    SavedSettings backup;
 
     const DayCounter dc = ActualActual(ActualActual::ISDA);
     const Date todaysDate(5, July, 2014);
@@ -1472,8 +1446,6 @@ namespace {
 
 
 void HestonSLVModelTest::testFDMCalibration() {
-    SavedSettings backup;
-
     const HestonSLVFokkerPlanckFdmParams plainParams =
         { 201, 301, 1000, 25, 3.0, 0, 2,
           0.1, 1e-4, 10000,
@@ -1520,7 +1492,6 @@ void HestonSLVModelTest::testFDMCalibration() {
 void HestonSLVModelTest::testLocalVolsvSLVPropDensity() {
     BOOST_TEST_MESSAGE("Testing local volatility vs SLV model...");
 
-    SavedSettings backup;
     const Date todaysDate(5, Oct, 2015);
     const Date finalDate = todaysDate + Period(1, Years);
     Settings::instance().evaluationDate() = todaysDate;
@@ -1616,7 +1587,6 @@ void HestonSLVModelTest::testLocalVolsvSLVPropDensity() {
 void HestonSLVModelTest::testBarrierPricingViaHestonLocalVol() {
     BOOST_TEST_MESSAGE("Testing calibration via vanilla options...");
 
-    SavedSettings backup;
     const DayCounter dc = ActualActual(ActualActual::ISDA);
     const Date todaysDate(5, Nov, 2015);
     Settings::instance().evaluationDate() = todaysDate;
@@ -1717,7 +1687,6 @@ void HestonSLVModelTest::testBarrierPricingViaHestonLocalVol() {
 void HestonSLVModelTest::testBarrierPricingMixedModels() {
     BOOST_TEST_MESSAGE("Testing Barrier pricing with mixed models...");
 
-    SavedSettings backup;
     const DayCounter dc = ActualActual(ActualActual::ISDA);
     const Date todaysDate(5, Nov, 2015);
     const Date exerciseDate = todaysDate + Period(1, Years);
@@ -1844,7 +1813,6 @@ void HestonSLVModelTest::testMonteCarloVsFdmPricing() {
         "Testing Monte-Carlo vs FDM Pricing for "
         "Heston SLV models...");
 
-    SavedSettings backup;
     const DayCounter dc = ActualActual(ActualActual::ISDA);
     const Date todaysDate(5, Dec, 2015);
     const Date exerciseDate = todaysDate + Period(1, Years);
@@ -1948,8 +1916,6 @@ void HestonSLVModelTest::testMonteCarloVsFdmPricing() {
 void HestonSLVModelTest::testMonteCarloCalibration() {
     BOOST_TEST_MESSAGE(
         "Testing Monte-Carlo Calibration...");
-
-    SavedSettings backup;
 
     const DayCounter dc = ActualActual(ActualActual::ISDA);
     const Date todaysDate(5, Jan, 2016);
@@ -2071,8 +2037,6 @@ void HestonSLVModelTest::testMonteCarloCalibration() {
 void HestonSLVModelTest::testForwardSkewSLV() {
     BOOST_TEST_MESSAGE("Testing the implied volatility skew of "
         "forward starting options in SLV model...");
-
-    SavedSettings backup;
 
     const DayCounter dc = ActualActual(ActualActual::ISDA);
     const Date todaysDate(5, Jan, 2017);
@@ -2322,8 +2286,6 @@ void HestonSLVModelTest::testMoustacheGraph() {
     BOOST_TEST_MESSAGE(
         "Testing double no touch pricing with SLV and mixing...");
 
-    SavedSettings backup;
-
     /*
      A more detailed description of this test case can found on
      https://hpcquantlib.wordpress.com/2016/01/10/monte-carlo-calibration-of-the-heston-stochastic-local-volatiltiy-model/
@@ -2462,8 +2424,6 @@ void HestonSLVModelTest::testDiffusionAndDriftSlvProcess() {
     BOOST_TEST_MESSAGE(
         "Testing diffusion and drift of the SLV process...");
 
-    SavedSettings backup;
-
     const Date todaysDate(6, June, 2020);
     Settings::instance().evaluationDate() = todaysDate;
 
@@ -2574,7 +2534,6 @@ void HestonSLVModelTest::testBarrierPricingMixedModelsMonteCarloVsFdmPricing() {
 
     const Real epsilon = 0.015;
 
-    SavedSettings backup;
     const DayCounter dc = ActualActual(ActualActual::ISDA);
     const Date todaysDate(1, Jul, 2021);
     const Date maturityDate = todaysDate + Period(2, Years);
@@ -2764,12 +2723,12 @@ test_suite* HestonSLVModelTest::suite(SpeedLevel speed) {
     if (speed <= Fast) {
         suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testHestonFokkerPlanckFwdEquationLogLVLeverage));
         suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testMonteCarloVsFdmPricing));
+        suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testBlackScholesFokkerPlanckFwdEquationLocalVol));
     }
 
     if (speed == Slow) {
         suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testHestonFokkerPlanckFwdEquation));
         suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testMonteCarloCalibration));
-        suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testBlackScholesFokkerPlanckFwdEquationLocalVol));
         suite->add(QUANTLIB_TEST_CASE(&HestonSLVModelTest::testMoustacheGraph));
     }
 

@@ -56,7 +56,7 @@ namespace QuantLib {
     };
 
 
-    //! Genuine year-on-year AU CPI (i.e. not a ratio)
+    //! Quoted year-on-year AU CPI (i.e. not a ratio)
     class YYAUCPI : public YoYInflationIndex {
       public:
         YYAUCPI(Frequency frequency,
@@ -67,7 +67,6 @@ namespace QuantLib {
                             AustraliaRegion(),
                             revised,
                             interpolated,
-                            false,
                             frequency,
                             Period(1, Months),
                             AUDCurrency(),
@@ -75,8 +74,13 @@ namespace QuantLib {
     };
 
 
-    //! Fake year-on-year AUCPI (i.e. a ratio)
-    class YYAUCPIr : public YoYInflationIndex {
+    QL_DEPRECATED_DISABLE_WARNING
+
+    //! Year-on-year AUCPI (i.e. a ratio)
+    /*! \deprecated Pass the AUCPI index to YoYInflationIndex instead.
+                    Deprecated in version 1.31.
+    */
+    class [[deprecated("Pass the AUCPI index to YoYInflationIndex instead")]] YYAUCPIr : public YoYInflationIndex {
       public:
         YYAUCPIr(Frequency frequency,
                  bool revised,
@@ -92,6 +96,8 @@ namespace QuantLib {
                             AUDCurrency(),
                             ts) {}
     };
+
+    QL_DEPRECATED_ENABLE_WARNING
 }
 
 #endif
