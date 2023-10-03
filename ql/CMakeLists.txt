@@ -2371,9 +2371,7 @@ target_precompile_headers(ql_library
     <ql/methods/finitedifferences/operators/fdmlinearop.hpp>
     <ql/patterns/observable.hpp>
     <ql/qldefines.hpp>
-    <ql/termstructure.hpp>
-    <boost/test/unit_test.hpp>
-)
+    <ql/termstructure.hpp>)
 
 target_compile_definitions(ql_library PRIVATE
     QL_COMPILATION)
