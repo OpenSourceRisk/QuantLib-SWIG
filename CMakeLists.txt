@@ -61,6 +61,7 @@ option(QL_INSTALL_EXAMPLES "Install examples" ON)
 option(QL_INSTALL_TEST_SUITE "Install test suite" ON)
 option(QL_TAGGED_LAYOUT "Library names use layout tags" ${MSVC})
 option(QL_USE_CLANG_TIDY "Use clang-tidy when building" OFF)
+option(QL_USE_PCH "Use precompiled headers" OFF)
 # Deleted from QL 1.27
 option(QL_USE_DISPOSABLE "Use the Disposable class template. Not needed for C++11" OFF)
 option(QL_USE_INDEXED_COUPON "Use indexed coupons instead of par coupons" OFF)
