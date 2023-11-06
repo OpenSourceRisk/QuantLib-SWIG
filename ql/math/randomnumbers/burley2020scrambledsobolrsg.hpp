@@ -37,9 +37,9 @@ namespace QuantLib {
         typedef Sample<std::vector<Real>> sample_type;
         explicit Burley2020SobolRsg(
             Size dimensionality,
-            unsigned long seed = 0,
+            unsigned long seed = 42,
             SobolRsg::DirectionIntegers directionIntegers = SobolRsg::Jaeckel,
-            unsigned long scrambleSeed = 42);
+            unsigned long scrambleSeed = 43);
         const std::vector<std::uint_least32_t>& skipTo(std::uint32_t n) const;
         const std::vector<std::uint32_t>& nextInt32Sequence() const;
         const SobolRsg::sample_type& nextSequence() const;
