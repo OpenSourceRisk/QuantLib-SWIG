@@ -30,7 +30,7 @@
 #include <ql/math/randomnumbers/randomizedlds.hpp>
 #include <ql/math/randomnumbers/randomsequencegenerator.hpp>
 #include <ql/math/randomnumbers/sobolrsg.hpp>
-#include <ql/math/randomnumbers/burley2020scrambledsobolrsg.hpp>
+#include <ql/math/randomnumbers/burley2020sobolrsg.hpp>
 #include <ql/utilities/dataformatters.hpp>
 #include <ql/math/randomnumbers/latticerules.hpp>
 #include <ql/math/randomnumbers/latticersg.hpp>
