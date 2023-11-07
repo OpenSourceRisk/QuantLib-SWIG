@@ -17,7 +17,7 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/math/randomnumbers/burley2020scrambledsobolrsg.hpp>
+#include <ql/math/randomnumbers/burley2020sobolrsg.hpp>
 #include <ql/math/randomnumbers/mt19937uniformrng.hpp>
 #include <boost/functional/hash.hpp>
 
