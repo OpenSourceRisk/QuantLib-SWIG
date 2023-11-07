@@ -25,6 +25,18 @@
 #include <ql/math/randomnumbers/sobolbrownianbridgersg.hpp>
 
 namespace QuantLib {
+
+    namespace {
+        void nextSequence(const SobolBrownianGeneratorBaseG& gen, std::vector<Real>& seq) {
+            gen.nextPath();
+            std::vector<Real> output(gen.numberOfFactors());
+            for (Size i = 0; i < gen.numberOfSetps(); ++i) {
+                gen.nextStep(output);
+                std::copy(output.begin(), output.end(), seq.begin() + i * factors_);
+            }
+        }
+    }
+
     SobolBrownianBridgeRsg::SobolBrownianBridgeRsg(
         Size factors, Size steps,
         SobolBrownianGenerator::Ordering ordering,
@@ -37,14 +49,7 @@ namespace QuantLib {
 
     const SobolBrownianBridgeRsg::sample_type&
     SobolBrownianBridgeRsg::nextSequence() const {
-        gen_.nextPath();
-        std::vector<Real> output(factors_);
-        for (Size i=0; i < steps_; ++i) {
-            gen_.nextStep(output);
-            std::copy(output.begin(), output.end(),
-                      seq_.value.begin()+i*factors_);
-        }
-
+        nextSequence(gen_, seq_);
         return seq_;
     }
 
@@ -56,4 +61,31 @@ namespace QuantLib {
     Size SobolBrownianBridgeRsg::dimension() const {
         return dim_;
     }
+
+    Burley2020SobolBrownianBridgeRsg::Burley2020SobolBrownianBridgeRsg(
+        Size factors, Size steps,
+        SobolBrownianGenerator::Ordering ordering,
+        unsigned long seed,
+        SobolRsg::DirectionIntegers directionIntegers,
+        unsigned long scrambleSeed)
+    : factors_(factors), steps_(steps), dim_(factors*steps),
+      seq_(sample_type::value_type(factors*steps), 1.0),
+      gen_(factors, steps, ordering, seed, directionIntegers, scrambleSeed) {
+    }
+
+    const Burley2020SobolBrownianBridgeRsg::sample_type&
+    Burley2020SobolBrownianBridgeRsg::nextSequence() const {
+        nextSequence(gen_, seq_);
+        return seq_;
+    }
+
+    const Burley2020SobolBrownianBridgeRsg::sample_type&
+    Burley2020SobolBrownianBridgeRsg::lastSequence() const {
+        return seq_;
+    }
+
+    Size Burley2020SobolBrownianBridgeRsg::dimension() const {
+        return dim_;
+    }
+
 }
