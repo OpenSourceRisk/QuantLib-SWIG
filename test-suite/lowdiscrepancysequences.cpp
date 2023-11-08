@@ -1122,9 +1122,18 @@ void LowDiscrepancyTest::testHighDimensionalIntegrals() {
 
         BOOST_TEST_MESSAGE(dimension[d] << "," << errOrder1 << "," << errOrder2 << "," << errOrder3);
 
-        BOOST_CHECK(errOrder1 < expectedOrderOfError[d][0]);
-        BOOST_CHECK(errOrder2 < expectedOrderOfError[d][1]);
-        BOOST_CHECK(errOrder3 < expectedOrderOfError[d][2]);
+        BOOST_CHECK_MESSAGE(errOrder1 < expectedOrderOfError[d][0],
+                            "order of error for dimension " + std::to_string(dimension[d]) + " is" +
+                                std::to_string(errOrder1) + " expected " +
+                                std::to_string(expectedOrderOfError[d][0]));
+        BOOST_CHECK_MESSAGE(errOrder2 < expectedOrderOfError[d][1],
+                            "order of error for dimension " + std::to_string(dimension[d]) + " is" +
+                                std::to_string(errOrder2) + " expected " +
+                                std::to_string(expectedOrderOfError[d][1]));
+        BOOST_CHECK_MESSAGE(errOrder3 < expectedOrderOfError[d][2],
+                            "order of error for dimension " + std::to_string(dimension[d]) + " is" +
+                                std::to_string(errOrder3) + " expected " +
+                                std::to_string(expectedOrderOfError[d][2]));
     }
 }
 
