@@ -45,7 +45,6 @@ namespace QuantLib {
         Size dimension() const;
 
       private:
-        const Size factors_, steps_, dim_;
         mutable sample_type seq_;
         mutable SobolBrownianGenerator gen_;
     };
@@ -67,10 +66,9 @@ namespace QuantLib {
         Size dimension() const;
 
       private:
-        const Size factors_, steps_, dim_;
         mutable sample_type seq_;
         mutable Burley2020SobolBrownianGenerator gen_;
     };
-}}
+}
 
 #endif
