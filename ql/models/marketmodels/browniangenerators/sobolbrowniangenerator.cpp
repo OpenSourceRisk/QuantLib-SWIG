@@ -203,7 +203,7 @@ namespace QuantLib {
                                                    Ordering ordering,
                                                    unsigned long seed,
                                                    SobolRsg::DirectionIntegers integers)
-    : SobolBrownianGeneratorBase(factors, steps, ordering, seed, integers),
+    : SobolBrownianGeneratorBase(factors, steps, ordering),
       generator_(SobolRsg(factors * steps, seed, integers), InverseCumulativeNormal()) {}
 
     const SobolRsg::sample_type& SobolBrownianGenerator::nextSequence() {
@@ -230,7 +230,7 @@ namespace QuantLib {
         unsigned long seed,
         SobolRsg::DirectionIntegers integers,
         unsigned long scrambleSeed)
-    : SobolBrownianGeneratorBase(factors, steps, ordering, seed, integers),
+    : SobolBrownianGeneratorBase(factors, steps, ordering),
       generator_(Burley2020SobolRsg(factors * steps, seed, integers, scrambleSeed),
                  InverseCumulativeNormal()) {}
 
