@@ -206,7 +206,7 @@ namespace QuantLib {
     : SobolBrownianGeneratorBase(factors, steps, ordering, seed, integers),
       generator_(SobolRsg(factors * steps, seed, integers), InverseCumulativeNormal()) {}
 
-    const std::vector<Real>& SobolBrownianGenerator::nextSequence() {
+    const SobolRsg::sample_type& SobolBrownianGenerator::nextSequence() {
         return generator_.nextSequence();
     }
 
@@ -234,7 +234,7 @@ namespace QuantLib {
       generator_(Burley2020SobolRsg(factors * steps, seed, integers, scrambleSeed),
                  InverseCumulativeNormal()) {}
 
-    const std::vector<Real>& Burley2020xSobolBrownianGenerator::nextSequence() {
+    const Burley2020SobolRsg::sample_type& Burley2020SobolBrownianGenerator::nextSequence() {
         return generator_.nextSequence();
     }
 

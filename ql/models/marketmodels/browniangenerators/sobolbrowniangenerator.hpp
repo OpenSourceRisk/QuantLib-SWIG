@@ -64,7 +64,7 @@ namespace QuantLib {
                               const std::vector<std::vector<Real> >& variates);
 
       protected:
-        virtual const std::vector<Real>& nextSequence() = 0;
+        virtual const SobolRsg::sample_type& nextSequence() = 0;
 
       private:
         Size factors_, steps_;
@@ -85,7 +85,7 @@ namespace QuantLib {
                                SobolRsg::DirectionIntegers directionIntegers = SobolRsg::Jaeckel);
 
       private:
-        virtual const std::vector<Real>& nextSequence() override;
+        const SobolRsg::sample_type& nextSequence() override;
         InverseCumulativeRsg<SobolRsg, InverseCumulativeNormal> generator_;
     };
 
@@ -115,7 +115,7 @@ namespace QuantLib {
             unsigned long scrambleSeed = 43);
 
       private:
-        virtual const std::vector<Real>& nextSequence() override;
+        const Burley2020SobolRsg::sample_type& nextSequence() override;
         InverseCumulativeRsg<Burley2020SobolRsg, InverseCumulativeNormal> generator_;
     };
 
