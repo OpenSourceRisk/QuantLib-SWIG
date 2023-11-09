@@ -40,7 +40,7 @@ namespace QuantLib {
             unsigned long seed = 42,
             SobolRsg::DirectionIntegers directionIntegers = SobolRsg::Jaeckel,
             unsigned long scrambleSeed = 43);
-        const std::vector<std::uint_least32_t>& skipTo(std::uint32_t n) const;
+        const std::vector<std::uint32_t>& skipTo(std::uint32_t n) const;
         const std::vector<std::uint32_t>& nextInt32Sequence() const;
         const SobolRsg::sample_type& nextSequence() const;
         const sample_type& lastSequence() const { return sequence_; }

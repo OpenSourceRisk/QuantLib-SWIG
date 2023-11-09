@@ -41,7 +41,7 @@ namespace QuantLib {
         nextSequenceCounter_ = 0;
     }
 
-    const std::vector<std::uint_least32_t>& Burley2020SobolRsg::skipTo(std::uint32_t n) const {
+    const std::vector<std::uint32_t>& Burley2020SobolRsg::skipTo(std::uint32_t n) const {
         reset();
         for (Size k = 0; k < n + 1; ++k) {
             nextInt32Sequence();
@@ -72,14 +72,16 @@ namespace QuantLib {
             15, 143, 79, 207, 47, 175, 111, 239, 31, 159, 95, 223, 63, 191, 127, 255};
 
         std::uint32_t reverseBits(std::uint32_t x) {
-            std::uint32_t y;
-            unsigned char* p = (unsigned char*)(&x);
-            unsigned char* q = (unsigned char*)(&y);
-            q[3] = bitReverseTable[p[0]];
-            q[2] = bitReverseTable[p[1]];
-            q[1] = bitReverseTable[p[2]];
-            q[0] = bitReverseTable[p[3]];
-            return y;
+            return (bitReverseTable[x & 0xff] << 24) | (bitReverseTable[(x >> 8) & 0xff] << 16) |
+                   (bitReverseTable[(x >> 16) & 0xff] << 8) | (bitReverseTable[(x >> 24) & 0xff]);
+            // std::uint32_t y;
+            // unsigned char* p = (unsigned char*)(&x);
+            // unsigned char* q = (unsigned char*)(&y);
+            // q[3] = bitReverseTable[p[0]];
+            // q[2] = bitReverseTable[p[1]];
+            // q[1] = bitReverseTable[p[2]];
+            // q[0] = bitReverseTable[p[3]];
+            // return y;
         }
 
         std::uint32_t laine_karras_permutation(std::uint32_t x, std::uint32_t seed) {
