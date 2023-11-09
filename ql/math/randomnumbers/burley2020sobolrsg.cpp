@@ -109,18 +109,14 @@ namespace QuantLib {
         const auto& seq =
             sobolRsg_->skipTo(nested_uniform_scramble(nextSequenceCounter_, group4Seeds_[0]));
         std::copy(seq.begin(), seq.end(), integerSequence_.begin());
-        bool updating = true;
         Size i = 0, group = 0;
         do {
             Size seed = group4Seeds_[group++];
-            for (Size g = 0; g < 4; ++g) {
+            for (Size g = 0; g < 4 && i < dimensionality_; ++g, ++i) {
                 boost::hash_combine(seed, g);
                 integerSequence_[i] = nested_uniform_scramble(integerSequence_[i], seed);
-                if (++i >= dimensionality_) {
-                    updating = false;
-                }
             }
-        } while (updating);
+        } while (i < dimensionality_);
         ++nextSequenceCounter_;
         return integerSequence_;
     }
@@ -132,5 +128,4 @@ namespace QuantLib {
             sequence_.value[k] = static_cast<double>(v[k]) / 4294967296.0;
         return sequence_;
     }
-
 }
