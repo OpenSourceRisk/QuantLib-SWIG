@@ -53,7 +53,7 @@ namespace QuantLib {
 
         // for reverseBits() see http://graphics.stanford.edu/~seander/bithacks.html#BitReverseTable
 
-        static const std::uint_8 bitReverseTable[] = {
+        static const std::uint8_t bitReverseTable[] = {
             0u,   128u, 64u,  192u, 32u,  160u, 96u,  224u, 16u,  144u, 80u,  208u, 48u,  176u,
             112u, 240u, 8u,   136u, 72u,  200u, 40u,  168u, 104u, 232u, 24u,  152u, 88u,  216u,
             56u,  184u, 120u, 248u, 4u,   132u, 68u,  196u, 36u,  164u, 100u, 228u, 20u,  148u,
