@@ -1093,12 +1093,11 @@ void LowDiscrepancyTest::testHighDimensionalIntegrals() {
         return p;
     };
 
-    Size N = 10;//30031;
+    Size N = 30031;
 
     BOOST_TEST_MESSAGE("dimension,Sobol(Gray),Sobol(Seq),Burley2020");
 
-    std::vector<Size> dimension = {3, 4, 5};
-    // std::vector<Size> dimension = {1000,2000,5000};
+    std::vector<Size> dimension = {1000,2000,5000};
     std::vector<std::vector<Real>> expectedOrderOfError = {
         {-3.0, -3.0, -4.5}, {-2.5, -2.5, -4.0}, {-2.0, -2.0, -4.0}};
 

@@ -35,7 +35,6 @@ namespace QuantLib {
         MersenneTwisterUniformRng mt(scrambleSeed);
         for (auto& s : group4Seeds_) {
             s = static_cast<std::uint32_t>(mt.nextInt32());
-            std::cout << "setting group seed " << s << std::endl;
         }
     }
 
@@ -80,14 +79,6 @@ namespace QuantLib {
         std::uint32_t reverseBits(std::uint32_t x) {
             return (bitReverseTable[x & 0xff] << 24) | (bitReverseTable[(x >> 8) & 0xff] << 16) |
                    (bitReverseTable[(x >> 16) & 0xff] << 8) | (bitReverseTable[(x >> 24) & 0xff]);
-            // std::uint32_t y;
-            // unsigned char* p = (unsigned char*)(&x);
-            // unsigned char* q = (unsigned char*)(&y);
-            // q[3] = bitReverseTable[p[0]];
-            // q[2] = bitReverseTable[p[1]];
-            // q[1] = bitReverseTable[p[2]];
-            // q[0] = bitReverseTable[p[3]];
-            // return y;
         }
 
         std::uint32_t laine_karras_permutation(std::uint32_t x, std::uint32_t seed) {
@@ -106,25 +97,33 @@ namespace QuantLib {
             return x;
         }
 
+        // the results depend a lot on the details of the hash_combine() function that is used
+        // we use the 64bit version of hash_combine() as it is implemented here:
+        // https://github.com/boostorg/container_hash/blob/boost-1.83.0/include/boost/container_hash/hash.hpp#L560
+        // https://github.com/boostorg/container_hash/blob/boost-1.83.0/include/boost/container_hash/detail/hash_mix.hpp#L67
+
+        void local_hash_combine(std::uint64_t& x, const uint64_t v) {
+            const std::uint64_t m = 0xe9846af9b1a615d;
+            x += 0x9e3779b9 + std::hash<std::uint64_t>()(v);
+            x ^= x >> 32;
+            x *= m;
+            x ^= x >> 32;
+            x *= m;
+            x ^= x >> 28;
+        }
     }
 
     const std::vector<std::uint32_t>& Burley2020SobolRsg::nextInt32Sequence() const {
         auto n = nested_uniform_scramble(nextSequenceCounter_, group4Seeds_[0]);
         const auto& seq = sobolRsg_->skipTo(n);
-        std::cout << "nextInt32Sequence(): nested_uniform_scramble(" << nextSequenceCounter_ << "," << group4Seeds_[0] << ") = " << n << std::endl;
-        for(auto const& s: seq)
-            std::cout << "nextInt32Sequence(): seq = " << s << std::endl;
         std::copy(seq.begin(), seq.end(), integerSequence_.begin());
         Size i = 0, group = 0;
         do {
-            Size seed = group4Seeds_[group++];
+            std::uint64_t seed = group4Seeds_[group++];
             for (Size g = 0; g < 4 && i < dimensionality_; ++g, ++i) {
-                std::cout << "nextInt32Sequence(): seed " << seed << ", nested_uniform_scramble("
-                          << integerSequence_[i];
-                boost::hash_combine(seed, g);
-                integerSequence_[i] = nested_uniform_scramble(integerSequence_[i], seed);
-                std::cout << "," << seed
-                          << ") = " << integerSequence_[i] << " (i=" << i << ")" << std::endl;
+                local_hash_combine(seed, g);
+                integerSequence_[i] =
+                    nested_uniform_scramble(integerSequence_[i], static_cast<std::uint32_t>(seed));
             }
         } while (i < dimensionality_);
         ++nextSequenceCounter_;
@@ -136,8 +135,6 @@ namespace QuantLib {
         // normalize to get a double in (0,1)
         for (Size k = 0; k < dimensionality_; ++k) {
             sequence_.value[k] = static_cast<double>(v[k]) / 4294967296.0;
-            std::cout << "nextSequence(): " << v[k] << " / 4294967296.0 = " << sequence_.value[k]
-                      << " (k=" << k << ")" << std::endl;
         }
         return sequence_;
     }
