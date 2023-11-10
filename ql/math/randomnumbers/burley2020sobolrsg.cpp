@@ -33,8 +33,10 @@ namespace QuantLib {
         reset();
         group4Seeds_.resize((dimensionality_ - 1) / 4 + 1);
         MersenneTwisterUniformRng mt(scrambleSeed);
-        for (auto& s : group4Seeds_)
+        for (auto& s : group4Seeds_) {
             s = static_cast<std::uint32_t>(mt.nextInt32());
+            std::cout << "setting group seed " << s << std::endl;
+        }
     }
 
     void Burley2020SobolRsg::reset() const {
@@ -117,11 +119,12 @@ namespace QuantLib {
         do {
             Size seed = group4Seeds_[group++];
             for (Size g = 0; g < 4 && i < dimensionality_; ++g, ++i) {
+                std::cout << "nextInt32Sequence(): seed " << seed << ", nested_uniform_scramble("
+                          << integerSequence_[i];
                 boost::hash_combine(seed, g);
                 integerSequence_[i] = nested_uniform_scramble(integerSequence_[i], seed);
-                std::cout << "nextInt32Sequence(): nested_uniform_scramble(" << integerSequence_[i]
-                          << "," << seed << ") = " << integerSequence_[i] << " (i=" << i
-                          << ")" << std::endl; 
+                std::cout << "," << seed
+                          << ") = " << integerSequence_[i] << " (i=" << i << ")" << std::endl;
             }
         } while (i < dimensionality_);
         ++nextSequenceCounter_;
