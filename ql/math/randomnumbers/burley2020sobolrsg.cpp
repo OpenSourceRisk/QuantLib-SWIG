@@ -20,6 +20,7 @@
 #include <ql/math/randomnumbers/burley2020sobolrsg.hpp>
 #include <ql/math/randomnumbers/mt19937uniformrng.hpp>
 #include <boost/functional/hash.hpp>
+#include <iostream>
 
 namespace QuantLib {
 
@@ -106,8 +107,9 @@ namespace QuantLib {
     }
 
     const std::vector<std::uint32_t>& Burley2020SobolRsg::nextInt32Sequence() const {
-        const auto& seq =
-            sobolRsg_->skipTo(nested_uniform_scramble(nextSequenceCounter_, group4Seeds_[0]));
+        auto n = nested_uniform_scramble(nextSequenceCounter_, group4Seeds_[0]);
+        const auto& seq = sobolRsg_->skipTo(n);
+        std::cout << "nextInt32Sequence(): nested_uniform_scramble(" << nextSequenceCounter_ << "," << group4Seeds_[0] << ") = " << n << std::endl;
         std::copy(seq.begin(), seq.end(), integerSequence_.begin());
         Size i = 0, group = 0;
         do {
@@ -115,6 +117,9 @@ namespace QuantLib {
             for (Size g = 0; g < 4 && i < dimensionality_; ++g, ++i) {
                 boost::hash_combine(seed, g);
                 integerSequence_[i] = nested_uniform_scramble(integerSequence_[i], seed);
+                std::cout << "nextInt32Sequence(): nested_uniform_scramble(" << integerSequence_[i]
+                          << "," << seed << ") = " << integerSequence_[i] << " (i=" << i
+                          << ")" << std::endl; 
             }
         } while (i < dimensionality_);
         ++nextSequenceCounter_;
@@ -124,8 +129,11 @@ namespace QuantLib {
     const SobolRsg::sample_type& Burley2020SobolRsg::nextSequence() const {
         const std::vector<std::uint32_t>& v = nextInt32Sequence();
         // normalize to get a double in (0,1)
-        for (Size k = 0; k < dimensionality_; ++k)
+        for (Size k = 0; k < dimensionality_; ++k) {
             sequence_.value[k] = static_cast<double>(v[k]) / 4294967296.0;
+            std::cout << "nextSequence(): " << v[k] << " / 4294967296.0 = " << sequence_.value[k]
+                      << " (k=" << k << ")" << std::endl;
+        }
         return sequence_;
     }
 }
