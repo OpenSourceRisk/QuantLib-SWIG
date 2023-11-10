@@ -110,6 +110,8 @@ namespace QuantLib {
         auto n = nested_uniform_scramble(nextSequenceCounter_, group4Seeds_[0]);
         const auto& seq = sobolRsg_->skipTo(n);
         std::cout << "nextInt32Sequence(): nested_uniform_scramble(" << nextSequenceCounter_ << "," << group4Seeds_[0] << ") = " << n << std::endl;
+        for(auto const& s: seq)
+            std::cout << "nextInt32Sequence(): seq = " << s << std::endl;
         std::copy(seq.begin(), seq.end(), integerSequence_.begin());
         Size i = 0, group = 0;
         do {
