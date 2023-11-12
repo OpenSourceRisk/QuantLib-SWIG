@@ -44,6 +44,7 @@ class LowDiscrepancyTest {
     static void testSobolLevitanSobolDiscrepancy();
     static void testSobolLevitanLemieuxSobolDiscrepancy();
     static void testUnitSobolDiscrepancy();
+    static void testHighDimensionalIntegrals();
 
     static void testRandomizedLowDiscrepancySequence();
 
