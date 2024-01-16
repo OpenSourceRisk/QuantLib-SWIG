@@ -52,7 +52,9 @@ namespace QuantLib {
             const ext::optional<Period>& tenor = ext::nullopt,
             const ext::optional<DateGeneration::Rule>& rule = ext::nullopt,
             const ext::optional<bool>& endOfMonth = ext::nullopt,
-            std::vector<bool> isRegular = std::vector<bool>(0));
+            std::vector<bool> isRegular = std::vector<bool>(0),
+            const bool removeFirstDate = false,
+            const bool removeLastDate = false);
         /*! rule based constructor */
         Schedule(Date effectiveDate,
                  const Date& terminationDate,
@@ -61,9 +63,11 @@ namespace QuantLib {
                  BusinessDayConvention convention,
                  BusinessDayConvention terminationDateConvention,
                  DateGeneration::Rule rule,
-                 bool endOfMonth,
+                 const bool endOfMonth,
                  const Date& firstDate = Date(),
-                 const Date& nextToLastDate = Date());
+                 const Date& nextToLastDate = Date(),
+                 const bool removeFirstDate = false,
+                 const bool removeLastDate = false);
         Schedule() = default;
         //! \name Date access
         //@{

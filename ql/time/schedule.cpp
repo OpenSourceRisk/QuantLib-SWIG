@@ -61,7 +61,9 @@ namespace QuantLib {
                        const ext::optional<Period>& tenor,
                        const ext::optional<DateGeneration::Rule>& rule,
                        const ext::optional<bool>& endOfMonth,
-                       std::vector<bool> isRegular)
+                       std::vector<bool> isRegular,
+                       const bool removeFirstDate,
+                       const bool removeLastDate)
     : tenor_(tenor), calendar_(std::move(calendar)), convention_(convention),
       terminationDateConvention_(terminationDateConvention), rule_(rule), dates_(dates),
       isRegular_(std::move(isRegular)) {
@@ -70,6 +72,12 @@ namespace QuantLib {
             endOfMonth_ = false;
         else
             endOfMonth_ = endOfMonth;
+                
+        if (removeFirstDate)
+            dates_.erase(dates_.begin());
+
+        if (removeLastDate)
+            dates_.pop_back();
 
         QL_REQUIRE(isRegular_.empty() || isRegular_.size() == dates.size() - 1,
                    "isRegular size (" << isRegular_.size()
@@ -84,9 +92,11 @@ namespace QuantLib {
                        BusinessDayConvention convention,
                        BusinessDayConvention terminationDateConvention,
                        DateGeneration::Rule rule,
-                       bool endOfMonth,
+                       const bool endOfMonth,
                        const Date& first,
-                       const Date& nextToLast)
+                       const Date& nextToLast,
+                       const bool removeFirstDate,
+                       const bool removeLastDate)
     : tenor_(tenor), calendar_(std::move(cal)), convention_(convention),
       terminationDateConvention_(terminationDateConvention), rule_(rule),
       endOfMonth_(allowsEndOfMonth(tenor) ? endOfMonth : false),
@@ -457,6 +467,12 @@ namespace QuantLib {
             dates_.erase(dates_.begin());
             isRegular_.erase(isRegular_.begin());
         }
+
+        if (removeFirstDate)
+            dates_.erase(dates_.begin());
+                
+        if (removeLastDate)
+            dates_.pop_back();
 
         QL_ENSURE(dates_.size()>1,
             "degenerate single date (" << dates_[0] << ") schedule" <<
