@@ -229,8 +229,12 @@ namespace QuantLib {
         // the part of the swap preceding exerciseDate should be truncated
         // to avoid taking into account unwanted cashflows
         // for the moment we add a check avoiding this situation
-        auto swap = arguments_.swap;
-        auto swapOis = arguments_.swapOis;
+        // Furthermore, we take a copy of the underlying swap. This avoids notifying the swaption
+        // when we set a pricing engine on the swap below.
+        auto swap = arguments_.swap ? boost::make_shared<VanillaSwap>(*arguments_.swap) : nullptr;
+        auto swapOis = arguments_.swapOis ?
+                           boost::make_shared<OvernightIndexedSwap>(*arguments_.swapOis) :
+                           nullptr;
         QL_REQUIRE(swap || swapOis,
                    "BlackStyleSwaptionEngine: internal error, expected swap or swapOis to be set");
         const Leg& fixedLeg = swap ? swap->fixedLeg() : swapOis->fixedLeg();
