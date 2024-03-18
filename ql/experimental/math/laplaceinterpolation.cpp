@@ -50,8 +50,8 @@ namespace QuantLib {
             if (coordinateIncluded_[i])
                 dim.push_back(x_[i].size());
         }
-        
-        if(dim.empty()) {
+
+        if (dim.empty()) {
             singlePoint_ = true;
             return;
         }
