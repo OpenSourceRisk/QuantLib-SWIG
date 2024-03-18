@@ -33,7 +33,7 @@ namespace QuantLib {
 
     /*! Reconstruction of missing values using Laplace interpolation. We support an arbitrary number
        of dimensions n >= 1 and non-equidistant grids. For n = 1 the method is identical  to linear
-       interpolation. Reference: Numerical Recipes, 3rd edition, ch. 3.8. */
+       interpolation with flat extrapolation. Reference: Numerical Recipes, 3rd edition, ch. 3.8. */
 
     class LaplaceInterpolation {
       public:
@@ -44,11 +44,18 @@ namespace QuantLib {
         Real operator()(const std::vector<Size>& coordinates) const;
 
       private:
+        std::vector<Size> projectedCoordinates(const std::vector<Size>& coordinates) const;
+        std::vector<Size> fullCoordinates(const std::vector<Size>& projectedCoordinates) const;
+
         std::function<Real(const std::vector<Size>&)> y_;
         std::vector<std::vector<Real>> x_;
-        boost::shared_ptr<FdmLinearOpLayout> layout_;
-        Array interpolatedValues_; 
         Real relTol_;
+
+        std::vector<bool> coordinateIncluded_;
+        bool singlePoint_ = false;
+
+        boost::shared_ptr<FdmLinearOpLayout> layout_;
+        Array interpolatedValues_;
     };
 
     /*! Convenience function that Laplace-interpolates null values in a given matrix.

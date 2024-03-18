@@ -39,34 +39,45 @@ namespace QuantLib {
                                                const Real relTol)
     : y_(std::move(y)), x_(std::move(x)), relTol_(relTol) {
 
+        QL_REQUIRE(!x_.empty() && !x_.front().empty(), "LaplaceInterpolation: no points given.");
+
         // set up the mesher
 
-        std::vector<Size> dim(x.size());
-        std::transform(x.begin(), x.end(), dim.begin(),
-                       [](const std::vector<Real>& x) { return x.size(); });
-        for (Size i = 0; i < dim.size(); ++i) {
-            QL_REQUIRE(
-                dim[i] >= 2,
-                "LaplaceInterpolation: at least two points are required in each dimension, have "
-                    << dim[i] << " for #" << i);
+        std::vector<Size> dim;
+        coordinateIncluded_.resize(x_.size());
+        for (Size i = 0; i < x_.size(); ++i) {
+            coordinateIncluded_[i] = x_[i].size() > 1;
+            if (coordinateIncluded_[i])
+                dim.push_back(x_[i].size());
         }
+        
+        if(dim.empty()) {
+            singlePoint_ = true;
+            return;
+        }
+
+        QL_REQUIRE(!dim.empty(), "LaplaceInterpolation: singular point or no points given");
+
         layout_ = boost::make_shared<FdmLinearOpLayout>(dim);
-        std::vector<boost::shared_ptr<Fdm1dMesher>> meshers(x.size());
-        std::transform(x.begin(), x.end(), meshers.begin(), [](const std::vector<Real>& x) {
-            return boost::make_shared<Predefined1dMesher>(x);
-        });
+
+        std::vector<boost::shared_ptr<Fdm1dMesher>> meshers;
+        for (Size i = 0; i < x_.size(); ++i) {
+            if (x_[i].size() > 1)
+                meshers.push_back(boost::make_shared<Predefined1dMesher>(x_[i]));
+        }
+
         auto mesher = boost::make_shared<FdmMesherComposite>(layout_, meshers);
 
         // set up the Laplace operator and convert it to matrix
 
         struct LaplaceOp : public FdmLinearOpComposite {
-            LaplaceOp(const boost::shared_ptr<FdmMesher>& mesher)
-            : map_(SecondDerivativeOp(0, mesher)) {
+            LaplaceOp(const boost::shared_ptr<FdmMesher>& mesher) {
                 for (Size direction = 0; direction < mesher->layout()->dim().size(); ++direction) {
-                    map_ = map_.add(SecondDerivativeOp(direction, mesher));
+                    if (mesher->layout()->dim()[direction] > 1)
+                        map_.push_back(SecondDerivativeOp(direction, mesher));
                 }
             }
-            TripleBandLinearOp map_;
+            std::vector<TripleBandLinearOp> map_;
 
             Size size() const override { QL_FAIL("no impl"); }
             void setTime(Time t1, Time t2) override { QL_FAIL("no impl"); }
@@ -79,6 +90,12 @@ namespace QuantLib {
                 QL_FAIL("no impl");
             }
             Array preconditioner(const Array& r, Real s) const override { QL_FAIL("no impl"); }
+            std::vector<SparseMatrix> toMatrixDecomp() const override {
+                std::vector<SparseMatrix> decomp;
+                for (auto const& m : map_)
+                    decomp.push_back(m.toMatrix());
+                return decomp;
+            }
         };
 
         SparseMatrix op = LaplaceOp(mesher).toMatrix();
@@ -103,7 +120,7 @@ namespace QuantLib {
         std::vector<Size> corner_neighbour_index(dim.size());
         for (auto const& pos : *layout_) {
             auto coord = pos.coordinates();
-            Real val = y(coord);
+            Real val = y_(fullCoordinates(coord));
             QL_REQUIRE(rowit != op.end1() && rowit.index1() == count,
                        "LaplaceInterpolation: op matrix row iterator ("
                            << (rowit != op.end1() ? std::to_string(rowit.index1()) : "na")
@@ -134,9 +151,10 @@ namespace QuantLib {
                             if (i != j)
                                 weight += corner_h[i];
                         }
-                        weight = 1.0 - weight / sum_corner_h;
+                        weight = dim.size() == 1 ? 1.0 : weight / sum_corner_h;
                         g(count, layout_->index(coord_j)) = -weight;
                     }
+                    g(count, count) = 1.0;
                 } else {
                     // point with at least one dimension with non-trivial second derivative
                     for (auto colit = rowit.begin(); colit != rowit.end(); ++colit)
@@ -150,14 +168,36 @@ namespace QuantLib {
                 guess[count] = guessTmp = val;
             }
             ++count;
+            ++rowit;
         }
 
         interpolatedValues_ = BiCGstab(f_A(g), 10 * N, relTol_).solve(rhs, guess).x;
     }
 
+    std::vector<Size>
+    LaplaceInterpolation::projectedCoordinates(const std::vector<Size>& coordinates) const {
+        std::vector<Size> tmp;
+        for (Size i = 0; i < coordinates.size(); ++i) {
+            if (coordinateIncluded_[i])
+                tmp.push_back(coordinates[i]);
+        }
+        return tmp;
+    }
+
+    std::vector<Size>
+    LaplaceInterpolation::fullCoordinates(const std::vector<Size>& projectedCoordinates) const {
+        std::vector<Size> tmp(coordinateIncluded_.size(), 0);
+        for (Size i = 0, count = 0; i < coordinateIncluded_.size(); ++i) {
+            if (coordinateIncluded_[i])
+                tmp[i] = projectedCoordinates[count++];
+        }
+        return tmp;
+    }
 
     Real LaplaceInterpolation::operator()(const std::vector<Size>& coordinates) const {
-        return interpolatedValues_[layout_->index(coordinates)];
+        return singlePoint_ ?
+                   y_({0}) :
+                   interpolatedValues_[layout_->index(projectedCoordinates(coordinates))];
     }
 
     template <class M>
