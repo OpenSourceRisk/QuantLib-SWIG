@@ -56,7 +56,7 @@ namespace QuantLib {
 
     CmsLeg::CmsLeg(Schedule schedule, ext::shared_ptr<SwapIndex> swapIndex)
         : schedule_(std::move(schedule)), swapIndex_(std::move(swapIndex)),
-          inArrears_(false), zeroPayments_(false),
+          paymentLag_(0), inArrears_(false), zeroPayments_(false),
           exCouponAdjustment_(Following), exCouponEndOfMonth_(false) {
         QL_REQUIRE(swapIndex_, "no index provided");
     }
@@ -78,6 +78,11 @@ namespace QuantLib {
 
     CmsLeg& CmsLeg::withPaymentAdjustment(BusinessDayConvention convention) {
         paymentAdjustment_ = convention;
+        return *this;
+    }
+
+    CmsLeg& CmsLeg::withPaymentLag(Natural lag) {
+        paymentLag_ = lag;
         return *this;
     }
 
@@ -144,7 +149,7 @@ namespace QuantLib {
     CmsLeg& CmsLeg::withPaymentCalendar(const Calendar& cal) {
         paymentCalendar_ = cal;
         return *this;
-	}
+    }
 
     CmsLeg& CmsLeg::withExCouponPeriod(
                                 const Period& period,
@@ -163,7 +168,7 @@ namespace QuantLib {
                          schedule_, notionals_, swapIndex_, paymentDayCounter_,
                          paymentAdjustment_, fixingDays_, gearings_, spreads_,
                          caps_, floors_, inArrears_, zeroPayments_,
-                         0, Calendar(),
+                         paymentLag_, Calendar(),
                          exCouponPeriod_, exCouponCalendar_,
                          exCouponAdjustment_, exCouponEndOfMonth_);
    }
