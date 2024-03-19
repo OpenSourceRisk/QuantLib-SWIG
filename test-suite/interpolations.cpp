@@ -2667,7 +2667,7 @@ void InterpolationTest::testLaplaceInterpolation() {
         {5.0, 3.0, 2.0},
     };
 
-    laplaceInterpolation(m30, 1E-6, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
+    laplaceInterpolation(m30, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
 
     BOOST_CHECK_CLOSE(m30(1, 1), 26.0 / 6.0, tol);
 
@@ -2679,7 +2679,7 @@ void InterpolationTest::testLaplaceInterpolation() {
         {5.0, 3.0, 2.0},
     };
 
-    laplaceInterpolation(m31, 1E-6, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
+    laplaceInterpolation(m31, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
 
     BOOST_CHECK_CLOSE(m31(0, 1), 6.0 / 3.0, tol);
 
@@ -2689,7 +2689,7 @@ void InterpolationTest::testLaplaceInterpolation() {
         {5.0, 3.0, 2.0},
     };
 
-    laplaceInterpolation(m32, 1E-6, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
+    laplaceInterpolation(m32, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
 
     BOOST_CHECK_CLOSE(m32(1, 0), 7.0 / 3.0, tol);
 
@@ -2699,7 +2699,7 @@ void InterpolationTest::testLaplaceInterpolation() {
         {5.0, na, 2.0},
     };
 
-    laplaceInterpolation(m33, 1E-6, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
+    laplaceInterpolation(m33, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
 
     BOOST_CHECK_CLOSE(m33(2, 1), 12.0 / 3.0, tol);
 
@@ -2709,7 +2709,7 @@ void InterpolationTest::testLaplaceInterpolation() {
         {5.0, 3.0, 2.0},
     };
 
-    laplaceInterpolation(m34, 1E-6, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
+    laplaceInterpolation(m34, {1.0, 2.0, 4.0}, {1.0, 2.0, 4.0});
 
     BOOST_CHECK_CLOSE(m34(1, 2), 10.0 / 3.0, tol);
 
@@ -2721,7 +2721,7 @@ void InterpolationTest::testLaplaceInterpolation() {
         {5.0, 3.0, 2.0},
     };
 
-    laplaceInterpolation(m35, 1E-6, {1.0, 2.0, 4.0}, {1.0, 3.0, 7.0});
+    laplaceInterpolation(m35, {1.0, 2.0, 4.0}, {1.0, 3.0, 7.0});
 
     BOOST_CHECK_CLOSE(m35(0, 0), 10.0 / 3.0, tol);
 
@@ -2731,7 +2731,7 @@ void InterpolationTest::testLaplaceInterpolation() {
         {na, 3.0, 2.0},
     };
 
-    laplaceInterpolation(m36, 1E-6, {1.0, 2.0, 4.0}, {1.0, 3.0, 7.0});
+    laplaceInterpolation(m36, {1.0, 2.0, 4.0}, {1.0, 3.0, 7.0});
 
     BOOST_CHECK_CLOSE(m36(2, 0), 18.0 / 5.0, tol);
 
@@ -2741,7 +2741,7 @@ void InterpolationTest::testLaplaceInterpolation() {
         {5.0, 3.0, na},
     };
 
-    laplaceInterpolation(m37, 1E-6, {1.0, 2.0, 4.0}, {1.0, 3.0, 7.0});
+    laplaceInterpolation(m37, {1.0, 2.0, 4.0}, {1.0, 3.0, 7.0});
 
     BOOST_CHECK_CLOSE(m37(2, 2), 13.0 / 3.0, tol);
 
@@ -2751,7 +2751,7 @@ void InterpolationTest::testLaplaceInterpolation() {
         {5.0, 3.0, 2.0},
     };
 
-    laplaceInterpolation(m38, 1E-6, {1.0, 2.0, 4.0}, {1.0, 2.0, 3.0});
+    laplaceInterpolation(m38, {1.0, 2.0, 4.0}, {1.0, 2.0, 3.0});
 
     BOOST_CHECK_CLOSE(m38(0, 2), 16.0 / 3.0, tol);
 
@@ -2761,7 +2761,7 @@ void InterpolationTest::testLaplaceInterpolation() {
         {1.0},
     };
 
-    laplaceInterpolation(m50, 1E-6);
+    laplaceInterpolation(m50);
 
     BOOST_CHECK_CLOSE(m50(0, 0), 1.0, tol);
 
@@ -2771,7 +2771,7 @@ void InterpolationTest::testLaplaceInterpolation() {
         {Null<Real>()},
     };
 
-    laplaceInterpolation(m51, 1E-6);
+    laplaceInterpolation(m51);
 
     BOOST_CHECK_CLOSE(m51(0, 0), 0.0, tol);
 

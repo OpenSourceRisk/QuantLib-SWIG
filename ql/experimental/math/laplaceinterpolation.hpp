@@ -63,9 +63,9 @@ namespace QuantLib {
 
     template <class M>
     void laplaceInterpolation(M& A,
-                              Real relTol = 1E-6,
                               const std::vector<Real>& x = {},
-                              const std::vector<Real>& y = {});
+                              const std::vector<Real>& y = {},
+                              Real relTol = 1E-6);
 }
 
 #endif
