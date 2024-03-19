@@ -39,8 +39,6 @@ namespace QuantLib {
                                                const Real relTol)
     : y_(std::move(y)), x_(std::move(x)), relTol_(relTol) {
 
-        QL_REQUIRE(!x_.empty() && !x_.front().empty(), "LaplaceInterpolation: no points given.");
-
         // set up the mesher
 
         std::vector<Size> dim;
@@ -51,8 +49,9 @@ namespace QuantLib {
                 dim.push_back(x_[i].size());
         }
 
-        if (dim.empty()) {
-            singlePoint_ = true;
+        numberOfCoordinatesIncluded_ = dim.size();
+
+        if (numberOfCoordinatesIncluded_ == 0) {
             return;
         }
 
@@ -120,7 +119,8 @@ namespace QuantLib {
         std::vector<Size> corner_neighbour_index(dim.size());
         for (auto const& pos : *layout_) {
             auto coord = pos.coordinates();
-            Real val = y_(fullCoordinates(coord));
+            Real val =
+                y_(numberOfCoordinatesIncluded_ == x_.size() ? coord : fullCoordinates(coord));
             QL_REQUIRE(rowit != op.end1() && rowit.index1() == count,
                        "LaplaceInterpolation: op matrix row iterator ("
                            << (rowit != op.end1() ? std::to_string(rowit.index1()) : "na")
@@ -195,9 +195,17 @@ namespace QuantLib {
     }
 
     Real LaplaceInterpolation::operator()(const std::vector<Size>& coordinates) const {
-        return singlePoint_ ?
-                   y_({0}) :
-                   interpolatedValues_[layout_->index(projectedCoordinates(coordinates))];
+        QL_REQUIRE(coordinates.size() == x_.size(), "LaplaceInterpolation::operator(): expected "
+                                                        << x_.size() << " coordinates, got "
+                                                        << coordinates.size());
+        if (numberOfCoordinatesIncluded_ == 0) {
+            Real val = y_(coordinates);
+            return val == Null<Real>() ? 0.0 : val;
+        } else {
+            return interpolatedValues_[layout_->index(numberOfCoordinatesIncluded_ == x_.size() ?
+                                                          coordinates :
+                                                          projectedCoordinates(coordinates))];
+        }
     }
 
     template <class M>

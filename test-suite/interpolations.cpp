@@ -2754,6 +2754,31 @@ void InterpolationTest::testLaplaceInterpolation() {
     laplaceInterpolation(m38, 1E-6, {1.0, 2.0, 4.0}, {1.0, 2.0, 3.0});
 
     BOOST_CHECK_CLOSE(m38(0, 2), 16.0 / 3.0, tol);
+
+    // single point with given value
+
+    Matrix m50 = {
+        {1.0},
+    };
+
+    laplaceInterpolation(m50, 1E-6);
+
+    BOOST_CHECK_CLOSE(m50(0, 0), 1.0, tol);
+
+    // single point with missing value
+
+    Matrix m51 = {
+        {Null<Real>()},
+    };
+
+    laplaceInterpolation(m51, 1E-6);
+
+    BOOST_CHECK_CLOSE(m51(0, 0), 0.0, tol);
+
+    // no point
+
+    LaplaceInterpolation l0([](const std::vector<Size>& x) { return Null<Real>(); }, {});
+    BOOST_CHECK_CLOSE(l0({}), 0.0, tol);
 }
 
 test_suite* InterpolationTest::suite(SpeedLevel speed) {

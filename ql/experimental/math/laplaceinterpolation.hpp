@@ -52,7 +52,7 @@ namespace QuantLib {
         Real relTol_;
 
         std::vector<bool> coordinateIncluded_;
-        bool singlePoint_ = false;
+        Size numberOfCoordinatesIncluded_;
 
         boost::shared_ptr<FdmLinearOpLayout> layout_;
         Array interpolatedValues_;
