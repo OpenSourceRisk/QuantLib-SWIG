@@ -32,6 +32,8 @@
 #include <ql/methods/finitedifferences/operators/secondderivativeop.hpp>
 #include <ql/methods/finitedifferences/operators/triplebandlinearop.hpp>
 
+#include <functional>
+
 namespace QuantLib {
 
     LaplaceInterpolation::LaplaceInterpolation(std::function<Real(const std::vector<Size>&)> y,
