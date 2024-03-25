@@ -25,6 +25,8 @@
 #define quantlib_laplace_interpolation
 
 #include <ql/types.hpp>
+
+#include <functional>
 #include <vector>
 
 namespace QuantLib {
