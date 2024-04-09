@@ -38,7 +38,8 @@ namespace QuantLib {
                                          vector<vector<Handle<Quote>>> v,
                                          DayCounter dc,
                                          VolatilityType type,
-                                         Real displacement)
+                                         Real displacement,
+                                         const std::vector<Real>& atmOptionletRates)
     : StrippedOptionlet(settlementDays,
                         calendar,
                         bdc,
@@ -48,7 +49,8 @@ namespace QuantLib {
                         std::move(v),
                         std::move(dc),
                         type,
-                        displacement) {}
+                        displacement,
+                        atmOptionletRates) {}
 
     StrippedOptionlet::StrippedOptionlet(Natural settlementDays,
                                          const Calendar& calendar,
@@ -59,12 +61,13 @@ namespace QuantLib {
                                          vector<vector<Handle<Quote>>> v,
                                          DayCounter dc,
                                          VolatilityType type,
-                                         Real displacement)
+                                         Real displacement,
+                                         const std::vector<Real>& atmOptionletRates)
     : calendar_(calendar), settlementDays_(settlementDays), businessDayConvention_(bdc),
       dc_(std::move(dc)), iborIndex_(std::move(iborIndex)), type_(type),
       displacement_(displacement), nOptionletDates_(optionletDates.size()),
       optionletDates_(optionletDates), optionletTimes_(nOptionletDates_),
-      optionletAtmRates_(nOptionletDates_), optionletStrikes_(strikes),
+      optionletAtmRates_(atmOptionletRates), optionletStrikes_(strikes),
       optionletVolQuotes_(std::move(v)) {
         checkInputs();
 
@@ -79,6 +82,8 @@ namespace QuantLib {
 
         for (Size i=0; i<nOptionletDates_; ++i)
             optionletTimes_[i] = dc_.yearFraction(refDate, optionletDates_[i]);
+
+        externalAtmRatesGiven_ = !optionletAtmRates_.empty();
     }
 
     void StrippedOptionlet::checkInputs() const {
@@ -124,6 +129,12 @@ namespace QuantLib {
         for (Size i = 0; i < nOptionletDates_; ++i)
             for (Size j = 0; j < optionletVolQuotes_[i].size(); ++j)
                 optionletVolatilities_[i][j] = optionletVolQuotes_[i][j]->value();
+        if(!externalAtmRatesGiven_) {
+            optionletAtmRates_.resize(nOptionletDates_);
+            for (Size i=0; i<nOptionletDates_; ++i) {
+                optionletAtmRates_[i] = iborIndex_->fixing(optionletDates_[i], true);
+            }
+        }
     }
 
     const vector<Rate>& StrippedOptionlet::optionletStrikes(Size i) const{
@@ -160,12 +171,6 @@ namespace QuantLib {
 
     const vector<Time>& StrippedOptionlet::atmOptionletRates() const {
         calculate();
-        QL_REQUIRE(boost::dynamic_pointer_cast<OvernightIndex>(iborIndex_) == nullptr,
-                   "StrippedOptionlet::atmOptionletRates() not implemented for overnight index "
-                       << iborIndex_->name());
-        for (Size i=0; i<nOptionletDates_; ++i) {
-            optionletAtmRates_[i] = iborIndex_->fixing(optionletDates_[i], true);
-        }
         return optionletAtmRates_;
     }
 
