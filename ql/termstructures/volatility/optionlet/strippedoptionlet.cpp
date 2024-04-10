@@ -129,12 +129,14 @@ namespace QuantLib {
         for (Size i = 0; i < nOptionletDates_; ++i)
             for (Size j = 0; j < optionletVolQuotes_[i].size(); ++j)
                 optionletVolatilities_[i][j] = optionletVolQuotes_[i][j]->value();
-        optionletAtmRates_ = std::vector<Real>(nOptionletDates_, Null<Real>());
-        if (!externalAtmRatesGiven_ && iborIndex_ != nullptr) {
-            for (Size i = 0; i < nOptionletDates_; ++i) {
-                try {
-                    optionletAtmRates_[i] = iborIndex_->fixing(optionletDates_[i], true);
-                } catch (...) {
+        if (!externalAtmRatesGiven_) {
+            optionletAtmRates_ = std::vector<Real>(nOptionletDates_, Null<Real>());
+            if (iborIndex_ != nullptr) {
+                for (Size i = 0; i < nOptionletDates_; ++i) {
+                    try {
+                        optionletAtmRates_[i] = iborIndex_->fixing(optionletDates_[i], true);
+                    } catch (...) {
+                    }
                 }
             }
         }
