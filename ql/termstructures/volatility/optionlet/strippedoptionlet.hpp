@@ -35,6 +35,9 @@ namespace QuantLib {
     /*! Helper class to wrap in a StrippedOptionletBase object a matrix of
         exogenously calculated optionlet (i.e. caplet/floorlet) volatilities
         (a.k.a. forward-forward volatilities).
+
+        If iborIndex is an overnight index, the atm optionlet rates must be provided
+        in the ctor.
     */
     class StrippedOptionlet : public StrippedOptionletBase {
       public:
@@ -44,10 +47,11 @@ namespace QuantLib {
                           ext::shared_ptr<IborIndex> iborIndex,
                           const std::vector<Date>& optionletDates,
                           const std::vector<Rate>& strikes,
-                          std::vector<std::vector<Handle<Quote> > >,
+                          std::vector<std::vector<Handle<Quote>>>,
                           DayCounter dc,
                           VolatilityType type = ShiftedLognormal,
-                          Real displacement = 0.0);
+                          Real displacement = 0.0,
+                          const std::vector<Real>& atmOptionletRates = {});
         StrippedOptionlet(Natural settlementDays,
                           const Calendar& calendar,
                           BusinessDayConvention bdc,
@@ -57,7 +61,8 @@ namespace QuantLib {
                           std::vector<std::vector<Handle<Quote>>>,
                           DayCounter dc,
                           VolatilityType type = ShiftedLognormal,
-                          Real displacement = 0.0);
+                          Real displacement = 0.0,
+                          const std::vector<Real>& atmOptionletRates = {});
         //! \name StrippedOptionletBase interface
         //@{
         const std::vector<Rate>& optionletStrikes(Size i) const override;
@@ -95,6 +100,7 @@ namespace QuantLib {
         std::vector<Time> optionletTimes_;
         mutable std::vector<Rate> optionletAtmRates_;
         std::vector<std::vector<Rate> > optionletStrikes_;
+        bool externalAtmRatesGiven_ = false;
 
         std::vector<std::vector<Handle<Quote> > > optionletVolQuotes_;
         mutable std::vector<std::vector<Volatility> > optionletVolatilities_;

@@ -66,6 +66,7 @@ class InterpolationTest {
     static void testChebyshevInterpolation();
     static void testChebyshevInterpolationOnNodes();
     static void testChebyshevInterpolationUpdateY();
+    static void testLaplaceInterpolation();
 
 
     static boost::unit_test_framework::test_suite* suite(SpeedLevel);

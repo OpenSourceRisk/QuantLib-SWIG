@@ -72,6 +72,12 @@ namespace QuantLib {
         return *this;
     }
 
+    CmsSpreadLeg &
+    CmsSpreadLeg::withPaymentLag(Natural lag) {
+        paymentLag_ = lag;
+        return *this;
+    }
+
     CmsSpreadLeg &CmsSpreadLeg::withFixingDays(Natural fixingDays) {
         fixingDays_ = std::vector<Natural>(1, fixingDays);
         return *this;
@@ -137,12 +143,12 @@ namespace QuantLib {
     CmsSpreadLeg& CmsSpreadLeg::withPaymentCalendar(const Calendar& cal) {
         paymentCalendar_ = cal;
         return *this;
-	}
+    }
 
     CmsSpreadLeg::operator Leg() const {
             return FloatingLeg<SwapSpreadIndex, CmsSpreadCoupon, CappedFlooredCmsSpreadCoupon>(
                 schedule_, notionals_, swapSpreadIndex_, paymentDayCounter_, paymentAdjustment_,
-                fixingDays_, gearings_, spreads_, caps_, floors_, inArrears_, zeroPayments_, 0U,
+                fixingDays_, gearings_, spreads_, caps_, floors_, inArrears_, zeroPayments_, paymentLag_,
                 paymentCalendar_); 
     }
 }

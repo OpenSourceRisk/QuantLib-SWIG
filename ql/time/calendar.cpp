@@ -130,7 +130,8 @@ namespace QuantLib {
     Date Calendar::advance(const Date& d,
                            Integer n, TimeUnit unit,
                            BusinessDayConvention c,
-                           bool endOfMonth) const {
+                           bool endOfMonth,
+                           const ext::optional<BusinessDayConvention>& eomConvention) const {
         QL_REQUIRE(d!=Date(), "null date");
         if (n == 0) {
             return adjust(d,c);
@@ -160,7 +161,7 @@ namespace QuantLib {
 
             // we are sure the unit is Months or Years
             if (endOfMonth && isEndOfMonth(d))
-                return Calendar::endOfMonth(d1);
+                return Calendar::endOfMonth(d1, eomConvention);
 
             return adjust(d1, c);
         }
@@ -169,8 +170,9 @@ namespace QuantLib {
     Date Calendar::advance(const Date & d,
                            const Period & p,
                            BusinessDayConvention c,
-                           bool endOfMonth) const {
-        return advance(d, p.length(), p.units(), c, endOfMonth);
+                           bool endOfMonth,
+                           const ext::optional<BusinessDayConvention>& eomConvention) const {
+        return advance(d, p.length(), p.units(), c, endOfMonth, eomConvention);
     }
 
     Date::serial_type Calendar::businessDaysBetween(const Date& from,

@@ -54,7 +54,8 @@ namespace QuantLib {
             const ext::optional<bool>& endOfMonth = ext::nullopt,
             std::vector<bool> isRegular = std::vector<bool>(0),
             const bool removeFirstDate = false,
-            const bool removeLastDate = false);
+            const bool removeLastDate = false,
+            const ext::optional<BusinessDayConvention>& endOfMonthConvention = ext::nullopt);
         /*! rule based constructor */
         Schedule(Date effectiveDate,
                  const Date& terminationDate,
@@ -67,7 +68,8 @@ namespace QuantLib {
                  const Date& firstDate = Date(),
                  const Date& nextToLastDate = Date(),
                  const bool removeFirstDate = false,
-                 const bool removeLastDate = false);
+                 const bool removeLastDate = false,
+                 const ext::optional<BusinessDayConvention>& endOfMonthConvention = ext::nullopt);
         Schedule() = default;
         //! \name Date access
         //@{
@@ -93,6 +95,8 @@ namespace QuantLib {
         BusinessDayConvention businessDayConvention() const;
         bool hasTerminationDateBusinessDayConvention() const;
         BusinessDayConvention terminationDateBusinessDayConvention() const;
+        bool hasEndOfMonthBusinessDayConvention() const;
+        BusinessDayConvention endOfMonthBusinessDayConvention() const;
         bool hasRule() const;
         DateGeneration::Rule rule() const;
         bool hasEndOfMonth() const;
@@ -118,6 +122,7 @@ namespace QuantLib {
         ext::optional<BusinessDayConvention> terminationDateConvention_;
         ext::optional<DateGeneration::Rule> rule_;
         ext::optional<bool> endOfMonth_;
+        ext::optional<BusinessDayConvention> endOfMonthConvention_;
         Date firstDate_, nextToLastDate_;
         std::vector<Date> dates_;
         std::vector<bool> isRegular_;
@@ -137,6 +142,7 @@ namespace QuantLib {
         MakeSchedule& withCalendar(const Calendar&);
         MakeSchedule& withConvention(BusinessDayConvention);
         MakeSchedule& withTerminationDateConvention(BusinessDayConvention);
+        MakeSchedule& withEndOfMonthConvention(BusinessDayConvention);
         MakeSchedule& withRule(DateGeneration::Rule);
         MakeSchedule& forwards();
         MakeSchedule& backwards();
@@ -152,6 +158,7 @@ namespace QuantLib {
         ext::optional<BusinessDayConvention> terminationDateConvention_;
         DateGeneration::Rule rule_ = DateGeneration::Backward;
         bool endOfMonth_ = false;
+        ext::optional<BusinessDayConvention> endOfMonthConvention_;
         Date firstDate_, nextToLastDate_;
     };
 
@@ -248,6 +255,15 @@ namespace QuantLib {
         return *endOfMonth_;
     }
 
+    inline bool Schedule::hasEndOfMonthBusinessDayConvention() const {
+        return static_cast<bool>(endOfMonthConvention_);
+    }
+
+    inline BusinessDayConvention Schedule::endOfMonthBusinessDayConvention() const {
+        QL_REQUIRE(hasEndOfMonthBusinessDayConvention(),
+                   "full interface (end of month bdc) not available");
+        return *endOfMonthConvention_;
+    }
 }
 
 #endif

@@ -63,10 +63,11 @@ namespace QuantLib {
                        const ext::optional<bool>& endOfMonth,
                        std::vector<bool> isRegular,
                        const bool removeFirstDate,
-                       const bool removeLastDate)
+                       const bool removeLastDate,
+                       const ext::optional<BusinessDayConvention>& endOfMonthConvention)
     : tenor_(tenor), calendar_(std::move(calendar)), convention_(convention),
-      terminationDateConvention_(terminationDateConvention), rule_(rule), dates_(dates),
-      isRegular_(std::move(isRegular)) {
+      terminationDateConvention_(terminationDateConvention), rule_(rule),
+      endOfMonthConvention_(endOfMonthConvention), dates_(dates), isRegular_(std::move(isRegular)) {
 
         if (tenor && !allowsEndOfMonth(*tenor))
             endOfMonth_ = false;
@@ -96,10 +97,12 @@ namespace QuantLib {
                        const Date& first,
                        const Date& nextToLast,
                        const bool removeFirstDate,
-                       const bool removeLastDate)
+                       const bool removeLastDate,
+                       const ext::optional<BusinessDayConvention>& endOfMonthConvention)
     : tenor_(tenor), calendar_(std::move(cal)), convention_(convention),
       terminationDateConvention_(terminationDateConvention), rule_(rule),
       endOfMonth_(allowsEndOfMonth(tenor) ? endOfMonth : false),
+      endOfMonthConvention_(endOfMonthConvention),
       firstDate_(first == effectiveDate ? Date() : first),
       nextToLastDate_(nextToLast == terminationDate ? Date() : nextToLast) {
         // sanity checks
@@ -224,7 +227,7 @@ namespace QuantLib {
             if (nextToLastDate_ != Date()) {
                 dates_.insert(dates_.begin(), nextToLastDate_);
                 Date temp = nullCalendar.advance(seed,
-                    -periods*(*tenor_), convention, *endOfMonth_);
+                    -periods*(*tenor_), convention, *endOfMonth_, endOfMonthConvention_);
                 if (temp!=nextToLastDate_)
                     isRegular_.insert(isRegular_.begin(), false);
                 else
@@ -238,7 +241,7 @@ namespace QuantLib {
 
             for (;;) {
                 Date temp = nullCalendar.advance(seed,
-                    -periods*(*tenor_), convention, *endOfMonth_);
+                    -periods*(*tenor_), convention, *endOfMonth_, endOfMonthConvention_);
                 if (temp < exitDate) {
                     if (firstDate_ != Date() &&
                         (calendar_.adjust(dates_.front(),convention)!=
@@ -300,7 +303,7 @@ namespace QuantLib {
             if (firstDate_!=Date()) {
                 dates_.push_back(firstDate_);
                 Date temp = nullCalendar.advance(seed, periods*(*tenor_),
-                                                 convention, *endOfMonth_);
+                                                 convention, *endOfMonth_, endOfMonthConvention_);
                 if (temp!=firstDate_)
                     isRegular_.push_back(false);
                 else
@@ -332,7 +335,7 @@ namespace QuantLib {
                 exitDate = nextToLastDate_;
             for (;;) {
                 Date temp = nullCalendar.advance(seed, periods*(*tenor_),
-                                                 convention, *endOfMonth_);
+                                                 convention, *endOfMonth_, endOfMonthConvention_);
                 if (temp > exitDate) {
                     if (nextToLastDate_ != Date() &&
                         (calendar_.adjust(dates_.back(),convention)!=
@@ -434,7 +437,10 @@ namespace QuantLib {
 
         if (*endOfMonth_ && calendar_.isEndOfMonth(seed)) {
             // adjust to end of month
-            if (convention == Unadjusted) {
+            if (endOfMonthConvention_) {
+                for (Size i=1; i<dates_.size()-1; ++i)
+                    dates_[i] = calendar_.endOfMonth(dates_[i], endOfMonthConvention_);
+            } else if (convention == Unadjusted) {
                 for (Size i=1; i<dates_.size()-1; ++i)
                     dates_[i] = Date::endOfMonth(dates_[i]);
             } else {
@@ -629,6 +635,11 @@ namespace QuantLib {
         return *this;
     }
 
+    MakeSchedule& MakeSchedule::withEndOfMonthConvention(BusinessDayConvention conv) {
+        endOfMonthConvention_ = conv;
+        return *this;
+    }
+
     MakeSchedule& MakeSchedule::withRule(DateGeneration::Rule r) {
         rule_ = r;
         return *this;
@@ -696,9 +707,9 @@ namespace QuantLib {
             calendar = NullCalendar();
         }
 
-        return Schedule(effectiveDate_, terminationDate_, *tenor_, calendar,
-                        convention, terminationDateConvention,
-                        rule_, endOfMonth_, firstDate_, nextToLastDate_);
+        return Schedule(effectiveDate_, terminationDate_, *tenor_, calendar, convention,
+                        terminationDateConvention, rule_, endOfMonth_, firstDate_, nextToLastDate_,
+                        false, false, endOfMonthConvention_);
     }
 
     Date cdsMaturity(const Date& tradeDate, const Period& tenor, DateGeneration::Rule rule) {
