@@ -29,6 +29,7 @@
 #define quantlib_calendar_hpp
 
 #include <ql/errors.hpp>
+#include <ql/optional.hpp>
 #include <ql/time/date.hpp>
 #include <ql/time/businessdayconvention.hpp>
 #include <ql/shared_ptr.hpp>
@@ -113,7 +114,7 @@ namespace QuantLib {
         */
         bool isEndOfMonth(const Date& d) const;
         //! last business day of the month to which the given date belongs
-        Date endOfMonth(const Date& d) const;
+        Date endOfMonth(const Date& d, const ext::optional<BusinessDayConvention>& c) const;
 
         /*! Adds a date to the set of holidays for the given calendar. */
         void addHoliday(const Date&);
@@ -141,7 +142,8 @@ namespace QuantLib {
                      Integer n,
                      TimeUnit unit,
                      BusinessDayConvention convention = Following,
-                     bool endOfMonth = false) const;
+                     bool endOfMonth = false,
+                     const ext::optional<BusinessDayConvention>& eomConvention = ext::nullopt) const;
         /*! Advances the given date as specified by the given period and
             returns the result.
             \note The input date is not modified.
@@ -149,7 +151,8 @@ namespace QuantLib {
         Date advance(const Date& date,
                      const Period& period,
                      BusinessDayConvention convention = Following,
-                     bool endOfMonth = false) const;
+                     bool endOfMonth = false,
+                     const ext::optional<BusinessDayConvention>& eomConvention = ext::nullopt) const;
         /*! Calculates the number of business days between two given
             dates and returns the result.
         */
@@ -244,8 +247,8 @@ namespace QuantLib {
         return (d.month() != adjust(d+1).month());
     }
 
-    inline Date Calendar::endOfMonth(const Date& d) const {
-        return adjust(Date::endOfMonth(d), Preceding);
+    inline Date Calendar::endOfMonth(const Date& d, const ext::optional<BusinessDayConvention>& c = ext::nullopt) const {
+        return adjust(Date::endOfMonth(d), c ? *c : Preceding);
     }
 
     inline bool Calendar::isHoliday(const Date& d) const {
