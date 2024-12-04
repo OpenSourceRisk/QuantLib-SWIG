@@ -17,16 +17,14 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 """
 
-import os, sys, math
-try:
-    from setuptools import setup, Extension
-    from setuptools import Command
-except:
-    from distutils.core import setup, Extension
-    from distutils.cmd import Command
-from distutils.command.build_ext import build_ext
-from distutils.command.build import build
-from distutils.ccompiler import get_default_compiler
+import os, sys, math, platform
+from setuptools import setup, Extension
+from setuptools import Command
+from setuptools.command.build_ext import build_ext
+from setuptools.command.build import build
+from setuptools._distutils.ccompiler import get_default_compiler
+
+py_limited_api = (platform.python_implementation() == 'CPython')
 
 class test(Command):
     # Original version of this class posted
@@ -112,6 +110,8 @@ class my_build_ext(build_ext):
         self.include_dirs = self.include_dirs or []
         self.library_dirs = self.library_dirs or []
         self.define = self.define or []
+        if py_limited_api:
+            self.define += [('Py_LIMITED_API', '0x03080000')]
         self.libraries = self.libraries or []
 
         extra_compile_args = []
@@ -194,6 +194,7 @@ class my_build_ext(build_ext):
             ext.extra_link_args = ext.extra_link_args or []
             ext.extra_link_args += extra_link_args
 
+
 classifiers = [
     'Development Status :: 5 - Production/Stable',
     'Environment :: Console',
@@ -212,13 +213,14 @@ classifiers = [
 ]
 
 setup(name             = "QuantLib",
-      version          = "1.31.1",
+      version          = "1.35",
       description      = "Python bindings for the QuantLib library",
       long_description = """
-QuantLib (https://www.quantlib.org/) is a C++ library for financial quantitative
-analysts and developers, aimed at providing a comprehensive software
-framework for quantitative finance.
+QuantLib (https://www.quantlib.org/) is a free/open-source C++ library
+for financial quantitative analysts and developers, aimed at providing
+a comprehensive software framework for quantitative finance.
       """,
+      long_description_content_type = "text/x-rst",
       author           = "QuantLib Team",
       author_email     = "quantlib-users@lists.sourceforge.net",
       url              = "https://www.quantlib.org",
@@ -226,13 +228,14 @@ framework for quantitative finance.
       classifiers      = classifiers,
       py_modules       = ['QuantLib.__init__','QuantLib.QuantLib'],
       ext_modules      = [Extension("QuantLib._QuantLib",
-                                    ["QuantLib/quantlib_wrap.cpp"])
+                                    ["QuantLib/quantlib_wrap.cpp"],
+                                    py_limited_api=py_limited_api)
                          ],
       data_files       = [('share/doc/quantlib', ['../LICENSE.TXT'])],
       cmdclass         = {'test': test,
                           'wrap': my_wrap,
                           'build': my_build,
-                          'build_ext': my_build_ext
+                          'build_ext': my_build_ext,
                           }
       )
 

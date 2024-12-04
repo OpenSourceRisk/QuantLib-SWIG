@@ -61,11 +61,14 @@ class Currency {
             return self->name();
         }
         #if defined(SWIGPYTHON) || defined(SWIGJAVA)
-        bool __eq__(const Currency& other) {
+        bool operator==(const Currency& other) {
             return (*self) == other;
         }
-        bool __ne__(const Currency& other) {
+        bool operator!=(const Currency& other) {
             return (*self) != other;
+        }
+        hash_t __hash__() {
+            return self->empty() ? 0 : std::hash<std::string>()(self->name());
         }
         #endif
         #if defined(SWIGPYTHON)
@@ -75,20 +78,11 @@ class Currency {
         Money __rmul__(Decimal x) {
             return *self*x;
         }
-        bool __nonzero__() {
-            return !self->empty();
-        }
         bool __bool__() {
             return !self->empty();
         }
         #endif
     }
-    #if defined(SWIGPYTHON)
-    %pythoncode %{
-    def __hash__(self):
-        return hash(self.name())
-    %}
-    #endif
 };
 
 
