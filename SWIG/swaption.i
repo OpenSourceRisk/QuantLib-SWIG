@@ -46,7 +46,9 @@ struct Settlement {
 %shared_ptr(Swaption)
 class Swaption : public Option {
   public:
-    Swaption(const ext::shared_ptr<VanillaSwap>& swap,
+    enum PriceType { Spot, Forward };
+
+    Swaption(const ext::shared_ptr<FixedVsFloatingSwap>& swap,
              const ext::shared_ptr<Exercise>& exercise,
              Settlement::Type type = Settlement::Physical,
              Settlement::Method settlementMethod = Settlement::PhysicalOTC);
@@ -54,9 +56,12 @@ class Swaption : public Option {
     Settlement::Type settlementType() const;       
     Settlement::Method settlementMethod() const;
     VanillaSwap::Type type() const;
+    const ext::shared_ptr<FixedVsFloatingSwap>& underlying() const;
     const ext::shared_ptr<VanillaSwap>& underlyingSwap() const;
     
-    //! implied volatility
+    #if !defined(SWIGJAVA) && !defined(SWIGCSHARP)
+    %feature("kwargs") impliedVolatility;
+    #endif
     Volatility impliedVolatility(
                           Real price,
                           const Handle<YieldTermStructure>& discountCurve,
@@ -66,7 +71,8 @@ class Swaption : public Option {
                           Volatility minVol = 1.0e-7,
                           Volatility maxVol = 4.0,
                           VolatilityType type = ShiftedLognormal,
-                          Real displacement = 0.0) const;
+                          Real displacement = 0.0,
+                          PriceType priceType = Spot) const;
     %extend {
         Real vega() {
             return self->result<Real>("vega");
@@ -78,6 +84,10 @@ class Swaption : public Option {
 
         Real annuity() {
             return self->result<Real>("annuity");
+        }
+
+        Real forwardPrice() {
+            return self->result<Real>("forwardPrice");
         }
     }
 };
@@ -178,22 +188,28 @@ using QuantLib::BachelierSwaptionEngine;
 %shared_ptr(BlackSwaptionEngine)
 class BlackSwaptionEngine : public PricingEngine {
   public:
+    enum CashAnnuityModel { SwapRate, DiscountCurve };
     BlackSwaptionEngine(const Handle<YieldTermStructure> & discountCurve,
                         const Handle<Quote>& vol,
                         const DayCounter& dc = Actual365Fixed(),
-                        Real displacement = 0.0);
+                        Real displacement = 0.0,
+                        CashAnnuityModel model = DiscountCurve);
     BlackSwaptionEngine(const Handle<YieldTermStructure> & discountCurve,
-                        const Handle<SwaptionVolatilityStructure>& v);
+                        const Handle<SwaptionVolatilityStructure>& v,
+                        CashAnnuityModel model = DiscountCurve);
 };
 
 %shared_ptr(BachelierSwaptionEngine)
 class BachelierSwaptionEngine : public PricingEngine {
   public:
+    enum CashAnnuityModel { SwapRate, DiscountCurve };
     BachelierSwaptionEngine(const Handle<YieldTermStructure> & discountCurve,
                             const Handle<Quote>& vol,
-                            const DayCounter& dc = Actual365Fixed());
+                            const DayCounter& dc = Actual365Fixed(),
+                            CashAnnuityModel model = DiscountCurve);
     BachelierSwaptionEngine(const Handle<YieldTermStructure> & discountCurve,
-                            const Handle<SwaptionVolatilityStructure>& v);
+                            const Handle<SwaptionVolatilityStructure>& v,
+                            CashAnnuityModel model = DiscountCurve);
 };
 
 #endif

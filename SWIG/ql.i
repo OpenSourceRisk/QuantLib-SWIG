@@ -89,9 +89,13 @@ GNU autoconf configure script.
 %rename(divide)        operator/;
 %rename(divide)        __div__;
 %rename(getValue)      operator();
-%rename(equals)        __eq__;
-%rename(unEquals)      __ne__;
+%rename(equals)        operator==;
+%rename(unEquals)      operator!=;
+%rename(compareTo)     __cmp__;
+%javamethodmodifiers   __cmp__ "@Override public"
+%rename(hashCode)      __hash__;
 %rename(toString)      __str__;
+%rename(repr)          __repr__;
 #elif defined(SWIGCSHARP)
 %rename(Add)           operator+;
 %rename(Add)           __add__;

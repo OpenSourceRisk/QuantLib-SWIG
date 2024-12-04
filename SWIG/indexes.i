@@ -404,6 +404,7 @@ export_quoted_xibor_instance(Bkbm6M,Bkbm);
 
 export_xibor_instance(Euribor);
 export_quoted_xibor_instance(EuriborSW,Euribor);
+export_quoted_xibor_instance(Euribor1W,Euribor);
 export_quoted_xibor_instance(Euribor2W,Euribor);
 export_quoted_xibor_instance(Euribor3W,Euribor);
 export_quoted_xibor_instance(Euribor1M,Euribor);
@@ -483,6 +484,7 @@ export_overnight_instance(Nzocr);
 export_overnight_instance(Sofr);
 export_overnight_instance(Sonia);
 export_overnight_instance(Swestr);
+export_overnight_instance(Tona);
 
 export_swap_instance(EuriborSwapIsdaFixA);
 export_swap_instance(EuriborSwapIsdaFixB);

@@ -78,6 +78,8 @@ make_safe_interpolation(LogParabolic,LogParabolic);
 make_safe_interpolation(MonotonicParabolic,MonotonicParabolic);
 make_safe_interpolation(MonotonicLogParabolic,MonotonicLogParabolic);
 
+make_safe_interpolation(LagrangeInterpolation,LagrangeInterpolation); 
+
 %define extend_spline(T)
 %extend Safe##T {
     Real derivative(Real x, bool extrapolate = false) {
@@ -202,6 +204,38 @@ class LogMixedLinearCubic : public QuantLib::LogMixedLinearCubic {
         bool monotonic = true)
     : QuantLib::LogMixedLinearCubic(n, behavior, da, monotonic) {}
 };
+
+class ParabolicCubic : public QuantLib::Cubic {
+  public:
+    ParabolicCubic()
+    : QuantLib::Cubic(CubicInterpolation::Parabolic, false,
+                      CubicInterpolation::SecondDerivative, 0.0,
+                      CubicInterpolation::SecondDerivative, 0.0) {}
+};
+
+class MonotonicParabolicCubic : public QuantLib::Cubic {
+  public:
+    MonotonicParabolicCubic()
+    : QuantLib::Cubic(CubicInterpolation::Parabolic, true,
+                      CubicInterpolation::SecondDerivative, 0.0,
+                      CubicInterpolation::SecondDerivative, 0.0) {}
+};
+
+class LogParabolicCubic : public QuantLib::LogCubic {
+  public:
+    LogParabolicCubic()
+    : QuantLib::LogCubic(CubicInterpolation::Parabolic, false,
+                         CubicInterpolation::SecondDerivative, 0.0,
+                         CubicInterpolation::SecondDerivative, 0.0) {}
+};
+
+class MonotonicLogParabolicCubic : public QuantLib::LogCubic {
+  public:
+    MonotonicLogParabolicCubic()
+    : QuantLib::LogCubic(CubicInterpolation::Parabolic, true,
+                         CubicInterpolation::SecondDerivative, 0.0,
+                         CubicInterpolation::SecondDerivative, 0.0) {}
+};
 %}
 
 %nodefaultctor CubicInterpolation;
@@ -242,6 +276,10 @@ struct ConvexMonotone {
                    Real monotonicity = 0.7,
                    bool forcePositive = true);
 };
+struct ParabolicCubic {};
+struct MonotonicParabolicCubic {};
+struct LogParabolicCubic {};
+struct MonotonicLogParabolicCubic {};
 
 struct LogMixedLinearCubic {
     #if !defined(SWIGJAVA) && !defined(SWIGCSHARP)

@@ -222,6 +222,9 @@ struct RateAveraging {
 
 %shared_ptr(OvernightIndexedCoupon)
 class OvernightIndexedCoupon : public FloatingRateCoupon {
+    #if !defined(SWIGJAVA) && !defined(SWIGCSHARP)
+    %feature("kwargs") OvernightIndexedCoupon;
+    #endif
   public:
     OvernightIndexedCoupon(
                 const Date& paymentDate,
@@ -235,11 +238,19 @@ class OvernightIndexedCoupon : public FloatingRateCoupon {
                 const Date& refPeriodEnd = Date(),
                 const DayCounter& dayCounter = DayCounter(),
                 bool telescopicValueDates = false,
-                RateAveraging::Type averagingMethod = RateAveraging::Compound);
+                RateAveraging::Type averagingMethod = RateAveraging::Compound,
+                Natural lookbackDays = Null<Natural>(),
+                Natural lockoutDays = 0,
+                bool applyObservationShift = false);
     const std::vector<Date>& fixingDates() const;
+    const std::vector<Date>& interestDates() const;
     const std::vector<Time>& dt() const;
     const std::vector<Rate>& indexFixings() const;
     const std::vector<Date>& valueDates() const;
+    RateAveraging::Type averagingMethod() const;
+    Natural lockoutDays() const;
+    bool applyObservationShift() const;
+    bool canApplyTelescopicFormula() const;
 };
 
 %inline %{
@@ -296,6 +307,7 @@ class IborCoupon : public FloatingRateCoupon {
                const DayCounter& dayCounter = DayCounter(),
                bool isInArrears = false,
                const Date& exCouponDate = Date());
+    bool hasFixed() const;
     %extend {
         static void createAtParCoupons() {
             IborCoupon::Settings::instance().createAtParCoupons();
@@ -669,7 +681,7 @@ class EquityQuantoCashFlowPricer : public EquityCashFlowPricer {
 Leg _FixedRateLeg(const Schedule& schedule,
                   const DayCounter& dayCount,
                   const std::vector<Real>& nominals,
-                  const std::vector<Rate>& couponRates,
+                  const std::vector<Rate>& couponRates = {},
                   BusinessDayConvention paymentAdjustment = Following,
                   const DayCounter& firstPeriodDayCount = DayCounter(),
                   const Period& exCouponPeriod = Period(),
@@ -677,12 +689,12 @@ Leg _FixedRateLeg(const Schedule& schedule,
                   BusinessDayConvention exCouponConvention = Unadjusted,
                   bool exCouponEndOfMonth = false,
                   const Calendar& paymentCalendar = Calendar(),
-                  const Natural paymentLag = 0,
+                  const Integer paymentLag = 0,
                   Compounding comp = Simple,
-                  Frequency freq = Annual) {
-    return QuantLib::FixedRateLeg(schedule)
+                  Frequency freq = Annual,
+                  const std::vector<InterestRate>& interestRates = {}) {
+    auto maker = QuantLib::FixedRateLeg(schedule)
         .withNotionals(nominals)
-        .withCouponRates(couponRates, dayCount, comp, freq)
         .withPaymentAdjustment(paymentAdjustment)
         .withPaymentCalendar(paymentCalendar.empty() ? schedule.calendar() : paymentCalendar)
         .withPaymentLag(paymentLag)
@@ -691,6 +703,15 @@ Leg _FixedRateLeg(const Schedule& schedule,
                             exCouponCalendar,
                             exCouponConvention,
                             exCouponEndOfMonth);
+    if (!couponRates.empty() && !interestRates.empty()) {
+        QL_FAIL("both couponRates and interestRates provided");
+    } else if (!couponRates.empty()) {
+        return maker.withCouponRates(couponRates, dayCount, comp, freq);
+    } else if (!interestRates.empty()) {
+        return maker.withCouponRates(interestRates);
+    } else {
+        QL_FAIL("no coupon rates provided");
+    }
 }
 %}
 #if !defined(SWIGJAVA) && !defined(SWIGCSHARP)
@@ -700,7 +721,7 @@ Leg _FixedRateLeg(const Schedule& schedule,
 Leg _FixedRateLeg(const Schedule& schedule,
                   const DayCounter& dayCount,
                   const std::vector<Real>& nominals,
-                  const std::vector<Rate>& couponRates,
+                  const std::vector<Rate>& couponRates = {},
                   BusinessDayConvention paymentAdjustment = Following,
                   const DayCounter& firstPeriodDayCount = DayCounter(),
                   const Period& exCouponPeriod = Period(),
@@ -708,9 +729,10 @@ Leg _FixedRateLeg(const Schedule& schedule,
                   BusinessDayConvention exCouponConvention = Unadjusted,
                   bool exCouponEndOfMonth = false,
                   const Calendar& paymentCalendar = Calendar(),
-                  Natural paymentLag = 0,
+                  Integer paymentLag = 0,
                   Compounding compounding = Simple,
-                  Frequency compoundingFrequency = Annual);
+                  Frequency compoundingFrequency = Annual,
+                  const std::vector<InterestRate>& interestRates = {});
 
 %{
 Leg _IborLeg(const std::vector<Real>& nominals,
@@ -729,7 +751,7 @@ Leg _IborLeg(const std::vector<Real>& nominals,
              BusinessDayConvention exCouponConvention = Unadjusted,
              bool exCouponEndOfMonth = false,
              const Calendar& paymentCalendar = Calendar(),
-             const Natural paymentLag = 0,
+             const Integer paymentLag = 0,
              ext::optional<bool> withIndexedCoupons = ext::nullopt) {
     return QuantLib::IborLeg(schedule, index)
         .withNotionals(nominals)
@@ -770,7 +792,7 @@ Leg _IborLeg(const std::vector<Real>& nominals,
              BusinessDayConvention exCouponConvention = Unadjusted,
              bool exCouponEndOfMonth = false,
              const Calendar& paymentCalendar = Calendar(),
-             Natural paymentLag = 0,
+             Integer paymentLag = 0,
              ext::optional<bool> withIndexedCoupons = ext::nullopt);
 
 %{
@@ -784,7 +806,10 @@ Leg _OvernightLeg(const std::vector<Real>& nominals,
                   bool telescopicValueDates = false,
                   RateAveraging::Type averagingMethod = RateAveraging::Compound,
                   const Calendar& paymentCalendar = Calendar(),
-                  const Natural paymentLag = 0) {
+                  const Integer paymentLag = 0,
+                  Natural lookbackDays = Null<Natural>(),
+                  Natural lockoutDays = 0,
+                  bool applyObservationShift = false) {
     return QuantLib::OvernightLeg(schedule, index)
         .withNotionals(nominals)
         .withPaymentDayCounter(paymentDayCounter)
@@ -794,7 +819,10 @@ Leg _OvernightLeg(const std::vector<Real>& nominals,
         .withGearings(gearings)
         .withSpreads(spreads)
         .withTelescopicValueDates(telescopicValueDates)
-        .withAveragingMethod(averagingMethod);
+        .withAveragingMethod(averagingMethod)
+        .withLookbackDays(lookbackDays)
+        .withLockoutDays(lockoutDays)
+        .withObservationShift(applyObservationShift);
 }
 %}
 #if !defined(SWIGJAVA) && !defined(SWIGCSHARP)
@@ -811,7 +839,10 @@ Leg _OvernightLeg(const std::vector<Real>& nominals,
                   bool telescopicValueDates = false,
                   RateAveraging::Type averagingMethod = RateAveraging::Compound,
                   const Calendar& paymentCalendar = Calendar(),
-                  Natural paymentLag = 0);
+                  Integer paymentLag = 0,
+                  Natural lookbackDays = Null<Natural>(),
+                  Natural lockoutDays = 0,
+                  bool applyObservationShift = false);
 
 %{
 Leg _CmsLeg(const std::vector<Real>& nominals,
@@ -958,7 +989,7 @@ Leg _SubPeriodsLeg(const std::vector<Real>& nominals,
                    const DayCounter& paymentDayCounter = DayCounter(),
                    const BusinessDayConvention paymentConvention = Following,
                    const Calendar& paymentCalendar = Calendar(),
-                   Natural paymentLag = 0,
+                   Integer paymentLag = 0,
                    const std::vector<Natural>& fixingDays = std::vector<Natural>(),
                    const std::vector<Real>& gearings = std::vector<Real>(),
                    const std::vector<Spread>& couponSpreads = std::vector<Spread>(),
@@ -995,7 +1026,7 @@ Leg _SubPeriodsLeg(const std::vector<Real>& nominals,
                    const DayCounter& paymentDayCounter = DayCounter(),
                    const BusinessDayConvention paymentConvention = Following,
                    const Calendar& paymentCalendar = Calendar(),
-                   Natural paymentLag = 0,
+                   Integer paymentLag = 0,
                    const std::vector<Natural>& fixingDays = std::vector<Natural>(),
                    const std::vector<Real>& gearings = std::vector<Real>(),
                    const std::vector<Spread>& couponSpreads = std::vector<Spread>(),
@@ -1043,6 +1074,22 @@ class CashFlows {
         nextCashFlowAmount(const Leg& leg,
                            bool includeSettlementDateFlows,
                            Date settlementDate = Date());
+
+    static Time accrualPeriod(const Leg& leg,
+                              bool includeSettlementDateFlows,
+                              Date settlementDate = Date());
+    static Integer accrualDays(const Leg& leg,
+                               bool includeSettlementDateFlows,
+                               Date settlementDate = Date());
+    static Time accruedPeriod(const Leg& leg,
+                              bool includeSettlementDateFlows,
+                              Date settlementDate = Date());
+    static Integer accruedDays(const Leg& leg,
+                               bool includeSettlementDateFlows,
+                               Date settlementDate = Date());
+    static Real accruedAmount(const Leg& leg,
+                              bool includeSettlementDateFlows,
+                              Date settlementDate = Date());
 
     %extend {
 
