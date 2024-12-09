@@ -130,6 +130,7 @@ def build_inflation_term_structure(
     cpi_term_structure = ql.PiecewiseZeroInflation(
         reference_date,
         inflation_index.lastFixingDate(),
+        observation_lag,
         inflation_index.frequency(),
         DAY_COUNTER,
         helpers)
