@@ -321,7 +321,7 @@ class OISRateHelper : public RateHelper {
             const ext::shared_ptr<OvernightIndex>& index,
             const Handle<YieldTermStructure>& discountingCurve = {},
             bool telescopicValueDates = false,
-            Natural paymentLag = 0,
+            Integer paymentLag = 0,
             BusinessDayConvention paymentConvention = Following,
             Frequency paymentFrequency = Annual,
             const Calendar& paymentCalendar = Calendar(),
@@ -330,7 +330,12 @@ class OISRateHelper : public RateHelper {
             Pillar::Choice pillar = Pillar::LastRelevantDate,
             Date customPillarDate = Date(), 
             RateAveraging::Type averagingMethod = RateAveraging::Compound,
-            ext::optional<bool> endOfMonth = ext::nullopt);
+            ext::optional<bool> endOfMonth = ext::nullopt,
+            ext::optional<Frequency> fixedPaymentFrequency = ext::nullopt,
+            const Calendar& fixedCalendar = Calendar(),
+            Natural lookbackDays = Null<Natural>(),
+            Natural lockoutDays = 0,
+            bool applyObservationShift = false);
     ext::shared_ptr<OvernightIndexedSwap> swap();
 };
 
@@ -348,13 +353,17 @@ class DatedOISRateHelper : public RateHelper {
             const Handle<YieldTermStructure>& discountingCurve = {},
             bool telescopicValueDates = false, 
             RateAveraging::Type averagingMethod = RateAveraging::Compound,
-            Natural paymentLag = 0,
+            Integer paymentLag = 0,
             BusinessDayConvention paymentConvention = Following,
             Frequency paymentFrequency = Annual,
             const Calendar& paymentCalendar = Calendar(),
-            const Period& forwardStart = 0 * Days,
             Spread overnightSpread = 0.0,
-            ext::optional<bool> endOfMonth = ext::nullopt);
+            ext::optional<bool> endOfMonth = ext::nullopt,
+            ext::optional<Frequency> fixedPaymentFrequency = ext::nullopt,
+            const Calendar& fixedCalendar = Calendar(),
+            Natural lookbackDays = Null<Natural>(),
+            Natural lockoutDays = 0,
+            bool applyObservationShift = false);
 };
 
 %shared_ptr(FxSwapRateHelper)

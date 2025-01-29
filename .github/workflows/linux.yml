@@ -1,5 +1,10 @@
 name: Linux build
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -7,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - language: python3
+          - language: python
           - language: java
             config: -old
           - language: java
@@ -17,7 +22,7 @@ jobs:
           - language: scala
     container: ghcr.io/lballabio/quantlib-swig-devenv:${{ matrix.language }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Build
       run: |
         ./.ci/${{ matrix.language }}${{ matrix.config }}.build

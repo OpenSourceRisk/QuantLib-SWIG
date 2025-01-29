@@ -67,15 +67,13 @@ const char* __version__;
 %include stl.i
 
 #if defined(JAVA_AUTOCLOSEABLE)
-%typemap(javaimports) SWIGTYPE %{
-import java.lang.AutoCloseable;
-%}
-%typemap(javainterfaces) SWIGTYPE "AutoCloseable";
+#define QL_JAVA_INTERFACES "AutoCloseable, "
+%typemap(javainterfaces) SWIGTYPE "AutoCloseable"
 %extend std::vector {
-    %typemap(javainterfaces) std::vector "AutoCloseable, java.util.RandomAccess";
+    %typemap(javainterfaces) std::vector QL_JAVA_INTERFACES "java.util.RandomAccess"
 };
 %extend std::vector<bool> {
-    %typemap(javainterfaces) std::vector "AutoCloseable, java.util.RandomAccess"
+    %typemap(javainterfaces) std::vector QL_JAVA_INTERFACES "java.util.RandomAccess"
 }
 %typemap(javacode) SWIGTYPE %{
   @Override
@@ -83,6 +81,10 @@ import java.lang.AutoCloseable;
    this.delete();
   }
 %}
+#else
+#if !defined(QL_JAVA_INTERFACES)
+#define QL_JAVA_INTERFACES
+#endif
 #endif
 
 #if !defined(JAVA_FINALIZER)

@@ -55,10 +55,10 @@ class TermStructureTest(unittest.TestCase):
         ql.Settings.instance().evaluationDate = today
         self.settlementDays = 2
         self.dayCounter = ql.Actual360()
-        settlement = self.calendar.advance(today, self.settlementDays, ql.Days)
+        self.settlement = self.calendar.advance(today, self.settlementDays, ql.Days)
         deposits = [
             ql.DepositRateHelper(
-                ql.QuoteHandle(ql.SimpleQuote(rate / 100)),
+                ql.makeQuoteHandle(rate / 100),
                 ql.Period(n, units),
                 self.settlementDays,
                 self.calendar,
@@ -76,7 +76,7 @@ class TermStructureTest(unittest.TestCase):
         ]
         swaps = [
             ql.SwapRateHelper(
-                ql.QuoteHandle(ql.SimpleQuote(rate / 100)),
+                ql.makeQuoteHandle(rate / 100),
                 ql.Period(years, ql.Years),
                 self.calendar,
                 ql.Annual,
@@ -86,9 +86,10 @@ class TermStructureTest(unittest.TestCase):
             )
             for (years, rate) in [(1, 4.54), (5, 4.99), (10, 5.47), (20, 5.89), (30, 5.96)]
         ]
+        self.instruments = deposits + swaps
 
         self.termStructure = ql.PiecewiseFlatForward(
-            settlement, deposits + swaps, self.dayCounter)
+            self.settlement, self.instruments, self.dayCounter)
 
     def tearDown(self):
         ql.Settings.instance().evaluationDate = ql.Date()
@@ -150,7 +151,7 @@ class TermStructureTest(unittest.TestCase):
         freq = ql.Semiannual
         flatTs = ql.FlatForward(
             settlement,
-            ql.QuoteHandle(ql.SimpleQuote(0.0085)),
+            ql.makeQuoteHandle(0.0085),
             self.dayCounter)
         firstHandle = ql.YieldTermStructureHandle(flatTs)
         secondHandle = ql.YieldTermStructureHandle(self.termStructure)
@@ -178,8 +179,8 @@ class TermStructureTest(unittest.TestCase):
     def testUltimateForwardTermStructure(self):
         """Testing ultimate forward term structure"""
         settlement = self.termStructure.referenceDate()
-        ufr = ql.QuoteHandle(ql.SimpleQuote(0.06))
-        llfr = ql.QuoteHandle(ql.SimpleQuote(0.05))
+        ufr = ql.makeQuoteHandle(0.06)
+        llfr = ql.makeQuoteHandle(0.05)
         fsp = ql.Period(20, ql.Years)
         alpha = 0.05
         baseCrvHandle = ql.YieldTermStructureHandle(self.termStructure)
@@ -207,6 +208,83 @@ class TermStructureTest(unittest.TestCase):
                 delta=1.0e-12,
                 msg=failMsg)
 
+    def testTermStructureInterpolationSchemes(self):
+        """Testing different interpolation schemes and their consistency"""
+        args = [self.settlement, self.instruments, self.dayCounter]
+        mapping = [
+            [ql.PiecewiseParabolicCubicZero, 
+             ql.ParabolicCubicZeroCurve, 'Parabolic Zero'],
+            [ql.PiecewiseMonotonicParabolicCubicZero, 
+             ql.MonotonicParabolicCubicZeroCurve, 'Monotone Parabolic Zero'],
+            [ql.PiecewiseLogParabolicCubicDiscount, 
+             ql.LogParabolicCubicDiscountCurve, 'Log Parabolic Discount'],
+            [ql.PiecewiseMonotonicLogParabolicCubicDiscount, 
+             ql.MonotonicLogParabolicCubicDiscountCurve, 'Monotone Log Parabolic Discount'],
+        ]
+
+        for bootstrap, interp, name in mapping:
+            bootstrap_crv = bootstrap(*args)
+            dates, nodes = zip(*bootstrap_crv.nodes())
+            equivalent_crv = interp(dates, nodes, self.dayCounter)
+
+            for d in dates:
+                expected = equivalent_crv.zeroRate(
+                    d, self.dayCounter, ql.Continuous, ql.NoFrequency).rate()
+                actual = bootstrap_crv.zeroRate(
+                    d, self.dayCounter, ql.Continuous, ql.NoFrequency).rate()
+                
+                failMsg = """ Interpolation check failed for:
+                            interpolation: {interpolation}
+                            expected zero rate: {expected}
+                            actual zero rate: {actual}
+                      """.format(interpolation=name,
+                                 expected=expected,
+                                 actual=actual)
+                self.assertAlmostEqual(
+                    first=expected,
+                    second=actual,
+                    delta=1.0e-12,
+                    msg=failMsg)
+
+    def testInterpolatedPiecewiseZeroSpreadedTermStructure(self):
+        """Testing different interpolation schemes for zero spreaded term structure"""
+        h = ql.RelinkableYieldTermStructureHandle()
+        h.linkTo(self.termStructure)
+        spreads = [(1, 0.005), (2, 0.008), (3, 0.0103), (4, 0.0145), (5, 0.025)]
+        dates, quotes = zip(*[(h.referenceDate() + ql.Period(t, ql.Years),
+                               ql.QuoteHandle(ql.SimpleQuote(s)))
+                              for t, s in spreads])
+        args = [h, quotes, dates]
+        constructors = [ql.SpreadedLinearZeroInterpolatedTermStructure,
+                        ql.SpreadedBackwardFlatZeroInterpolatedTermStructure,
+                        ql.SpreadedCubicZeroInterpolatedTermStructure,
+                        ql.SpreadedKrugerZeroInterpolatedTermStructure,
+                        ql.SpreadedSplineCubicZeroInterpolatedTermStructure]
+        for constructor in constructors:
+            spreadedTs = constructor(*args)
+            for d, r in zip(dates, quotes):
+                expected = r.value()
+
+                zeroFromSpreadTS = spreadedTs.zeroRate(
+                    d, self.dayCounter, ql.Continuous, ql.NoFrequency).rate()
+                zeroFromBaseTs = h.zeroRate(
+                    d, self.dayCounter, ql.Continuous, ql.NoFrequency).rate()
+                actual = zeroFromSpreadTS - zeroFromBaseTs
+
+                failMsg = """ Interpolated piecewise zero spreaded term structure 
+                              zero rate replication failed for:
+                            maturity: {maturity}
+                            expected zero rate: {expected}
+                            actual zero rate: {actual}
+                      """.format(maturity=d,
+                                 expected=expected,
+                                 actual=actual)
+                self.assertAlmostEqual(
+                    first=expected,
+                    second=actual,
+                    delta=1.0e-12,
+                    msg=failMsg)
+
     def testQuantoTermStructure(self):
         """Testing quanto term structure"""
         today = ql.Date.todaysDate()
@@ -214,21 +292,21 @@ class TermStructureTest(unittest.TestCase):
         dividend_ts = ql.YieldTermStructureHandle(
             ql.FlatForward(
                 today,
-                ql.QuoteHandle(ql.SimpleQuote(0.055)),
+                ql.makeQuoteHandle(0.055),
                 self.dayCounter
             )
         )
         r_domestic_ts = ql.YieldTermStructureHandle(
             ql.FlatForward(
                 today,
-                ql.QuoteHandle(ql.SimpleQuote(-0.01)),
+                ql.makeQuoteHandle(-0.01),
                 self.dayCounter
             )
         )
         r_foreign_ts = ql.YieldTermStructureHandle(
             ql.FlatForward(
                 today,
-                ql.QuoteHandle(ql.SimpleQuote(0.02)),
+                ql.makeQuoteHandle(0.02),
                 self.dayCounter
             )
         )
@@ -236,7 +314,7 @@ class TermStructureTest(unittest.TestCase):
             ql.BlackConstantVol(
                 today,
                 self.calendar,
-                ql.QuoteHandle(ql.SimpleQuote(0.25)),
+                ql.makeQuoteHandle(0.25),
                 self.dayCounter
             )
         )
@@ -244,12 +322,12 @@ class TermStructureTest(unittest.TestCase):
             ql.BlackConstantVol(
                 today,
                 self.calendar,
-                ql.QuoteHandle(ql.SimpleQuote(0.05)),
+                ql.makeQuoteHandle(0.05),
                 self.dayCounter
             )
         )
-        rho = ql.QuoteHandle(ql.SimpleQuote(0.3))
-        s_0 = ql.QuoteHandle(ql.SimpleQuote(100.0))
+        rho = ql.makeQuoteHandle(0.3)
+        s_0 = ql.makeQuoteHandle(100.0)
 
         exercise = ql.EuropeanExercise(self.calendar.advance(today, 6, ql.Months))
         payoff = ql.PlainVanillaPayoff(ql.Option.Call, 95.0)
@@ -317,6 +395,7 @@ class TermStructureTest(unittest.TestCase):
         ql.Settings.instance().evaluationDate = evaluationDate
 
         self.termStructure.unfreeze()
+
 
 if __name__ == "__main__":
     print("testing QuantLib", ql.__version__)

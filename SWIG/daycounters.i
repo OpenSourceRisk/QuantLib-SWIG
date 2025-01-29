@@ -42,25 +42,23 @@ class DayCounter {
                       const Date& startRef = Date(),
                       const Date& endRef = Date()) const;
     std::string name() const;
+    bool empty();
     %extend {
         std::string __str__() {
             return self->name()+" day counter";
         }
         #if defined(SWIGPYTHON) || defined(SWIGJAVA)
-        bool __eq__(const DayCounter& other) {
+        bool operator==(const DayCounter& other) {
             return (*self) == other;
         }
-        bool __ne__(const DayCounter& other) {
+        bool operator!=(const DayCounter& other) {
             return (*self) != other;
+        }
+        hash_t __hash__() {
+            return self->empty() ? 0 : std::hash<std::string>()(self->name());
         }
         #endif
     }
-    #if defined(SWIGPYTHON)
-    %pythoncode %{
-    def __hash__(self):
-        return hash(self.name())
-    %}
-    #endif
 };
 
 namespace QuantLib {
@@ -103,5 +101,11 @@ namespace QuantLib {
 
 }
 
+%{
+using QuantLib::yearFractionToDate;
+%}
+
+Date yearFractionToDate(
+    const DayCounter& dayCounter, const Date& referenceDate, Time t);
 
 #endif

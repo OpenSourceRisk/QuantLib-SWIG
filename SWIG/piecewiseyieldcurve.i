@@ -43,21 +43,36 @@ struct ForwardRate {};
 using QuantLib::PiecewiseYieldCurve;
 %}
 
-/* We have to resort to a macro, because the R implementation of shared_ptr
-   can't take class templates with two or more template arguments. */
-
 %{
 struct _IterativeBootstrap {
     double accuracy, minValue, maxValue;
+    Size maxAttempts;
+    Real maxFactor, minFactor;
+    bool dontThrow;
+    Size dontThrowSteps, maxEvaluations;
     _IterativeBootstrap(double accuracy = Null<double>(),
                         double minValue = Null<double>(),
-                        double maxValue = Null<double>())
-    : accuracy(accuracy), minValue(minValue), maxValue(maxValue) {}
+                        double maxValue = Null<double>(),
+                        Size maxAttempts = 1,
+                        Real maxFactor = 2.0,
+                        Real minFactor = 2.0,
+                        bool dontThrow = false,
+                        Size dontThrowSteps = 10,
+                        Size maxEvaluations = 100)
+    : accuracy(accuracy), minValue(minValue), maxValue(maxValue),
+      maxAttempts(maxAttempts), maxFactor(maxFactor), minFactor(minFactor),
+      dontThrow(dontThrow), dontThrowSteps(dontThrowSteps),
+      maxEvaluations(maxEvaluations) {}
 };
 
 template <class PiecewiseYieldCurve>
 inline typename PiecewiseYieldCurve::bootstrap_type make_bootstrap(const _IterativeBootstrap& b) {
-    return {b.accuracy, b.minValue, b.maxValue};
+    return {
+        b.accuracy, b.minValue, b.maxValue,
+        b.maxAttempts, b.maxFactor, b.minFactor,
+        b.dontThrow, b.dontThrowSteps,
+        b.maxEvaluations
+    };
 }
 %}
 
@@ -68,8 +83,17 @@ struct _IterativeBootstrap {
     #endif
     _IterativeBootstrap(doubleOrNull accuracy = Null<double>(),
                         doubleOrNull minValue = Null<double>(),
-                        doubleOrNull maxValue = Null<double>());
+                        doubleOrNull maxValue = Null<double>(),
+                        Size maxAttempts = 1,
+                        Real maxFactor = 2.0,
+                        Real minFactor = 2.0,
+                        bool dontThrow = false,
+                        Size dontThrowSteps = 10,
+                        Size maxEvaluations = 100);
 };
+
+/* We have to resort to a macro, because the R implementation of shared_ptr
+   can't take class templates with two or more template arguments. */
 
 %define export_piecewise_curve(Name,Traits,Interpolator)
 
@@ -141,10 +165,15 @@ export_piecewise_curve(PiecewiseLogCubicDiscount,Discount,MonotonicLogCubic);
 export_piecewise_curve(PiecewiseSplineCubicDiscount,Discount,SplineCubic);
 export_piecewise_curve(PiecewiseKrugerZero,ZeroYield,Kruger);
 export_piecewise_curve(PiecewiseKrugerLogDiscount,Discount,KrugerLog);
+export_piecewise_curve(PiecewiseConvexMonotoneForward,ForwardRate,ConvexMonotone);
 export_piecewise_curve(PiecewiseConvexMonotoneZero,ZeroYield,ConvexMonotone);
 export_piecewise_curve(PiecewiseNaturalCubicZero,ZeroYield,SplineCubic);
 export_piecewise_curve(PiecewiseNaturalLogCubicDiscount,Discount,SplineLogCubic);
 export_piecewise_curve(PiecewiseLogMixedLinearCubicDiscount,Discount,LogMixedLinearCubic);
+export_piecewise_curve(PiecewiseParabolicCubicZero,ZeroYield,ParabolicCubic);
+export_piecewise_curve(PiecewiseMonotonicParabolicCubicZero,ZeroYield,MonotonicParabolicCubic);
+export_piecewise_curve(PiecewiseLogParabolicCubicDiscount,Discount,LogParabolicCubic);
+export_piecewise_curve(PiecewiseMonotonicLogParabolicCubicDiscount,Discount,MonotonicLogParabolicCubic);
 
 
 // global boostrapper

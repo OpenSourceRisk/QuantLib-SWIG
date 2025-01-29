@@ -4,6 +4,7 @@
  Copyright (C) 2000, 2001, 2002, 2003 RiskMap srl
  Copyright (C) 2016 Gouthaman Balaraman
  Copyright (C) 2019 Matthias Lungwitz
+ Copyright (C) 2024 Ralf Konrad Eckel
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -30,12 +31,14 @@ using QuantLib::Sample;
 using QuantLib::LecuyerUniformRng;
 using QuantLib::KnuthUniformRng;
 using QuantLib::MersenneTwisterUniformRng;
+using QuantLib::Xoshiro256StarStarUniformRng;
 
 typedef QuantLib::PseudoRandom::urng_type UniformRandomGenerator;
 
 using QuantLib::CLGaussianRng;
 using QuantLib::BoxMullerGaussianRng;
 using QuantLib::InverseCumulativeRng;
+using QuantLib::ZigguratGaussianRng;
 
 typedef QuantLib::PseudoRandom::rng_type GaussianRandomGenerator;
 
@@ -47,6 +50,8 @@ using QuantLib::SobolBrownianGenerator;
 using QuantLib::HaltonRsg;
 using QuantLib::SobolRsg;
 using QuantLib::SobolBrownianBridgeRsg;
+using QuantLib::Burley2020SobolRsg;
+using QuantLib::Burley2020SobolBrownianBridgeRsg;
 
 typedef QuantLib::LowDiscrepancy::ursg_type
     UniformLowDiscrepancySequenceGenerator;
@@ -97,6 +102,12 @@ class MersenneTwisterUniformRng {
     Sample<Real> next() const;
 };
 
+class Xoshiro256StarStarUniformRng {
+  public:
+    Xoshiro256StarStarUniformRng(BigInteger seed = 0);
+    Sample<Real> next() const;
+};
+
 class UniformRandomGenerator {
   public:
     UniformRandomGenerator(BigInteger seed=0);
@@ -121,8 +132,8 @@ template<class RNG> class CLGaussianRng {
 
 %template(CentralLimitLecuyerGaussianRng) CLGaussianRng<LecuyerUniformRng>;
 %template(CentralLimitKnuthGaussianRng)   CLGaussianRng<KnuthUniformRng>;
-%template(CentralLimitMersenneTwisterGaussianRng)
-    CLGaussianRng<MersenneTwisterUniformRng>;
+%template(CentralLimitMersenneTwisterGaussianRng) CLGaussianRng<MersenneTwisterUniformRng>;
+%template(CentralLimitXoshiro256StarStarGaussianRng) CLGaussianRng<Xoshiro256StarStarUniformRng>;
 
 template<class RNG> class BoxMullerGaussianRng {
   public:
@@ -132,8 +143,8 @@ template<class RNG> class BoxMullerGaussianRng {
 
 %template(BoxMullerLecuyerGaussianRng) BoxMullerGaussianRng<LecuyerUniformRng>;
 %template(BoxMullerKnuthGaussianRng)   BoxMullerGaussianRng<KnuthUniformRng>;
-%template(BoxMullerMersenneTwisterGaussianRng)
-    BoxMullerGaussianRng<MersenneTwisterUniformRng>;
+%template(BoxMullerMersenneTwisterGaussianRng) BoxMullerGaussianRng<MersenneTwisterUniformRng>;
+%template(BoxMullerXoshiro256StarStarGaussianRng) BoxMullerGaussianRng<Xoshiro256StarStarUniformRng>;
 
 template<class RNG, class F> class InverseCumulativeRng {
   public:
@@ -146,8 +157,9 @@ template<class RNG, class F> class InverseCumulativeRng {
 %template(MoroInvCumulativeKnuthGaussianRng)
     InverseCumulativeRng<KnuthUniformRng,MoroInverseCumulativeNormal>;
 %template(MoroInvCumulativeMersenneTwisterGaussianRng)
-    InverseCumulativeRng<MersenneTwisterUniformRng,
-                         MoroInverseCumulativeNormal>;
+    InverseCumulativeRng<MersenneTwisterUniformRng,MoroInverseCumulativeNormal>;
+%template(MoroInvCumulativeXoshiro256StarStarGaussianRng)
+    InverseCumulativeRng<Xoshiro256StarStarUniformRng,MoroInverseCumulativeNormal>;
 
 %template(InvCumulativeLecuyerGaussianRng)
     InverseCumulativeRng<LecuyerUniformRng,InverseCumulativeNormal>;
@@ -155,6 +167,17 @@ template<class RNG, class F> class InverseCumulativeRng {
     InverseCumulativeRng<KnuthUniformRng,InverseCumulativeNormal>;
 %template(InvCumulativeMersenneTwisterGaussianRng)
     InverseCumulativeRng<MersenneTwisterUniformRng,InverseCumulativeNormal>;
+%template(InvCumulativeXoshiro256StarStarGaussianRng)
+    InverseCumulativeRng<Xoshiro256StarStarUniformRng,InverseCumulativeNormal>;
+
+template<class RNG> class ZigguratGaussianRng {
+public:
+  ZigguratGaussianRng(const RNG& rng);
+  Sample<Real> next() const;
+};
+
+%template(ZigguratXoshiro256StarStarGaussianRng)
+        ZigguratGaussianRng<Xoshiro256StarStarUniformRng>;
 
 class GaussianRandomGenerator {
   public:
@@ -200,6 +223,22 @@ class SobolRsg {
     }
 };
 
+class Burley2020SobolRsg {
+  public:
+    Burley2020SobolRsg(Size dimensionality,
+                       BigInteger seed = 42,
+                       SobolRsg::DirectionIntegers directionIntegers = QuantLib::SobolRsg::Jaeckel,
+                       BigInteger scrambleSeed = 43);
+    const Sample<std::vector<Real> >& nextSequence() const;
+    const Sample<std::vector<Real> >& lastSequence() const;
+    Size dimension() const;
+    %extend{
+      std::vector<unsigned int> nextInt32Sequence(){
+          return to_vector<unsigned int>($self->nextInt32Sequence());
+      }
+    }
+};
+
 
 class SobolBrownianBridgeRsg {
   public:
@@ -209,12 +248,21 @@ class SobolBrownianBridgeRsg {
     Size dimension() const;
 };
 
+class Burley2020SobolBrownianBridgeRsg {
+  public:
+    Burley2020SobolBrownianBridgeRsg(Size factors, Size steps);
+    const Sample<std::vector<Real> >&  nextSequence() const;
+    const Sample<std::vector<Real> >&  lastSequence() const;
+    Size dimension() const;
+};
+
+
 template<class RNG> class RandomSequenceGenerator {
   public:
     RandomSequenceGenerator(Size dimensionality,
                             const RNG& rng);
     RandomSequenceGenerator(Size dimensionality,
-                                BigNatural seed = 0);
+                            BigNatural seed = 0);
     const Sample<std::vector<Real> >& nextSequence() const;
     Size dimension() const;
 };
@@ -225,6 +273,8 @@ template<class RNG> class RandomSequenceGenerator {
     RandomSequenceGenerator<KnuthUniformRng>;
 %template(MersenneTwisterUniformRsg)
     RandomSequenceGenerator<MersenneTwisterUniformRng>;
+%template(Xoshiro256StarStarUniformRsg)
+    RandomSequenceGenerator<Xoshiro256StarStarUniformRng>;
 
 class UniformRandomSequenceGenerator {
   public:
@@ -266,10 +316,15 @@ class InverseCumulativeRsg {
 %template(MoroInvCumulativeMersenneTwisterGaussianRsg)
     InverseCumulativeRsg<RandomSequenceGenerator<MersenneTwisterUniformRng>,
                          MoroInverseCumulativeNormal>;
+%template(MoroInvCumulativeXoshiro256StarStarGaussianRsg)
+    InverseCumulativeRsg<RandomSequenceGenerator<Xoshiro256StarStarUniformRng>,
+                         MoroInverseCumulativeNormal>;
 %template(MoroInvCumulativeHaltonGaussianRsg)
     InverseCumulativeRsg<HaltonRsg,MoroInverseCumulativeNormal>;
 %template(MoroInvCumulativeSobolGaussianRsg)
     InverseCumulativeRsg<SobolRsg,MoroInverseCumulativeNormal>;
+%template(MoroInvCumulativeBurley2020SobolGaussianRsg)
+    InverseCumulativeRsg<Burley2020SobolRsg,MoroInverseCumulativeNormal>;
 
 %template(InvCumulativeLecuyerGaussianRsg)
     InverseCumulativeRsg<RandomSequenceGenerator<LecuyerUniformRng>,
@@ -280,11 +335,29 @@ class InverseCumulativeRsg {
 %template(InvCumulativeMersenneTwisterGaussianRsg)
     InverseCumulativeRsg<RandomSequenceGenerator<MersenneTwisterUniformRng>,
                          InverseCumulativeNormal>;
+%template(InvCumulativeXoshiro256StarStarGaussianRsg)
+    InverseCumulativeRsg<RandomSequenceGenerator<Xoshiro256StarStarUniformRng>,
+                         InverseCumulativeNormal>;
 %template(InvCumulativeHaltonGaussianRsg)
     InverseCumulativeRsg<HaltonRsg,InverseCumulativeNormal>;
 %template(InvCumulativeSobolGaussianRsg)
     InverseCumulativeRsg<SobolRsg,InverseCumulativeNormal>;
-    
+%template(InvCumulativeBurley2020SobolGaussianRsg)
+    InverseCumulativeRsg<Burley2020SobolRsg,InverseCumulativeNormal>;
+
+%{
+typedef RandomSequenceGenerator<ZigguratGaussianRng<Xoshiro256StarStarUniformRng>> ZigguratXoshiro256StarStarGaussianRsg;
+%}
+
+class ZigguratXoshiro256StarStarGaussianRsg {
+  public:
+    ZigguratXoshiro256StarStarGaussianRsg(Size dimensionality,
+                                          const ZigguratGaussianRng<Xoshiro256StarStarUniformRng>& rng);
+    const Sample<std::vector<Real> >& nextSequence() const;
+    Size dimension() const;
+};
+
+
 class GaussianRandomSequenceGenerator {
   public:
     GaussianRandomSequenceGenerator(

@@ -2,6 +2,7 @@
  Copyright (C) 2010 Joseph Wang
  Copyright (C) 2010, 2011, 2014 StatPro Italia srl
  Copyright (C) 2018, 2019, 2020 Matthias Lungwitz
+ Copyright (C) 2024 Skandinaviska Enskilda Banken AB (publ)
  
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -75,8 +76,8 @@ class InflationTermStructure : public TermStructure {
     virtual Frequency frequency() const;
     virtual Rate baseRate() const;
     virtual Date baseDate() const;
-    void setSeasonality(const ext::shared_ptr<Seasonality>& seasonality =
-                                            ext::shared_ptr<Seasonality>());
+    bool hasExplicitBaseDate() const;
+    void setSeasonality(const ext::shared_ptr<Seasonality>& seasonality = {});
     ext::shared_ptr<Seasonality> seasonality() const;
     bool hasSeasonality() const;
 };
@@ -119,14 +120,13 @@ class ZeroInflationTermStructure : public InflationTermStructure {
 
 // inflation indexes
 
-%fragment("zeroinflationindex", "header") {
+%{
 using QuantLib::Region;
 using QuantLib::CustomRegion;
 using QuantLib::InflationIndex;
 using QuantLib::ZeroInflationIndex;
 using QuantLib::YoYInflationIndex;
-}
-%fragment("zeroinflationindex");
+%}
 
 class Region {
   public:
@@ -150,7 +150,6 @@ class InflationIndex : public Index {
     std::string familyName() const;
     Region region() const;
     bool revised() const;
-    bool interpolated() const;
     Frequency frequency() const;
     Period availabilityLag() const;
     Currency currency() const;
@@ -159,23 +158,16 @@ class InflationIndex : public Index {
 %shared_ptr(ZeroInflationIndex)
 class ZeroInflationIndex : public InflationIndex {
   public:
-      ZeroInflationIndex(const std::string& familyName,
-                         const Region& region,
-                         bool revised,
-                         Frequency frequency,
-                         const Period& availabilityLag,
-                         const Currency& currency,
-                         const Handle<ZeroInflationTermStructure>& h = {});
-      ZeroInflationIndex(const std::string& familyName,
-                         const Region& region,
-                         bool revised,
-                         bool interpolated,
-                         Frequency frequency,
-                         const Period& availabilityLag,
-                         const Currency& currency,
-                         const Handle<ZeroInflationTermStructure>& h = {});
-      Handle<ZeroInflationTermStructure> zeroInflationTermStructure() const;
-      ext::shared_ptr<ZeroInflationIndex> clone(const Handle<ZeroInflationTermStructure>& h) const;
+    ZeroInflationIndex(const std::string& familyName,
+                       const Region& region,
+                       bool revised,
+                       Frequency frequency,
+                       const Period& availabilityLag,
+                       const Currency& currency,
+                       const Handle<ZeroInflationTermStructure>& h = {});
+    Date lastFixingDate() const;
+    Handle<ZeroInflationTermStructure> zeroInflationTermStructure() const;
+    ext::shared_ptr<ZeroInflationIndex> clone(const Handle<ZeroInflationTermStructure>& h) const;
 };
 
 %inline %{
@@ -215,6 +207,7 @@ class YoYInflationIndex : public InflationIndex {
                       const Currency& currency,
                       const Handle<YoYInflationTermStructure>& ts = {});
     bool ratio() const;
+    bool interpolated() const;
     ext::shared_ptr<ZeroInflationIndex> underlyingIndex() const;
     Handle<YoYInflationTermStructure> yoyInflationTermStructure() const;
     ext::shared_ptr<YoYInflationIndex> clone(const Handle<YoYInflationTermStructure>& h) const;
@@ -228,16 +221,13 @@ using QuantLib::Name;
 class Name : public ZeroInflationIndex {
   public:
     Name(const Handle<ZeroInflationTermStructure>& h = {});
-    Name(bool interpolated,
-         const Handle<ZeroInflationTermStructure>& h = {});
 };
 %enddef
 
 %define export_yii_instance(Name)
-%fragment("Name","header") {
+%{
 using QuantLib::Name;
-}
-%fragment("Name");
+%}
 %shared_ptr(Name)
 class Name : public YoYInflationIndex {
   public:
@@ -283,10 +273,6 @@ class AUCPI : public ZeroInflationIndex {
   public:
     AUCPI(Frequency frequency,
           bool revised,
-          const Handle<ZeroInflationTermStructure>& h = {});
-    AUCPI(Frequency frequency,
-          bool revised,
-          bool interpolated,
           const Handle<ZeroInflationTermStructure>& h = {});
 };
 
@@ -641,6 +627,17 @@ class PiecewiseZeroInflationCurve : public ZeroInflationTermStructure {
   public:
     PiecewiseZeroInflationCurve(
               const Date& referenceDate,
+              Date baseDate,
+              const Period& lag,
+              Frequency frequency,
+              const DayCounter& dayCounter,
+              const std::vector<ext::shared_ptr<BootstrapHelper<ZeroInflationTermStructure> > >& instruments,
+              const ext::shared_ptr<Seasonality>& seasonality = {},
+              Real accuracy = 1.0e-12,
+              const Interpolator& i = Interpolator());
+
+    PiecewiseZeroInflationCurve(
+              const Date& referenceDate,
               const Calendar& calendar,
               const DayCounter& dayCounter,
               const Period& lag,
@@ -664,9 +661,22 @@ class PiecewiseZeroInflationCurve : public ZeroInflationTermStructure {
 template <class Interpolator>
 class PiecewiseYoYInflationCurve : public YoYInflationTermStructure {
     #if !defined(SWIGJAVA) && !defined(SWIGCSHARP)
-    %feature("kwargs") PiecewiseYoYInflationCurve;
+    // %feature("kwargs") PiecewiseYoYInflationCurve;
     #endif
   public:
+    PiecewiseYoYInflationCurve(
+              const Date& referenceDate,
+              Date baseDate,
+              Rate baseYoYRate,
+              const Period& lag,
+              Frequency frequency,
+              bool indexIsInterpolated,
+              const DayCounter& dayCounter,
+              const std::vector<ext::shared_ptr<BootstrapHelper<YoYInflationTermStructure> > >& instruments,
+              const ext::shared_ptr<Seasonality>& seasonality = {},
+              Real accuracy = 1.0e-12,
+              const Interpolator& i = Interpolator());
+
     PiecewiseYoYInflationCurve(
               const Date& referenceDate,
               const Calendar& calendar,
@@ -1024,6 +1034,15 @@ class InterpolatedZeroInflationCurve : public ZeroInflationTermStructure {
     //%feature("kwargs") InterpolatedZeroInflationCurve;
   public:
     InterpolatedZeroInflationCurve(const Date& referenceDate,
+                                   const std::vector<Date>& dates,
+                                   const std::vector<Rate>& rates,
+                                   const Period& lag,
+                                   Frequency frequency,
+                                   const DayCounter& dayCounter,
+                                   const ext::shared_ptr<Seasonality>& seasonality = {},
+                                   const Interpolator &interpolator = Interpolator());
+
+    InterpolatedZeroInflationCurve(const Date& referenceDate,
                                    const Calendar& calendar,
                                    const DayCounter& dayCounter,
                                    const Period& lag,
@@ -1042,8 +1061,18 @@ class InterpolatedZeroInflationCurve : public ZeroInflationTermStructure {
 
 template <class Interpolator>
 class InterpolatedYoYInflationCurve : public YoYInflationTermStructure {
-    %feature("kwargs") InterpolatedYoYInflationCurve;
+    // %feature("kwargs") InterpolatedYoYInflationCurve;
   public:
+    InterpolatedYoYInflationCurve(const Date& referenceDate,
+                                  const std::vector<Date>& dates,
+                                  const std::vector<Rate>& rates,
+                                  const Period& lag,
+                                  Frequency frequency,
+                                  bool indexIsInterpolated,
+                                  const DayCounter& dayCounter,
+                                  const ext::shared_ptr<Seasonality>& seasonality = {},
+                                  const Interpolator& interpolator = Interpolator());
+
     InterpolatedYoYInflationCurve(const Date& referenceDate,
                                    const Calendar& calendar,
                                    const DayCounter& dayCounter,
@@ -1072,7 +1101,7 @@ using QuantLib::InterpolatedYoYCapFloorTermPriceSurface;
 %}
 
 %shared_ptr(YoYCapFloorTermPriceSurface)
-class YoYCapFloorTermPriceSurface : public InflationTermStructure {
+class YoYCapFloorTermPriceSurface : public TermStructure {
   private:
     YoYCapFloorTermPriceSurface();
   public:
@@ -1081,6 +1110,8 @@ class YoYCapFloorTermPriceSurface : public InflationTermStructure {
     virtual ext::shared_ptr<YoYInflationTermStructure> YoYTS() const;
     ext::shared_ptr<YoYInflationIndex> yoyIndex();
     virtual BusinessDayConvention businessDayConvention() const;
+    virtual Period observationLag() const;
+    virtual Frequency frequency() const;
     virtual Natural fixingDays() const;
     virtual Real price(const Date& d, Rate k);
     virtual Real capPrice(const Date& d, Rate k);
@@ -1090,7 +1121,7 @@ class YoYCapFloorTermPriceSurface : public InflationTermStructure {
     virtual Rate atmYoYRate(const Date &d,
                             const Period &obsLag = Period(-1,Days),
                             bool extrapolate = true);
-
+    virtual Date baseDate() const;
     virtual Real price(const Period& d, Rate k) const;
     virtual Real capPrice(const Period& d, Rate k) const;
     virtual Real floorPrice(const Period& d, Rate k) const;
