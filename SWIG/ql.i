@@ -30,8 +30,8 @@
 %{
 #include <ql/quantlib.hpp>
 
-#if QL_HEX_VERSION < 0x01290000
-    #error using an old version of QuantLib, please update
+#if QL_HEX_VERSION < 0x01370000
+    #error at least QuantLib 1.37 required, please update
 #endif
 
 #if defined (SWIGJAVA) || defined (SWIGCSHARP) 
@@ -174,7 +174,6 @@ QL_DEPRECATED_DISABLE_WARNING
 %include randomnumbers.i
 %include ratehelpers.i
 %include rounding.i
-%include sampledcurve.i
 %include scheduler.i
 %include settings.i
 %include shortratemodels.i

@@ -1,34 +1,35 @@
-Main changes for QuantLib-SWIG 1.35
+Main changes for QuantLib-SWIG 1.37
 ===================================
 
 More details on the changes are available in ChangeLog.txt and at
-<https://github.com/lballabio/QuantLib-SWIG/milestone/28?closed=1>.
+<https://github.com/lballabio/QuantLib-SWIG/milestone/30?closed=1>.
 
-- Removed deprecated classes `DividendVanillaOption` and
-  `DividendBarrierOption`.
-  
-- Removed deprecated constructor of `AnalyticDividendEuropeanEngine`
-  taking only a process and no dividends.
+- **Removed** the deprecated `SampledCurve` and `FixedRateBondForward`
+  classes no longer available in the underlying C++ library;
 
-- Exported missing `CashAnnuityModel` parameter for Black and
-  Bachelier swaption engines (@lballabio).
+- **Removed** the deprecated overload for `yoyInflationLeg`;
 
-- Exported Ziggurat Gaussian RNG; thanks to Ralf Konrad Eckel
-  (@ralfkonrad).
+- Exported a number of new engines for basket and spread options;
+  thanks to Klaus Spanderen (@klausspanderen).
 
-- Exported a few missing `CashFlows` methods (@lballabio); thanks to
-  GitHub user @heiieh for the heads-up.
+- Exported Choi engine for Asian options; thanks to Klaus Spanderen
+  (@klausspanderen).
 
-- Exported new `IborCoupon::hasFixed` method (@lballabio).
+- Exported new parameters and methods for `SwapRateHelper` and
+  `OISRateHelper`; thanks to Eugene Toder (@eltoder) and Sotirios
+  Papathanasopoulos (@sophistis42).
 
-- Exported new `FittedBondDiscountCurve::resetGuess` method (@lballabio).
+- Exported `MultipleResetsCoupon` and `MultipleResetsLeg` classes (@lballabio).
 
-- `EuriborSW` renamed to `Euribor1W`, old name still available for a
-  while (@lballabio).
+- Exported new constructors for `FittedBondDiscountCurve` (@lballabio).
 
-- Exported lookback days, lockout days and observation shift for
-  overnight-indexed coupons, swaps and helpers (@lballabio).
+- Exported additional arguments for `AssetSwap` constructor (@lballabio).
 
-- Exported `SimpleQuote::reset` method; thanks to Eugene Toder
-  (@eltoder).
+- Exported Wellington and Auckland variants for New Zealand calendar (@lballabio).
+
+- Exported new constructors for YoY inflation curves (@lballabio).
+
+- Exported KOFR index (@lballabio).
+
+- Exported range-accrual coupon (@lballabio).
 
