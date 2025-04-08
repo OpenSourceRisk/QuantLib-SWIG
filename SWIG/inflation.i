@@ -635,6 +635,7 @@ class PiecewiseYoYInflationCurve : public YoYInflationTermStructure {
               const Date& referenceDate,
               Date baseDate,
               Rate baseYoYRate,
+              const Period& lag,
               Frequency frequency,
               bool indexIsInterpolated,
               const DayCounter& dayCounter,
@@ -1075,19 +1076,20 @@ class InterpolatedYoYInflationCurve : public YoYInflationTermStructure {
     // %feature("kwargs") InterpolatedYoYInflationCurve;
   public:
     InterpolatedYoYInflationCurve(const Date& referenceDate,
-                                  const std::vector<Date>& dates,
+                                  std::vector<Date>& dates,
                                   const std::vector<Rate>& rates,
-                                  const Period& lag,
+                                  const Period& observationLag,
                                   Frequency frequency,
-                                  bool indexIsInterpolated,
                                   const DayCounter& dayCounter,
                                   const ext::shared_ptr<Seasonality>& seasonality = {},
                                   const Interpolator& interpolator = Interpolator());
 
     InterpolatedYoYInflationCurve(const Date& referenceDate,
-                                  const std::vector<Date>& dates,
+                                  std::vector<Date>& dates,
                                   const std::vector<Rate>& rates,
+                                  const Period& lag,
                                   Frequency frequency,
+                                  bool interpolated,
                                   const DayCounter& dayCounter,
                                   const ext::shared_ptr<Seasonality>& seasonality = {},
                                   const Interpolator& interpolator = Interpolator());
