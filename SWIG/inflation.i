@@ -168,6 +168,7 @@ class ZeroInflationIndex : public InflationIndex {
     Date lastFixingDate() const;
     Handle<ZeroInflationTermStructure> zeroInflationTermStructure() const;
     ext::shared_ptr<ZeroInflationIndex> clone(const Handle<ZeroInflationTermStructure>& h) const;
+    bool needsForecast(const Date& fixingDate) const;
 };
 
 %inline %{
@@ -196,21 +197,13 @@ class YoYInflationIndex : public InflationIndex {
             const Currency& currency,
             Handle<YoYInflationTermStructure> ts = {});
 
-    // Deprecated constructor.
-    YoYInflationIndex(const std::string& familyName,
-                      const Region& region,
-                      bool revised,
-                      bool interpolated,
-                      bool ratio,
-                      Frequency frequency,
-                      const Period& availabilityLag,
-                      const Currency& currency,
-                      const Handle<YoYInflationTermStructure>& ts = {});
+    Date lastFixingDate() const;
     bool ratio() const;
     bool interpolated() const;
     ext::shared_ptr<ZeroInflationIndex> underlyingIndex() const;
     Handle<YoYInflationTermStructure> yoyInflationTermStructure() const;
     ext::shared_ptr<YoYInflationIndex> clone(const Handle<YoYInflationTermStructure>& h) const;
+    bool needsForecast(const Date& fixingDate) const;
 };
 
 %define export_zii_instance(Name)
@@ -255,15 +248,10 @@ class UKHICP : public ZeroInflationIndex {
 
 export_yii_instance(YYEUHICP);
 export_yii_instance(YYEUHICPXT);
-export_yii_instance(YYEUHICPr);
 export_yii_instance(YYFRHICP);
-export_yii_instance(YYFRHICPr);
 export_yii_instance(YYUKRPI);
-export_yii_instance(YYUKRPIr);
 export_yii_instance(YYUSCPI);
-export_yii_instance(YYUSCPIr);
 export_yii_instance(YYZACPI);
-export_yii_instance(YYZACPIr);
 
 %{
 using QuantLib::AUCPI;
@@ -290,6 +278,11 @@ struct CPI {
                              const Date& date,
                              const Period& observationLag,
                              InterpolationType interpolationType);
+
+    static Real laggedYoYRate(const ext::shared_ptr<YoYInflationIndex>& index,
+                              const Date& date,
+                              const Period& observationLag,
+                              InterpolationType interpolationType);
 };
 
 // cashflows
@@ -370,51 +363,7 @@ class CPICoupon : public InflationCoupon {
               const Date& refPeriodStart = Date(),
               const Date& refPeriodEnd = Date(),
               const Date& exCouponDate = Date());
-    CPICoupon(Real baseCPI,
-              const Date& paymentDate,
-              Real nominal,
-              const Date& startDate,
-              const Date& endDate,
-              const ext::shared_ptr<ZeroInflationIndex>& index,
-              const Period& observationLag,
-              CPI::InterpolationType observationInterpolation,
-              const DayCounter& dayCounter,
-              Real fixedRate,
-              Spread spread,
-              const Date& refPeriodStart = Date(),
-              const Date& refPeriodEnd = Date(),
-              const Date& exCouponDate = Date());
-    CPICoupon(const Date& baseDate,
-              const Date& paymentDate,
-              Real nominal,
-              const Date& startDate,
-              const Date& endDate,
-              const ext::shared_ptr<ZeroInflationIndex>& index,
-              const Period& observationLag,
-              CPI::InterpolationType observationInterpolation,
-              const DayCounter& dayCounter,
-              Real fixedRate,
-              Spread spread,
-              const Date& refPeriodStart = Date(),
-              const Date& refPeriodEnd = Date(),
-              const Date& exCouponDate = Date());
-    CPICoupon(Real baseCPI,
-              const Date& baseDate,
-              const Date& paymentDate,
-              Real nominal,
-              const Date& startDate,
-              const Date& endDate,
-              const ext::shared_ptr<ZeroInflationIndex>& index,
-              const Period& observationLag,
-              CPI::InterpolationType observationInterpolation,
-              const DayCounter& dayCounter,
-              Real fixedRate,
-              Spread spread,
-              const Date& refPeriodStart = Date(),
-              const Date& refPeriodEnd = Date(),
-              const Date& exCouponDate = Date());
     Rate fixedRate() const;
-    Spread spread() const;
     Rate adjustedIndexGrowth() const;
     Rate indexFixing() const;
     Real indexRatio(Date d) const;
@@ -464,7 +413,6 @@ Leg _CPILeg(const std::vector<Real>& nominals,
             const DayCounter& paymentDayCounter = DayCounter(),
             const BusinessDayConvention paymentConvention = Following,
             const std::vector<Real>& fixedRates = std::vector<Real>(),
-            const std::vector<Spread>& spreads = std::vector<Spread>(),
             const std::vector<Rate>& caps = std::vector<Rate>(),
             const std::vector<Rate>& floors = std::vector<Rate>(),
             const Period& exCouponPeriod = Period(),
@@ -480,7 +428,6 @@ Leg _CPILeg(const std::vector<Real>& nominals,
         .withPaymentAdjustment(paymentConvention)
         .withPaymentCalendar(paymentCalendar.empty() ? schedule.calendar() : paymentCalendar)
         .withFixedRates(fixedRates)
-        .withSpreads(spreads)
         .withCaps(caps)
         .withFloors(floors)
         .withExCouponPeriod(exCouponPeriod,
@@ -503,7 +450,6 @@ Leg _CPILeg(const std::vector<Real>& nominals,
             const DayCounter& paymentDayCounter = DayCounter(),
             const BusinessDayConvention paymentConvention = Following,
             const std::vector<Real>& fixedRates = std::vector<Real>(),
-            const std::vector<Spread>& spreads = std::vector<Spread>(),
             const std::vector<Rate>& caps = std::vector<Rate>(),
             const std::vector<Rate>& floors = std::vector<Rate>(),
             const Period& exCouponPeriod = Period(),
@@ -608,6 +554,15 @@ class YearOnYearInflationSwapHelper : public BootstrapHelper<YoYInflationTermStr
                                   BusinessDayConvention bdc,
                                   const DayCounter& dayCounter,
                                   const ext::shared_ptr<YoYInflationIndex>& index,
+                                  CPI::InterpolationType interpolation,
+                                  const Handle<YieldTermStructure>& nominalTS);
+    YearOnYearInflationSwapHelper(const Handle<Quote>& quote,
+                                  const Period& lag,
+                                  const Date& maturity,
+                                  const Calendar& calendar,
+                                  BusinessDayConvention bdc,
+                                  const DayCounter& dayCounter,
+                                  const ext::shared_ptr<YoYInflationIndex>& index,
                                   const Handle<YieldTermStructure>& nominalTS);
 };
 
@@ -664,6 +619,18 @@ class PiecewiseYoYInflationCurve : public YoYInflationTermStructure {
     // %feature("kwargs") PiecewiseYoYInflationCurve;
     #endif
   public:
+    PiecewiseYoYInflationCurve(
+              const Date& referenceDate,
+              Date baseDate,
+              Rate baseYoYRate,
+              const Period& lag,
+              Frequency frequency,
+              const DayCounter& dayCounter,
+              const std::vector<ext::shared_ptr<BootstrapHelper<YoYInflationTermStructure> > >& instruments,
+              const ext::shared_ptr<Seasonality>& seasonality = {},
+              Real accuracy = 1.0e-12,
+              const Interpolator& i = Interpolator());
+
     PiecewiseYoYInflationCurve(
               const Date& referenceDate,
               Date baseDate,
@@ -762,6 +729,19 @@ class YoYInflationCoupon : public InflationCoupon {
                        Natural fixingDays,
                        const ext::shared_ptr<YoYInflationIndex>& index,
                        const Period& observationLag,
+                       CPI::InterpolationType interpolation,
+                       const DayCounter& dayCounter,
+                       Real gearing = 1.0,
+                       Spread spread = 0.0,
+                       const Date& refPeriodStart = Date(),
+                       const Date& refPeriodEnd = Date());
+    YoYInflationCoupon(const Date& paymentDate,
+                       Real nominal,
+                       const Date& startDate,
+                       const Date& endDate,
+                       Natural fixingDays,
+                       const ext::shared_ptr<YoYInflationIndex>& index,
+                       const Period& observationLag,
                        const DayCounter& dayCounter,
                        Real gearing = 1.0,
                        Spread spread = 0.0,
@@ -771,6 +751,7 @@ class YoYInflationCoupon : public InflationCoupon {
     Spread spread() const;
     Rate adjustedFixing() const;
     ext::shared_ptr<YoYInflationIndex> yoyIndex() const;
+    CPI::InterpolationType interpolation() const;
 };
 
 %inline %{
@@ -783,6 +764,21 @@ class YoYInflationCoupon : public InflationCoupon {
 %shared_ptr(CappedFlooredYoYInflationCoupon)
 class CappedFlooredYoYInflationCoupon : public YoYInflationCoupon {
   public:
+    CappedFlooredYoYInflationCoupon(const Date& paymentDate,
+                                    Real nominal,
+                                    const Date& startDate,
+                                    const Date& endDate,
+                                    Natural fixingDays,
+                                    const ext::shared_ptr<YoYInflationIndex>& index,
+                                    const Period& observationLag,
+                                    CPI::InterpolationType interpolation,
+                                    const DayCounter& dayCounter,
+                                    Real gearing = 1.0,
+                                    Spread spread = 0.0,
+                                    const Rate cap = Null<Rate>(),
+                                    const Rate floor = Null<Rate>(),
+                                    const Date& refPeriodStart = Date(),
+                                    const Date& refPeriodEnd = Date());
     CappedFlooredYoYInflationCoupon(const Date& paymentDate,
                                     Real nominal,
                                     const Date& startDate,
@@ -819,6 +815,7 @@ Leg _yoyInflationLeg(const Schedule& schedule,
                      const Calendar& calendar,
                      const ext::shared_ptr<YoYInflationIndex>& index,
                      const Period& observationLag,
+                     CPI::InterpolationType interpolation,
                      const std::vector<Real>& notionals,
                      const DayCounter& paymentDayCounter,
                      BusinessDayConvention paymentAdjustment = Following,
@@ -827,7 +824,7 @@ Leg _yoyInflationLeg(const Schedule& schedule,
                      const std::vector<Spread>& spreads = std::vector<Spread>(),
                      const std::vector<Rate>& caps = std::vector<Rate>(),
                      const std::vector<Rate>& floors = std::vector<Rate>()) {
-        return QuantLib::yoyInflationLeg(schedule, calendar, index, observationLag)
+    return QuantLib::yoyInflationLeg(schedule, calendar, index, observationLag, interpolation)
             .withNotionals(notionals)
             .withPaymentDayCounter(paymentDayCounter)
             .withPaymentAdjustment(paymentAdjustment)
@@ -844,6 +841,7 @@ Leg _yoyInflationLeg(const Schedule& schedule,
                      const Calendar& calendar,
                      const ext::shared_ptr<YoYInflationIndex>& index,
                      const Period& observationLag,
+                     CPI::InterpolationType interpolation,
                      const std::vector<Real>& notionals,
                      const DayCounter& paymentDayCounter,
                      BusinessDayConvention paymentAdjustment = Following,
@@ -915,6 +913,20 @@ class ZeroCouponInflationSwap : public Swap {
 %shared_ptr(YearOnYearInflationSwap)
 class YearOnYearInflationSwap : public Swap {
   public:
+    YearOnYearInflationSwap(
+               Type type,
+               Real nominal,
+               const Schedule& fixedSchedule,
+               Rate fixedRate,
+               const DayCounter& fixedDayCounter,
+               const Schedule& yoySchedule,
+               const ext::shared_ptr<YoYInflationIndex>& index,
+               const Period& lag,
+               CPI::InterpolationType interpolation,
+               Spread spread,
+               const DayCounter& yoyDayCounter,
+               const Calendar& paymentCalendar,
+               BusinessDayConvention paymentConvention = Following);
     YearOnYearInflationSwap(
                Type type,
                Real nominal,
@@ -1064,11 +1076,20 @@ class InterpolatedYoYInflationCurve : public YoYInflationTermStructure {
     // %feature("kwargs") InterpolatedYoYInflationCurve;
   public:
     InterpolatedYoYInflationCurve(const Date& referenceDate,
-                                  const std::vector<Date>& dates,
+                                  std::vector<Date>& dates,
+                                  const std::vector<Rate>& rates,
+                                  const Period& observationLag,
+                                  Frequency frequency,
+                                  const DayCounter& dayCounter,
+                                  const ext::shared_ptr<Seasonality>& seasonality = {},
+                                  const Interpolator& interpolator = Interpolator());
+
+    InterpolatedYoYInflationCurve(const Date& referenceDate,
+                                  std::vector<Date>& dates,
                                   const std::vector<Rate>& rates,
                                   const Period& lag,
                                   Frequency frequency,
-                                  bool indexIsInterpolated,
+                                  bool interpolated,
                                   const DayCounter& dayCounter,
                                   const ext::shared_ptr<Seasonality>& seasonality = {},
                                   const Interpolator& interpolator = Interpolator());
@@ -1154,21 +1175,40 @@ class Name : public YoYCapFloorTermPriceSurface {
   public:
     %extend {
         Name(Natural fixingDays,
-          const Period &yyLag,  // observation lag
-          const ext::shared_ptr<YoYInflationIndex>& yii,
-          Rate baseRate,
-          const Handle<YieldTermStructure> &nominal,
-          const DayCounter &dc,
-          const Calendar &cal,
-          const BusinessDayConvention &bdc,
-          const std::vector<Rate> &cStrikes,
-          const std::vector<Rate> &fStrikes,
-          const std::vector<Period> &cfMaturities,
-          const Matrix &cPrice,
-          const Matrix &fPrice,
-          const Interpolator2D &interpolator2d = Interpolator2D(),
-          const Interpolator1D &interpolator1d = Interpolator1D()) {
+             const Period &yyLag,  // observation lag
+             const ext::shared_ptr<YoYInflationIndex>& yii,
+             Rate baseRate,
+             const Handle<YieldTermStructure> &nominal,
+             const DayCounter &dc,
+             const Calendar &cal,
+             const BusinessDayConvention &bdc,
+             const std::vector<Rate> &cStrikes,
+             const std::vector<Rate> &fStrikes,
+             const std::vector<Period> &cfMaturities,
+             const Matrix &cPrice,
+             const Matrix &fPrice,
+             const Interpolator2D &interpolator2d = Interpolator2D(),
+             const Interpolator1D &interpolator1d = Interpolator1D()) {
             return new Name(fixingDays, yyLag, yii, baseRate, nominal,
+                            dc, cal, bdc, cStrikes, fStrikes, cfMaturities,
+                            cPrice, fPrice);
+        }
+        Name(Natural fixingDays,
+             const Period &yyLag,  // observation lag
+             const ext::shared_ptr<YoYInflationIndex>& yii,
+             CPI::InterpolationType interpolation,
+             const Handle<YieldTermStructure> &nominal,
+             const DayCounter &dc,
+             const Calendar &cal,
+             const BusinessDayConvention &bdc,
+             const std::vector<Rate> &cStrikes,
+             const std::vector<Rate> &fStrikes,
+             const std::vector<Period> &cfMaturities,
+             const Matrix &cPrice,
+             const Matrix &fPrice,
+             const Interpolator2D &interpolator2d = Interpolator2D(),
+             const Interpolator1D &interpolator1d = Interpolator1D()) {
+            return new Name(fixingDays, yyLag, yii, interpolation, nominal,
                             dc, cal, bdc, cStrikes, fStrikes, cfMaturities,
                             cPrice, fPrice);
         }
@@ -1214,6 +1254,22 @@ class YoYInflationBachelierCapFloorEngine : public PricingEngine {
 class YoYOptionletHelper : public BootstrapHelper<YoYOptionletVolatilitySurface> {
   public:
       %extend {
+        YoYOptionletHelper(
+         const Handle<Quote>& price,
+         Real notional,
+         YoYInflationCapFloor::Type capFloorType,
+         Period &lag,
+         const DayCounter& yoyDayCounter,
+         const Calendar& paymentCalendar,
+         Natural fixingDays,
+         const ext::shared_ptr<YoYInflationIndex>& index,
+         CPI::InterpolationType interpolation,
+         Rate strike, Size n,
+         const ext::shared_ptr<PricingEngine> &pricer) {
+            auto engine = ext::dynamic_pointer_cast<YoYInflationCapFloorEngine>(pricer);
+            return new YoYOptionletHelper(price, notional, capFloorType, lag, yoyDayCounter, paymentCalendar,
+                                          fixingDays, index, interpolation, strike, n, engine);
+         }
         YoYOptionletHelper(
          const Handle<Quote>& price,
          Real notional,
