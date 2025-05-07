@@ -241,7 +241,9 @@ class OvernightIndexedCoupon : public FloatingRateCoupon {
                 RateAveraging::Type averagingMethod = RateAveraging::Compound,
                 Natural lookbackDays = Null<Natural>(),
                 Natural lockoutDays = 0,
-                bool applyObservationShift = false);
+                bool applyObservationShift = false,
+                const Calendar& valueDateCalendar = Calendar(),
+                const Calendar& lockoutDaysCalendar = Calendar());
     const std::vector<Date>& fixingDates() const;
     const std::vector<Date>& interestDates() const;
     const std::vector<Time>& dt() const;
@@ -906,6 +908,8 @@ Leg _OvernightLeg(const std::vector<Real>& nominals,
                   const Integer paymentLag = 0,
                   Natural lookbackDays = Null<Natural>(),
                   Natural lockoutDays = 0,
+                  const Calendar& valueDateCalendar = Calendar(),
+                  const Calendar& lockoutDaysCalendar = Calendar(),
                   bool applyObservationShift = false) {
     return QuantLib::OvernightLeg(schedule, index)
         .withNotionals(nominals)
@@ -919,7 +923,9 @@ Leg _OvernightLeg(const std::vector<Real>& nominals,
         .withAveragingMethod(averagingMethod)
         .withLookbackDays(lookbackDays)
         .withLockoutDays(lockoutDays)
-        .withObservationShift(applyObservationShift);
+        .withObservationShift(applyObservationShift)
+        .withValueDateCalendar(valueDateCalendar)
+        .withLockoutDaysCalendar(lockoutDaysCalendar);
 }
 %}
 #if !defined(SWIGJAVA) && !defined(SWIGCSHARP)
@@ -939,6 +945,8 @@ Leg _OvernightLeg(const std::vector<Real>& nominals,
                   Integer paymentLag = 0,
                   Natural lookbackDays = Null<Natural>(),
                   Natural lockoutDays = 0,
+                  const Calendar& valueDateCalendar = Calendar(),
+                  const Calendar& lockoutDaysCalendar = Calendar(),
                   bool applyObservationShift = false);
 
 %{
