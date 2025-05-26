@@ -78,8 +78,8 @@ class QuantoBarrierOption : public BarrierOption {
 using QuantLib::PartialBarrier;
 %}
 
-struct PartialBarrier : public Barrier {
-    enum Range { Start, End, EndB1, EndB2 };
+struct PartialBarrier {
+    enum Range { Start = 0, EndB1 = 2, EndB2 = 3 };
 };
 
 %{
@@ -89,7 +89,8 @@ using QuantLib::PartialTimeBarrierOption;
 %shared_ptr(PartialTimeBarrierOption)
 class PartialTimeBarrierOption : public OneAssetOption {
       public:
-        PartialTimeBarrierOption(PartialBarrier::Type barrierType,
+        PartialTimeBarrierOption(
+            Barrier::Type barrierType,
             PartialBarrier::Range barrierRange,
             Real barrier,
             Real rebate,
@@ -109,8 +110,7 @@ using QuantLib::AnalyticPartialTimeBarrierOptionEngine;
 class AnalyticPartialTimeBarrierOptionEngine : public PricingEngine {
   public:
     AnalyticPartialTimeBarrierOptionEngine (
-                           const ext::shared_ptr<GeneralizedBlackScholesProcess>& process
-                 );
+        const ext::shared_ptr<GeneralizedBlackScholesProcess>& process);
 };
 
 
@@ -584,5 +584,29 @@ class BinomialDoubleBarrierEngine : public PricingEngine {
 #endif
 
 #endif
+
+
+%{
+using QuantLib::TwoAssetBarrierOption;
+using QuantLib::AnalyticTwoAssetBarrierEngine;
+%}
+
+%shared_ptr(TwoAssetBarrierOption)
+class TwoAssetBarrierOption : public Option {
+  public:
+    TwoAssetBarrierOption(Barrier::Type barrierType,
+                          Real barrier,
+                          const ext::shared_ptr<StrikedTypePayoff>& payoff,
+                          const ext::shared_ptr<Exercise>& exercise);
+};
+
+%shared_ptr(AnalyticTwoAssetBarrierEngine)
+class AnalyticTwoAssetBarrierEngine : public PricingEngine {
+  public:
+    AnalyticTwoAssetBarrierEngine(ext::shared_ptr<GeneralizedBlackScholesProcess> process1,
+                                  ext::shared_ptr<GeneralizedBlackScholesProcess> process2,
+                                  Handle<Quote> rho);
+};
+
 
 #endif

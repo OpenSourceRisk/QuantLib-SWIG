@@ -81,10 +81,12 @@ class Calendar {
     Calendar();
   public:
     bool isWeekend(Weekday w);
+    Date startOfMonth(const Date&);
     Date endOfMonth(const Date&);
     bool isBusinessDay(const Date&);
     bool isHoliday(const Date&);
     bool isEndOfMonth(const Date&);
+    bool isStartOfMonth(const Date&);
     void addHoliday(const Date&);
     void removeHoliday(const Date&);
     void resetAddedAndRemovedHolidays();
@@ -243,9 +245,19 @@ namespace QuantLib {
         Mexico(Market m = BMV);
     };
 
-    class NewZealand : public Calendar {};
+    class NewZealand : public Calendar {
+      public:
+        enum Market { Wellington, Auckland };
+        NewZealand(Market m = Wellington);
+    };
+
     class Norway : public Calendar {};
-    class Poland : public Calendar {};
+
+    class Poland : public Calendar {
+      public:
+        enum Market { Settlement, WSE };
+        Poland(Market m = Settlement);
+    };
 
     class Romania : public Calendar {
       public:

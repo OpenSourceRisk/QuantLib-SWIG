@@ -1,34 +1,38 @@
-Main changes for QuantLib-SWIG 1.35
+Main changes for QuantLib-SWIG 1.38
 ===================================
 
 More details on the changes are available in ChangeLog.txt and at
-<https://github.com/lballabio/QuantLib-SWIG/milestone/28?closed=1>.
+<https://github.com/lballabio/QuantLib-SWIG/milestone/31?closed=1>.
 
-- Removed deprecated classes `DividendVanillaOption` and
-  `DividendBarrierOption`.
-  
-- Removed deprecated constructor of `AnalyticDividendEuropeanEngine`
-  taking only a process and no dividends.
+- **Removed** the deprecated `Currency` constructor no longer
+  available in the underlying C++ library;
 
-- Exported missing `CashAnnuityModel` parameter for Black and
-  Bachelier swaption engines (@lballabio).
+- Exported forward curve with a number of additional interpolations;
+  thanks to Sotirios Papathanasopoulos (@sophistis42) and to
+  @paolodelia99.
 
-- Exported Ziggurat Gaussian RNG; thanks to Ralf Konrad Eckel
-  (@ralfkonrad).
-
-- Exported a few missing `CashFlows` methods (@lballabio); thanks to
-  GitHub user @heiieh for the heads-up.
-
-- Exported new `IborCoupon::hasFixed` method (@lballabio).
-
-- Exported new `FittedBondDiscountCurve::resetGuess` method (@lballabio).
-
-- `EuriborSW` renamed to `Euribor1W`, old name still available for a
-  while (@lballabio).
-
-- Exported lookback days, lockout days and observation shift for
-  overnight-indexed coupons, swaps and helpers (@lballabio).
-
-- Exported `SimpleQuote::reset` method; thanks to Eugene Toder
+- Exported `FuturesConvAdjustmentQuote`; thanks to Eugene Toder
   (@eltoder).
 
+- Exported missing default parameters for `MakeVanillaSwap` and
+  `MakeOIS`; thanks to Eugene Toder (@eltoder).
+
+- Exported new constructors for `DepositRateHelper` and
+  `FraRateHelper`; thanks to Eugene Toder (@eltoder).
+
+- Exported new constructor arguments for cross-currency basis-swap
+  helpers; thanks to @kp9991-git.
+
+- Exported methods to return the underlying process from a few models
+  (@lballabio).
+
+- Exported new constructors for YoY inflation indexes (@lballabio).
+
+- Exported a few more exotic options and engines (@lballabio):
+  - `TwoAssetBarrierOption` with `AnalyticTwoAssetBarrierEngine`;
+  - `HolderExtensibleOption` with `AnalyticHolderExtensibleOptionEngine`;
+  - `WriterExtensibleOption` with `AnalyticWriterExtensibleOptionEngine`;
+  - `TwoAssetCorrelationOption` with `AnalyticTwoAssetCorrelationEngine`;
+  - `AnalyticPDFHestonEngine`.
+
+- Exported piecewise forward-spreaded term structure (@lballabio).
