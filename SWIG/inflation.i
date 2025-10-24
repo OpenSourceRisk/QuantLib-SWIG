@@ -643,6 +643,7 @@ class PiecewiseZeroInflationCurve : public ZeroInflationTermStructure {
         static ext::shared_ptr<PiecewiseZeroInflationCurve<Interpolator>> withBaseDateFunc(
                 const Date& referenceDate,
                 PyObject* baseDateFunc,
+                const Period& lag,
                 Frequency frequency,
                 const DayCounter& dayCounter,
                 const std::vector<ext::shared_ptr<BootstrapHelper<ZeroInflationTermStructure> > >& instruments,
@@ -661,7 +662,7 @@ class PiecewiseZeroInflationCurve : public ZeroInflationTermStructure {
                 return *res;
             };
             return ext::make_shared<PiecewiseZeroInflationCurve<Interpolator>>(
-                referenceDate, std::move(func), frequency, dayCounter, instruments,
+                referenceDate, std::move(func), lag, frequency, dayCounter, instruments,
                 seasonality, accuracy, i
             );
         }
