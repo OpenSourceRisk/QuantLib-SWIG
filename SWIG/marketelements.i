@@ -11,7 +11,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -46,6 +46,62 @@ class Quote : public Observable {
 %template(RelinkableQuoteHandle) RelinkableHandle<Quote>;
 
 RelinkableHandle<Quote> makeQuoteHandle(Real value);
+
+#if defined(SWIGPYTHON)
+
+%typecheck(SWIG_TYPECHECK_DOUBLE) std::variant<Real, Handle<Quote>>, const std::variant<Real, Handle<Quote>>& %{
+    {
+        int res = SWIG_AsVal_double($input, NULL);
+        $1 = SWIG_CheckState(res);
+    }
+    if (!$1) {
+        int res = SWIG_ConvertPtr($input, 0, $descriptor(Handle<Quote>*), SWIG_POINTER_NO_NULL | 0);
+        $1 = SWIG_CheckState(res);;
+    }
+%}
+
+%typemap(in) std::variant<Real, Handle<Quote>> (int res, Real val, void * argp) %{
+    res = SWIG_AsVal_double($input, &val);
+    if (SWIG_IsOK(res)) {
+        $1 = val;
+    } else {
+        res = SWIG_ConvertPtr($input, &argp, $descriptor(Handle<Quote>*), SWIG_POINTER_NO_NULL);
+        if (!SWIG_IsOK(res)) {
+            SWIG_exception_fail(SWIG_ArgError(res), "in method '$symname', argument $argnum of type '$type'");
+        } else if (!argp) {
+            SWIG_exception_fail(SWIG_ValueError, "invalid null reference in method '$symname', argument $argnum of type '$type'");
+        } else {
+            Handle< Quote > * h = reinterpret_cast< Handle< Quote > * >(argp);
+            $1 = *h;
+            if (SWIG_IsNewObj(res)) delete h;
+        }
+    }
+%}
+
+%typemap(in) const std::variant<Real, Handle<Quote>>& (std::variant<Real, Handle<Quote>> temp, int res, Real val, void * argp) %{
+    res = SWIG_AsVal_double($input, &val);
+    if (SWIG_IsOK(res)) {
+        temp = val;
+        $1 = &temp;
+    } else {
+        res = SWIG_ConvertPtr($input, &argp, $descriptor(Handle<Quote>*), SWIG_POINTER_NO_NULL);
+        if (!SWIG_IsOK(res)) {
+            SWIG_exception_fail(SWIG_ArgError(res), "in method '$symname', argument $argnum of type '$type'");
+        } else if (!argp) {
+            SWIG_exception_fail(SWIG_ValueError, "invalid null reference in method '$symname', argument $argnum of type '$type'");
+        } else {
+            Handle< Quote > * h = reinterpret_cast< Handle< Quote > * >(argp);
+            temp = *h;
+            $1 = &temp;
+            if (SWIG_IsNewObj(res)) delete h;
+        }
+    }
+%}
+
+#endif
+
+
+
 
 // actual quotes
 %{

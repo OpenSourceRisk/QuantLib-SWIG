@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -170,12 +170,15 @@ class BondFunctionsTest(unittest.TestCase):
     def testAtmRate(self):
         """ Testing BondFunctions atmRate. """
         self.assertEqual(round(ql.BondFunctions.atmRate(self.bond, self.flat_forward,
-                                                        self.settlement_date, 99.94475138121548), 4),
+                                                        self.settlement_date,
+                                                        ql.BondPrice(99.94475138121548, ql.BondPrice.Clean)), 4),
                          0.05)
 
     def testBondYield(self):
         """ Testing BondFunctions bondYield. """
-        self.assertEqual(round(ql.BondFunctions.bondYield(self.bond, 110, self.day_counter, ql.Compounded, ql.Annual), 8),
+        self.assertEqual(round(ql.BondFunctions.bondYield(self.bond,
+                                                          ql.BondPrice(110, ql.BondPrice.Clean),
+                                                          self.day_counter, ql.Compounded, ql.Annual), 8),
                          0.03582431)
 
     def testDuration(self):
@@ -222,7 +225,9 @@ class BondFunctionsTest(unittest.TestCase):
 
     def testZSpread(self):
         """ Testing BondFunctions zSpread. """
-        self.assertEqual(round(ql.BondFunctions.zSpread(self.bond, 87.5, self.flat_forward,
+        self.assertEqual(round(ql.BondFunctions.zSpread(self.bond,
+                                                        ql.BondPrice(87.5, ql.BondPrice.Clean),
+                                                        self.flat_forward,
                                                         self.day_counter, ql.Compounded, ql.Annual), 8),
                          0.02125053)
 

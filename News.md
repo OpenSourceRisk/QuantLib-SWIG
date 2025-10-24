@@ -1,38 +1,25 @@
-Main changes for QuantLib-SWIG 1.38
-===================================
+Changes for QuantLib-SWIG 1.40
+==============================
 
-More details on the changes are available in ChangeLog.txt and at
-<https://github.com/lballabio/QuantLib-SWIG/milestone/31?closed=1>.
+Removed features
+----------------
 
-- **Removed** the deprecated `Currency` constructor no longer
-  available in the underlying C++ library;
+Features removed from the C++ library in this release were also
+removed from these werappers; see
+<https://github.com/lballabio/QuantLib-SWIG/pull/754> for a full list.
 
-- Exported forward curve with a number of additional interpolations;
-  thanks to Sotirios Papathanasopoulos (@sophistis42) and to
-  @paolodelia99.
+Other features were removed from the wrappers after being deprecated
+for a long while; see
+<https://github.com/lballabio/QuantLib-SWIG/pull/756>.
 
-- Exported `FuturesConvAdjustmentQuote`; thanks to Eugene Toder
-  (@eltoder).
+Finally, a few unused classes were also removed; see
+<https://github.com/lballabio/QuantLib-SWIG/pull/749>.
 
-- Exported missing default parameters for `MakeVanillaSwap` and
-  `MakeOIS`; thanks to Eugene Toder (@eltoder).
 
-- Exported new constructors for `DepositRateHelper` and
-  `FraRateHelper`; thanks to Eugene Toder (@eltoder).
+Full list of pull requests
+--------------------------
 
-- Exported new constructor arguments for cross-currency basis-swap
-  helpers; thanks to @kp9991-git.
+All the pull requests merged in this release are listed on its release
+page at <https://github.com/lballabio/QuantLib-SWIG/releases/tag/v1.40>.
 
-- Exported methods to return the underlying process from a few models
-  (@lballabio).
-
-- Exported new constructors for YoY inflation indexes (@lballabio).
-
-- Exported a few more exotic options and engines (@lballabio):
-  - `TwoAssetBarrierOption` with `AnalyticTwoAssetBarrierEngine`;
-  - `HolderExtensibleOption` with `AnalyticHolderExtensibleOptionEngine`;
-  - `WriterExtensibleOption` with `AnalyticWriterExtensibleOptionEngine`;
-  - `TwoAssetCorrelationOption` with `AnalyticTwoAssetCorrelationEngine`;
-  - `AnalyticPDFHestonEngine`.
-
-- Exported piecewise forward-spreaded term structure (@lballabio).
+The list of commits since the previous release is available in `ChangeLog.txt`.

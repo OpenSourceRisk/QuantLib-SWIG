@@ -9,7 +9,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -24,6 +24,7 @@ import org.quantlib.Actual360;
 import org.quantlib.Actual365Fixed;
 import org.quantlib.ActualActual;
 import org.quantlib.BlackIborCouponPricer;
+import org.quantlib.BondPrice;
 import org.quantlib.BusinessDayConvention;
 import org.quantlib.Calendar;
 import org.quantlib.Compounding;
@@ -536,7 +537,7 @@ public class Bonds {
 
         System.out.printf("Clean Price to Yield: %.2f %%\n",
                           100*floatingRateBond.yield(
-                                floatingRateBond.cleanPrice(),
+                                new BondPrice(floatingRateBond.cleanPrice(), BondPrice.Type.Clean),
                                 new Actual360(), Compounding.Compounded,
                                 Frequency.Annual, settlementDate));
 
