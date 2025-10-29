@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -30,8 +30,8 @@
 %{
 #include <ql/quantlib.hpp>
 
-#if QL_HEX_VERSION < 0x01380000
-    #error at least QuantLib 1.38 required, please update
+#if QL_HEX_VERSION < 0x01400000
+    #error at least QuantLib 1.40 required, please update
 #endif
 
 #if defined (SWIGJAVA) || defined (SWIGCSHARP) 

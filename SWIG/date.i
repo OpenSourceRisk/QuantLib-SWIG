@@ -16,7 +16,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -433,11 +433,8 @@ static inline PyObject* PyDate_FromDate(int year, int month, int day) {
 }
 
 static inline long pyobject_getattr_long(PyObject* obj, PyObject* attr) {
-    PyObject* val = PyObject_GetAttr(obj, attr);
-    QL_REQUIRE(val != nullptr, "missing attribute");
-    long res = PyLong_AsLong(val);
-    Py_DECREF(val);
-    return res;
+    auto val = PyPtr::fromResult(PyObject_GetAttr(obj, attr), "missing attribute");
+    return PyLong_AsLong(val.get());
 }
 
 #define PyDateTime_GET_YEAR(o)  pyobject_getattr_long(o, pydate_yearstr)
@@ -450,12 +447,12 @@ static inline long pyobject_getattr_long(PyObject* obj, PyObject* attr) {
 %}
 %init %{
 #if defined(Py_LIMITED_API)
-    PyObject* datetime_module = PyImport_ImportModule("datetime");
-    pydate_type = PyObject_GetAttrString(datetime_module, "date");
+    auto datetime_module = PyPtr::fromResult(PyImport_ImportModule("datetime"),
+                                             "failed to import datetime");
+    pydate_type = PyObject_GetAttrString(datetime_module.get(), "date");
     pydate_yearstr = PyUnicode_InternFromString("year");
     pydate_monthstr = PyUnicode_InternFromString("month");
     pydate_daystr = PyUnicode_InternFromString("day");
-    Py_DECREF(datetime_module);
 #else
     PyDateTime_IMPORT;
 #endif
@@ -846,29 +843,6 @@ class PeriodParser {
     static Period parse(const std::string& str);
 };
 
-
-#if defined(SWIGPYTHON)
-%pythoncode %{
-Date._old___add__ = Date.__add__
-Date._old___sub__ = Date.__sub__
-def Date_new___add__(self,x):
-    if type(x) is tuple and len(x) == 2:
-        from warnings import warn
-        warn(f'adding a tuple to a Date is deprecated; use a Period instance', FutureWarning, stacklevel=2)
-        return self._old___add__(Period(x[0],x[1]))
-    else:
-        return self._old___add__(x)
-def Date_new___sub__(self,x):
-    if type(x) is tuple and len(x) == 2:
-        from warnings import warn
-        warn(f'subtracting a tuple from a Date is deprecated; use a Period instance', FutureWarning, stacklevel=2)
-        return self._old___sub__(Period(x[0],x[1]))
-    else:
-        return self._old___sub__(x)
-Date.__add__ = Date_new___add__
-Date.__sub__ = Date_new___sub__
-%}
-#endif
 
 namespace std {
     %template(DateVector) vector<Date>;
