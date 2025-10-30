@@ -14,7 +14,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -181,6 +181,7 @@ class Libor : public IborIndex {
           const DayCounter& dayCounter,
           const Handle<YieldTermStructure>& h =
                                      Handle<YieldTermStructure>());
+    Calendar jointCalendar() const;
 };
 
 %shared_ptr(DailyTenorLibor)
@@ -194,6 +195,29 @@ class DailyTenorLibor : public IborIndex {
                     const DayCounter& dayCounter,
                     const Handle<YieldTermStructure>& h =
                                      Handle<YieldTermStructure>());
+};
+
+%{
+using QuantLib::CustomIborIndex;
+%}
+
+%shared_ptr(CustomIborIndex)
+
+class CustomIborIndex : public IborIndex {
+  public:
+    CustomIborIndex(const std::string& familyName,
+                    const Period& tenor,
+                    Natural settlementDays,
+                    const Currency& currency,
+                    const Calendar& fixingCalendar,
+                    const Calendar& valueCalendar,
+                    const Calendar& maturityCalendar,
+                    BusinessDayConvention convention,
+                    bool endOfMonth,
+                    const DayCounter& dayCounter,
+                    const Handle<YieldTermStructure>& h = {});
+    Calendar valueCalendar() const;
+    Calendar maturityCalendar() const;
 };
 
 
@@ -410,54 +434,18 @@ export_quoted_xibor_instance(Bkbm5M,Bkbm);
 export_quoted_xibor_instance(Bkbm6M,Bkbm);
 
 export_xibor_instance(Euribor);
-export_quoted_xibor_instance(EuriborSW,Euribor);
 export_quoted_xibor_instance(Euribor1W,Euribor);
-export_quoted_xibor_instance(Euribor2W,Euribor);
-export_quoted_xibor_instance(Euribor3W,Euribor);
 export_quoted_xibor_instance(Euribor1M,Euribor);
-export_quoted_xibor_instance(Euribor2M,Euribor);
 export_quoted_xibor_instance(Euribor3M,Euribor);
-export_quoted_xibor_instance(Euribor4M,Euribor);
-export_quoted_xibor_instance(Euribor5M,Euribor);
 export_quoted_xibor_instance(Euribor6M,Euribor);
-export_quoted_xibor_instance(Euribor7M,Euribor);
-export_quoted_xibor_instance(Euribor8M,Euribor);
-export_quoted_xibor_instance(Euribor9M,Euribor);
-export_quoted_xibor_instance(Euribor10M,Euribor);
-export_quoted_xibor_instance(Euribor11M,Euribor);
 export_quoted_xibor_instance(Euribor1Y,Euribor);
 
 export_xibor_instance(Euribor365);
-export_quoted_xibor_instance(Euribor365_SW,Euribor365);
-export_quoted_xibor_instance(Euribor365_2W,Euribor365);
-export_quoted_xibor_instance(Euribor365_3W,Euribor365);
-export_quoted_xibor_instance(Euribor365_1M,Euribor365);
-export_quoted_xibor_instance(Euribor365_2M,Euribor365);
-export_quoted_xibor_instance(Euribor365_3M,Euribor365);
-export_quoted_xibor_instance(Euribor365_4M,Euribor365);
-export_quoted_xibor_instance(Euribor365_5M,Euribor365);
-export_quoted_xibor_instance(Euribor365_6M,Euribor365);
-export_quoted_xibor_instance(Euribor365_7M,Euribor365);
-export_quoted_xibor_instance(Euribor365_8M,Euribor365);
-export_quoted_xibor_instance(Euribor365_9M,Euribor365);
-export_quoted_xibor_instance(Euribor365_10M,Euribor365);
-export_quoted_xibor_instance(Euribor365_11M,Euribor365);
-export_quoted_xibor_instance(Euribor365_1Y,Euribor365);
 
 export_xibor_instance(EURLibor);
-export_quoted_xibor_instance(EURLiborSW,EURLibor);
-export_quoted_xibor_instance(EURLibor2W,EURLibor);
 export_quoted_xibor_instance(EURLibor1M,EURLibor);
-export_quoted_xibor_instance(EURLibor2M,EURLibor);
 export_quoted_xibor_instance(EURLibor3M,EURLibor);
-export_quoted_xibor_instance(EURLibor4M,EURLibor);
-export_quoted_xibor_instance(EURLibor5M,EURLibor);
 export_quoted_xibor_instance(EURLibor6M,EURLibor);
-export_quoted_xibor_instance(EURLibor7M,EURLibor);
-export_quoted_xibor_instance(EURLibor8M,EURLibor);
-export_quoted_xibor_instance(EURLibor9M,EURLibor);
-export_quoted_xibor_instance(EURLibor10M,EURLibor);
-export_quoted_xibor_instance(EURLibor11M,EURLibor);
 export_quoted_xibor_instance(EURLibor1Y,EURLibor);
 
 export_xibor_instance(GBPLibor);
@@ -482,6 +470,7 @@ export_xibor_instance(Wibor);
 export_xibor_instance(Zibor);
 
 export_overnight_instance(Aonia);
+export_overnight_instance(Cdi);
 export_overnight_instance(Corra);
 export_overnight_instance(Destr);
 export_overnight_instance(Eonia);
@@ -489,10 +478,17 @@ export_overnight_instance(Estr);
 export_overnight_instance(FedFunds);
 export_overnight_instance(Kofr);
 export_overnight_instance(Nzocr);
+export_overnight_instance(Saron);
 export_overnight_instance(Sofr);
 export_overnight_instance(Sonia);
 export_overnight_instance(Swestr);
+export_overnight_instance(Tonar);
+
+#if defined(SWIGPYTHON)
+deprecate_feature(Tona, Tonar);
+#else
 export_overnight_instance(Tona);
+#endif
 
 export_swap_instance(EuriborSwapIsdaFixA);
 export_swap_instance(EuriborSwapIsdaFixB);
@@ -515,7 +511,6 @@ export_quoted_xibor_instance(Bibor1M,Bibor);
 export_quoted_xibor_instance(Bibor2M,Bibor);
 export_quoted_xibor_instance(Bibor3M,Bibor);
 export_quoted_xibor_instance(Bibor6M,Bibor);
-export_quoted_xibor_instance(Bibor9M,Bibor);
 export_quoted_xibor_instance(Bibor1Y,Bibor);
 
 #endif

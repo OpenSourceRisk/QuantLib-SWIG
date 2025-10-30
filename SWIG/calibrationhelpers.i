@@ -14,7 +14,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -122,7 +122,6 @@ class SwaptionHelper : public BlackCalibrationHelper {
                       RateAveraging::Type averagingMethod = RateAveraging::Compound);
 
     ext::shared_ptr<FixedVsFloatingSwap> underlying() const;
-    ext::shared_ptr<VanillaSwap> underlyingSwap() const;
     ext::shared_ptr<Swaption> swaption() const;
 
     %extend {
@@ -137,13 +136,13 @@ class SwaptionHelper : public BlackCalibrationHelper {
             return self->swaption()->exercise()->date(0);
         }
         Real swaptionStrike() {
-            return self->swaption()->underlyingSwap()->fixedRate();
+            return self->swaption()->underlying()->fixedRate();
         }
         Real swaptionNominal() {
-            return self->swaption()->underlyingSwap()->nominal();
+            return self->swaption()->underlying()->nominal();
         }
         Date swaptionMaturityDate() {
-            return self->swaption()->underlyingSwap()->fixedSchedule().dates().back();
+            return self->swaption()->underlying()->fixedSchedule().dates().back();
         }
     }
 };
