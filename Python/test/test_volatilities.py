@@ -9,7 +9,7 @@
   under the terms of the QuantLib license.  You should have received a
   copy of the license along with this program; if not, please email
   <quantlib-dev@lists.sf.net>. The license is also available online at
-  <http://quantlib.org/license.shtml>.
+  <https://www.quantlib.org/license.shtml>.
 
   This program is distributed in the hope that it will be useful, but WITHOUT
   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -20,8 +20,7 @@ import unittest
 import math
 import QuantLib as ql
 
-
-TOLERANCE = 1.e-10
+TOLERANCE = 1e-10 if ql.IborCoupon.usingAtParCoupons() else 1e-6
 SABR_ATM_TOLERANCE = 3.0e-4
 SABR_SPREAD_TOLERANCE = 12.0e-4
 

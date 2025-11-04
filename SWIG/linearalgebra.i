@@ -11,7 +11,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -647,67 +647,34 @@ using QuantLib::GMRES;
 
 #if defined(SWIGPYTHON)
 %{
-Array extractArray(PyObject* source, const std::string& methodName) {
+Array extractArray(PyObject* source, const char* methodName) {
     QL_ENSURE(source != NULL,
-              "failed to call " + methodName + " on Python object");
+              "failed to call " << methodName << " on Python object");
 
-    QL_ENSURE(source != Py_None, methodName + " returned None");
-        
-    Array* ptr;            
-    const int err = SWIG_ConvertPtr(
-        source, (void **) &ptr, SWIGTYPE_p_Array, SWIG_POINTER_EXCEPTION);
-
-    if (err != 0) {
-        Py_XDECREF(source);
-        QL_FAIL("return type must be of type QuantLib Array in " 
-            + methodName);
-    }
-    
-    Array tmp(*ptr);          
-    Py_XDECREF(source);
-     
-    return tmp;
+    Array* ptr;
+    int err = SWIG_ConvertPtr(
+        source, (void**)&ptr, SWIGTYPE_p_Array, SWIG_POINTER_NO_NULL);
+    QL_ENSURE(SWIG_IsOK(err), methodName << " must return a QuantLib Array");
+    return *ptr;
 }
 
 class MatrixMultiplicationProxy {
   public:
     MatrixMultiplicationProxy(PyObject* matrixMult)
-    : matrixMult_(matrixMult) {
-        Py_XINCREF(matrixMult_);    
-    }
-    
-    MatrixMultiplicationProxy(const MatrixMultiplicationProxy& p) 
-    : matrixMult_(p.matrixMult_) {
-        Py_XINCREF(matrixMult_);
-    }
-        
-    MatrixMultiplicationProxy& operator=(const MatrixMultiplicationProxy& f) {
-        if ((this != &f) && (matrixMult_ != f.matrixMult_)) {
-            Py_XDECREF(matrixMult_);
-            matrixMult_ = f.matrixMult_;
-            Py_XINCREF(matrixMult_);
-        }
-        return *this;
-    }
-        
-    ~MatrixMultiplicationProxy() {
-        Py_XDECREF(matrixMult_);    
-    }
+    : matrixMult_(PyPtr::fromBorrowed(matrixMult)) {}
     
     Array operator()(const Array& x) const {
-        PyObject* pyArray = SWIG_NewPointerObj(
-            SWIG_as_voidptr(&x), SWIGTYPE_p_Array, 0);
-            
-        PyObject* pyResult 
-            = PyObject_CallFunction(matrixMult_, "O", pyArray);
-        
-        Py_XDECREF(pyArray);
-        
-        return extractArray(pyResult, "matrix multiplication");         
+        auto pyArray = PyPtr::fromNew(SWIG_NewPointerObj(
+            SWIG_as_voidptr(&x), SWIGTYPE_p_Array, 0));
+
+        auto pyResult = PyPtr::fromNew(
+            PyObject_CallFunction(matrixMult_.get(), "O", pyArray.get()));
+
+        return extractArray(pyResult.get(), "matrix multiplication");
     }
     
   private:
-    PyObject* matrixMult_;      
+    PyPtr matrixMult_;
 };
 %}
 

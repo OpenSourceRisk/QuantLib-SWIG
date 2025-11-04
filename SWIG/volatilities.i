@@ -14,7 +14,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -172,7 +172,6 @@ class YoYOptionletVolatilitySurface : public VolatilityTermStructure {
 
 %template(YoYOptionletVolatilitySurfaceHandle) Handle<YoYOptionletVolatilitySurface>;
 %template(RelinkableYoYOptionletVolatilitySurfaceHandle) RelinkableHandle<YoYOptionletVolatilitySurface>;
-deprecate_feature(RelinkableYoYOptionletVolatilitySurface, RelinkableYoYOptionletVolatilitySurfaceHandle);
 
 
 %{
@@ -310,6 +309,22 @@ Real sabrFlochKennedyVolatility(Rate strike,
                                 Real nu,
                                 Real rho);
 
+%rename(sabrGuess) _sabrGuess;
+%inline %{
+    std::vector<Real> _sabrGuess(Real k_m, Volatility vol_m,
+                                 Real k_0, Volatility vol_0,
+                                 Real k_p, Volatility vol_p,
+                                 Rate forward,
+                                 Time expiryTime,
+                                 Real beta,
+                                 Real shift,
+                                 VolatilityType volatilityType) {
+        auto [alpha, beta_1, nu, rho] =
+            QuantLib::sabrGuess(k_m, vol_m, k_0, vol_0, k_p, vol_p,
+                                forward, expiryTime, beta, shift, volatilityType);
+        return { alpha, beta_1, nu, rho };
+    }
+%}
 
 
 %{
@@ -810,7 +825,6 @@ class SabrSwaptionVolatilityCube : public SwaptionVolatilityCube {
     }
 };
 
-deprecate_feature(SwaptionVolCube1, SabrSwaptionVolatilityCube)
 
 %shared_ptr(InterpolatedSwaptionVolatilityCube);
 class InterpolatedSwaptionVolatilityCube : public SwaptionVolatilityCube {
@@ -824,8 +838,6 @@ class InterpolatedSwaptionVolatilityCube : public SwaptionVolatilityCube {
                                        const ext::shared_ptr<SwapIndex>& shortSwapIndex,
                                        bool vegaWeightedSmileFit);
 };
-
-deprecate_feature(SwaptionVolCube2, InterpolatedSwaptionVolatilityCube)
 
 
 %{

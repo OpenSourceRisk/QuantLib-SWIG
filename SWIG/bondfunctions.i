@@ -10,7 +10,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -79,10 +79,6 @@ class BondFunctions {
                         const YieldTermStructure& discountCurve,
                         Date settlementDate = Date(),
                         BondPrice price = {});
-    static Rate atmRate(const Bond& bond,
-                        const YieldTermStructure& discountCurve,
-                        Date settlementDate,
-                        Real cleanPrice);
 
     static Real cleanPrice(const Bond& bond,
                            const InterestRate& yield,
@@ -104,15 +100,6 @@ class BondFunctions {
                     Date settlementDate = Date());
     static Rate yield(const Bond& bond,
                       BondPrice price,
-                      const DayCounter& dayCounter,
-                      Compounding compounding,
-                      Frequency frequency,
-                      Date settlementDate = Date(),
-                      Real accuracy = 1.0e-10,
-                      Size maxIterations = 100,
-                      Rate guess = 0.05);
-    static Rate yield(const Bond& bond,
-                      Real cleanPrice,
                       const DayCounter& dayCounter,
                       Compounding compounding,
                       Frequency frequency,
@@ -184,16 +171,6 @@ class BondFunctions {
                           Real accuracy = 1.0e-10,
                           Size maxIterations = 100,
                           Rate guess = 0.0);
-    static Spread zSpread(const Bond& bond,
-                          Real cleanPrice,
-                          const ext::shared_ptr<YieldTermStructure>& discountCurve,
-                          const DayCounter& dayCounter,
-                          Compounding compounding,
-                          Frequency frequency,
-                          Date settlementDate = Date(),
-                          Real accuracy = 1.0e-10,
-                          Size maxIterations = 100,
-                          Rate guess = 0.0);
 
     %extend {
 
@@ -211,26 +188,6 @@ class BondFunctions {
                         solver,
                         bond,
                         price,
-                        dayCounter,
-                        compounding,
-                        frequency,
-                        settlementDate,
-                        accuracy,
-                        guess);
-        }
-        static Rate yield ## SolverType(SolverType solver,
-                                         const Bond& bond,
-                                         Real cleanPrice,
-                                         const DayCounter& dayCounter,
-                                         Compounding compounding,
-                                         Frequency frequency,
-                                         Date settlementDate = Date(),
-                                         Real accuracy = 1.0e-10,
-                                         Rate guess = 0.05) {
-            return QuantLib::BondFunctions::yield<SolverType>(
-                        solver,
-                        bond,
-                        cleanPrice,
                         dayCounter,
                         compounding,
                         frequency,

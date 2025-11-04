@@ -15,7 +15,7 @@
  under the terms of the QuantLib license.  You should have received a
  copy of the license along with this program; if not, please email
  <quantlib-dev@lists.sf.net>. The license is also available online at
- <http://quantlib.org/license.shtml>.
+ <https://www.quantlib.org/license.shtml>.
 
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -109,6 +109,20 @@ class FixedVsFloatingSwap : public Swap {
 %shared_ptr(VanillaSwap)
 class VanillaSwap : public FixedVsFloatingSwap {
   public:
+    #if defined(SWIGPYTHON)
+    %feature("kwargs") VanillaSwap;
+    VanillaSwap(Type type,
+                Real nominal,
+                const Schedule& fixedSchedule,
+                Rate fixedRate,
+                const DayCounter& fixedDayCount,
+                const Schedule& floatSchedule,
+                const ext::shared_ptr<IborIndex>& index,
+                Spread spread,
+                const DayCounter& floatingDayCount,
+                ext::optional<BusinessDayConvention> paymentConvention = ext::nullopt,
+                ext::optional<bool> withIndexedCoupons = ext::nullopt);
+    #else
     %extend {
         VanillaSwap(Type type, Real nominal,
                     const Schedule& fixedSchedule, Rate fixedRate,
@@ -126,6 +140,7 @@ class VanillaSwap : public FixedVsFloatingSwap {
                                    paymentConvention, withIndexedCoupons);
         }
     }
+    #endif
 };
 
 #if defined(SWIGPYTHON)
@@ -227,10 +242,10 @@ _MAKEVANILLA_METHODS = {
 
 def MakeVanillaSwap(swapTenor, iborIndex, fixedRate=None, forwardStart=Period(0, Days), **kwargs):
     mv = _MakeVanillaSwap(swapTenor, iborIndex, fixedRate, forwardStart)
-    _SetSwapAttrs("MakeVanillaSwap", _MAKEVANILLA_METHODS, mv, kwargs)
+    _apply_kwargs("MakeVanillaSwap", _MAKEVANILLA_METHODS, mv, kwargs)
     return mv.makeVanillaSwap()
 
-def _SetSwapAttrs(func_name, method_map, mv, attrs):
+def _apply_kwargs(func_name, method_map, mv, attrs):
     for name, value in attrs.items():
         try:
             method = method_map[name]
@@ -519,7 +534,7 @@ _MAKEOIS_METHODS = {
 
 def MakeOIS(swapTenor, overnightIndex, fixedRate=None, fwdStart=Period(0, Days), **kwargs):
     mv = _MakeOIS(swapTenor, overnightIndex, fixedRate, fwdStart)
-    _SetSwapAttrs("MakeOIS", _MAKEOIS_METHODS, mv, kwargs)
+    _apply_kwargs("MakeOIS", _MAKEOIS_METHODS, mv, kwargs)
     return mv.makeOIS()
 }
 #endif
