@@ -150,7 +150,10 @@ class InterpolatedSurvivalProbabilityCurve : public DefaultProbabilityTermStruct
                                          const std::vector<Probability>& probabilities,
                                          const DayCounter& dayCounter,
                                          const Calendar& calendar = Calendar(),
-                                         const Interpolator& i = Interpolator());
+                                         const std::vector<Handle<Quote> >& jumps = {},
+                                         const std::vector<Date>& jumpDates = {},
+                                         const Interpolator& i = Interpolator(),
+                                         const bool& allowNegativeRates = false);
     const std::vector<Date>& dates() const;
     const std::vector<Probability>& survivalProbabilities() const;
     #if !defined(SWIGR)
