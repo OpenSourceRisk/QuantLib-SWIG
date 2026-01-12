@@ -26,6 +26,7 @@
 
 %{
 using QuantLib::InterpolatedDiscountCurve;
+using QuantLib::YieldTermStructure;
 %}
 
 %shared_ptr(InterpolatedDiscountCurve<LogLinear>);
@@ -44,7 +45,9 @@ class InterpolatedDiscountCurve : public YieldTermStructure {
                               const std::vector<DiscountFactor>& discounts,
                               const DayCounter& dayCounter,
                               const Calendar& calendar = Calendar(),
-                              const Interpolator& i = Interpolator());
+                              const Interpolator& i = Interpolator(),
+                              const YieldTermStructure::Extrapolation extrapolation =
+                              YieldTermStructure::Extrapolation::ContinuousForward);
     const std::vector<Time>& times() const;
     const std::vector<Real>& data() const;
     const std::vector<Date>& dates() const;
