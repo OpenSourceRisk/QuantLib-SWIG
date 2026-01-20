@@ -1,9 +1,9 @@
-name: Prepare release candidate
+name: Increase version number
 on:
   workflow_dispatch:
 
 jobs:
-  update-for-rc:
+  increase-version:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
@@ -23,20 +23,15 @@ jobs:
         echo ${LATEST_RELEASE} | awk -F '.' '{ print "NEXT_MINOR=" $2 + 1 }' | tee -a $GITHUB_ENV
     - name: Update version numbers
       run: |
-        sed -i -e "s/^AC_INIT(\[QuantLib-SWIG\].*$/AC_INIT([QuantLib-SWIG], [1.${NEXT_MINOR}-rc],/g" configure.ac
-        sed -i -e "s/^    version=.*$/    version=\"1.${NEXT_MINOR}-rc\",/g" Python/setup.py
-        sed -i -e "s/^#if QL_HEX_VERSION < .*$/#if QL_HEX_VERSION < 0x01${NEXT_MINOR}0000/g" SWIG/ql.i
-        sed -i -e "s/^    #error at least QuantLib.*$/    #error at least QuantLib 1.${NEXT_MINOR} required, please update/g" SWIG/ql.i
-        git commit -a -m "Set version to 1.${NEXT_MINOR}-rc"
-    - name: Update ChangeLog
-      run: |
-        git log --pretty=medium --date=rfc --stat --grep='Merge [^p]' --grep='[Mm]erged' --grep='[Pp]ull from' --invert-grep v1.${LATEST_MINOR}... > ChangeLog.txt
-        git commit -a -m "Update changelog"
+        sed -i -e "s/^AC_INIT(\[QuantLib-SWIG\].*$/AC_INIT([QuantLib-SWIG], [1.${NEXT_MINOR}-dev],/g" configure.ac
+        sed -i -e "s/^    version=.*$/    version=\"1.${NEXT_MINOR}-dev\",/g" Python/setup.py
+        sed -i -e "s/^Version: .*$/Version: 1.${NEXT_MINOR}/g" R/DESCRIPTION
+        git commit -a -m "Set version to 1.${NEXT_MINOR}-dev"
     - uses: peter-evans/create-pull-request@v8
       with:
         token: ${{ secrets.MACHINE_ACCOUNT_PAT }}
         push-to-fork: ${{ vars.MACHINE_ACCOUNT }}/QuantLib-SWIG
         branch: set-to-rc-${{ github.ref_name }}
         delete-branch: true
-        title: 'Set version to 1.${{ env.NEXT_MINOR }}-rc'
+        title: 'Set version to 1.${{ env.NEXT_MINOR }}-dev'
         author: lballabio[bot] <224797326+lballabio-bot@users.noreply.github.com>
