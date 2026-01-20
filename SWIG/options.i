@@ -998,6 +998,23 @@ class AnalyticDividendEuropeanEngine : public PricingEngine {
 };
 
 %{
+using QuantLib::CashDividendEuropeanEngine;
+%}
+
+%shared_ptr(CashDividendEuropeanEngine)
+class CashDividendEuropeanEngine : public PricingEngine {
+  public:
+    enum CashDividendModel { Spot, Escrowed };
+
+    CashDividendEuropeanEngine(
+        const ext::shared_ptr<GeneralizedBlackScholesProcess>& process,
+        DividendSchedule dividends,
+        CashDividendModel cashDividendModel = Spot);
+};
+
+
+
+%{
 using QuantLib::QdPlusAmericanEngine;
 %}
 
@@ -1632,6 +1649,8 @@ class BlackCalculator {
     Real itmAssetProbability() const;
     Real strikeSensitivity() const;
     Real strikeGamma() const;
+	Real vanna(Real spot, Time maturity) const;
+    Real volga(Time maturity) const;
     Real alpha() const;
     Real beta() const;
 };
@@ -1663,6 +1682,8 @@ class BachelierCalculator {
     Real itmAssetProbability() const;
     Real strikeSensitivity() const;
     Real strikeGamma() const;
+	Real vanna(Time maturity) const;
+    Real volga(Time maturity) const;
     Real alpha() const;
     Real beta() const;
 };
