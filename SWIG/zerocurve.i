@@ -25,6 +25,7 @@
 
 %{
 using QuantLib::InterpolatedZeroCurve;
+using QuantLib::YieldTermStructure;
 %}
 
 %shared_ptr(InterpolatedZeroCurve<Linear>);
@@ -45,6 +46,8 @@ class InterpolatedZeroCurve : public YieldTermStructure {
                           const DayCounter& dayCounter,
                           const Calendar& calendar = Calendar(),
                           const Interpolator& i = Interpolator(),
+                          const YieldTermStructure::Extrapolation extrapolation =
+                          YieldTermStructure::Extrapolation::ContinuousForward,
                           Compounding compounding = Continuous,
                           Frequency frequency = Annual);
     const std::vector<Time>& times() const;

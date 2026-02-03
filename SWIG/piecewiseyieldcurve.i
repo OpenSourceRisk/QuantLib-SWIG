@@ -285,24 +285,36 @@ class Name : public YieldTermStructure {
     #endif
   public:
     %extend {
-        Name(Handle<YieldTermStructure> baseCurve,
+        Name(const Handle<YieldTermStructure>& baseCurve,
              const std::vector<ext::shared_ptr<RateHelper> >& instruments,
              const Interpolator& interpolator = Interpolator(),
              const _IterativeBootstrap& bootstrap = _IterativeBootstrap()) {
             return new Name(baseCurve, instruments, interpolator, make_bootstrap<Name>(bootstrap));
         }
     }
-
+    const Handle<YieldTermStructure>& baseCurve() const;
     const std::vector<Date>& dates() const;
     const std::vector<Time>& times() const;
     const std::vector<Real>& data() const;
     #if !defined(SWIGR)
     std::vector<std::pair<Date,Real> > nodes() const;
     #endif
+
+    void recalculate();
+    void freeze();
+    void unfreeze();
 };
 
 %enddef
 
+export_piecewise_spread_curve(PiecewiseLogLinearSpreadDiscount,Discount,LogLinear);
+#if defined(SWIGPYTHON)
+deprecate_feature(PiecewiseLogLinearDiscountSpread, PiecewiseLogLinearSpreadDiscount);
+#else
 export_piecewise_spread_curve(PiecewiseLogLinearDiscountSpread,Discount,LogLinear);
+#endif
+export_piecewise_spread_curve(PiecewiseLogCubicSpreadDiscount,Discount,MonotonicLogCubic);
+export_piecewise_spread_curve(PiecewiseNaturalLogCubicSpreadDiscount,Discount,SplineLogCubic);
+export_piecewise_spread_curve(PiecewiseLogMixedLinearCubicSpreadDiscount,Discount,LogMixedLinearCubic);
 
 #endif

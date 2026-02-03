@@ -70,8 +70,6 @@ using QuantLib::AmortizingPayment;
 using QuantLib::Coupon;
 using QuantLib::FixedRateCoupon;
 using QuantLib::FloatingRateCoupon;
-using QuantLib::RateAveraging;
-using QuantLib::OvernightIndexedCoupon;
 %}
 
 %shared_ptr(SimpleCashFlow)
@@ -212,6 +210,38 @@ class FloatingRateCoupon : public Coupon {
 %}
 
 
+%{
+using QuantLib::CappedFlooredCoupon;
+%}
+
+%shared_ptr(CappedFlooredCoupon)
+class CappedFlooredCoupon : public FloatingRateCoupon {
+    #if !defined(SWIGJAVA) && !defined(SWIGCSHARP)
+    %feature("kwargs") CappedFlooredCoupon;
+    #endif
+  public:
+    CappedFlooredCoupon(const ext::shared_ptr<FloatingRateCoupon>& underlying,
+                        Rate cap = Null<Rate>(),
+                        Rate floor = Null<Rate>());
+    Rate cap() const;
+    Rate floor() const;
+    Rate effectiveCap() const;
+    Rate effectiveFloor() const;
+    bool isCapped() const;
+    bool isFloored() const;
+    void setPricer(const ext::shared_ptr<FloatingRateCouponPricer>& p);
+};
+
+
+// specialized floating-rate coupons
+
+
+%{
+using QuantLib::RateAveraging;
+using QuantLib::OvernightIndexedCoupon;
+using QuantLib::CappedFlooredOvernightIndexedCoupon;
+%}
+
 struct RateAveraging {
     enum Type {
         Simple,
@@ -241,7 +271,10 @@ class OvernightIndexedCoupon : public FloatingRateCoupon {
                 RateAveraging::Type averagingMethod = RateAveraging::Compound,
                 Natural lookbackDays = Null<Natural>(),
                 Natural lockoutDays = 0,
-                bool applyObservationShift = false);
+                bool applyObservationShift = false,
+                bool compoundSpread = false,
+                const Date& rateComputationStartDate = Date(),
+                const Date& rateComputationEndDate = Date());
     const std::vector<Date>& fixingDates() const;
     const std::vector<Date>& interestDates() const;
     const std::vector<Time>& dt() const;
@@ -250,40 +283,49 @@ class OvernightIndexedCoupon : public FloatingRateCoupon {
     RateAveraging::Type averagingMethod() const;
     Natural lockoutDays() const;
     bool applyObservationShift() const;
+    bool compoundSpreadDaily() const;
     bool canApplyTelescopicFormula() const;
+    Real effectiveSpread() const;
+    Real effectiveIndexFixing() const;
+    Date rateComputationStartDate() const;
+    Date rateComputationEndDate() const;
 };
+
+
+%shared_ptr(CappedFlooredOvernightIndexedCoupon)
+class CappedFlooredOvernightIndexedCoupon : public FloatingRateCoupon {
+  public:
+    CappedFlooredOvernightIndexedCoupon(const ext::shared_ptr<OvernightIndexedCoupon>& underlying,
+                                        Real cap = Null<Real>(),
+                                        Real floor = Null<Real>(), 
+                                        bool nakedOption = false,
+                                        bool dailyCapFloor = false);
+    Rate cap() const;
+    Rate floor() const;
+    Rate effectiveCap() const;
+    Rate effectiveFloor() const;
+    Real effectiveCapletVolatility() const;
+    Real effectiveFloorletVolatility() const;
+    bool isCapped() const;
+    bool isFloored() const;
+    ext::shared_ptr<OvernightIndexedCoupon> underlying();
+    bool nakedOption() const;
+    bool dailyCapFloor() const;
+    bool compoundSpreadDaily() const;
+    RateAveraging::Type averagingMethod() const;
+};
+
 
 %inline %{
     ext::shared_ptr<OvernightIndexedCoupon> as_overnight_indexed_coupon(
                                       const ext::shared_ptr<CashFlow>& cf) {
         return ext::dynamic_pointer_cast<OvernightIndexedCoupon>(cf);
     }
+    ext::shared_ptr<CappedFlooredOvernightIndexedCoupon> as_capped_floored_overnight_indexed_coupon(
+                                      const ext::shared_ptr<CashFlow>& cf) {
+        return ext::dynamic_pointer_cast<CappedFlooredOvernightIndexedCoupon>(cf);
+    }
 %}
-
-%{
-using QuantLib::CappedFlooredCoupon;
-%}
-
-%shared_ptr(CappedFlooredCoupon)
-class CappedFlooredCoupon : public FloatingRateCoupon {
-    #if !defined(SWIGJAVA) && !defined(SWIGCSHARP)
-    %feature("kwargs") CappedFlooredCoupon;
-    #endif
-  public:
-    CappedFlooredCoupon(const ext::shared_ptr<FloatingRateCoupon>& underlying,
-                        Rate cap = Null<Rate>(),
-                        Rate floor = Null<Rate>());
-    Rate cap() const;
-    Rate floor() const;
-    Rate effectiveCap() const;
-    Rate effectiveFloor() const;
-    bool isCapped() const;
-    bool isFloored() const;
-    void setPricer(const ext::shared_ptr<FloatingRateCouponPricer>& p);
-};
-
-
-// specialized floating-rate coupons
 
 %{
 using QuantLib::IborCoupon;
@@ -408,7 +450,9 @@ using QuantLib::IborCouponPricer;
 using QuantLib::BlackIborCouponPricer;
 using QuantLib::SubPeriodsPricer;
 using QuantLib::CompoundingOvernightIndexedCouponPricer;
+using QuantLib::BlackCompoundingOvernightIndexedCouponPricer;
 using QuantLib::ArithmeticAveragedOvernightIndexedCouponPricer;
+using QuantLib::BlackAveragingOvernightIndexedCouponPricer;
 using QuantLib::CompoundingMultipleResetsPricer;
 using QuantLib::AveragingMultipleResetsPricer;
 using QuantLib::CompoundingRatePricer;
@@ -452,6 +496,14 @@ class CompoundingOvernightIndexedCouponPricer: public FloatingRateCouponPricer {
     CompoundingOvernightIndexedCouponPricer();
 };
 
+%shared_ptr(BlackCompoundingOvernightIndexedCouponPricer)
+class BlackCompoundingOvernightIndexedCouponPricer: public CompoundingOvernightIndexedCouponPricer {
+  public:
+    BlackCompoundingOvernightIndexedCouponPricer(
+               const Handle<OptionletVolatilityStructure>& v = {},
+               const bool effectiveVolatilityInput = false);
+};
+
 %shared_ptr(ArithmeticAveragedOvernightIndexedCouponPricer)
 class ArithmeticAveragedOvernightIndexedCouponPricer: public FloatingRateCouponPricer {
     #if !defined(SWIGJAVA) && !defined(SWIGCSHARP)
@@ -464,11 +516,25 @@ class ArithmeticAveragedOvernightIndexedCouponPricer: public FloatingRateCouponP
             bool byApprox = false);  // TRUE to use Katsumi Takada approximation
 };
 
+%shared_ptr(BlackAveragingOvernightIndexedCouponPricer)
+class BlackAveragingOvernightIndexedCouponPricer: public ArithmeticAveragedOvernightIndexedCouponPricer {
+  public:
+    BlackAveragingOvernightIndexedCouponPricer(
+               const Handle<OptionletVolatilityStructure>& v = {},
+               const bool effectiveVolatilityInput = false);
+};
+
 %shared_ptr(CompoundingMultipleResetsPricer)
-class CompoundingMultipleResetsPricer : public FloatingRateCouponPricer {};
+class CompoundingMultipleResetsPricer : public FloatingRateCouponPricer {
+  public:
+    CompoundingMultipleResetsPricer();
+};
 
 %shared_ptr(AveragingMultipleResetsPricer)
-class AveragingMultipleResetsPricer : public FloatingRateCouponPricer {};
+class AveragingMultipleResetsPricer : public FloatingRateCouponPricer {
+  public:
+    AveragingMultipleResetsPricer();
+};
 
 %shared_ptr(CompoundingRatePricer)
 class CompoundingRatePricer: public SubPeriodsPricer {
@@ -906,7 +972,14 @@ Leg _OvernightLeg(const std::vector<Real>& nominals,
                   const Integer paymentLag = 0,
                   Natural lookbackDays = Null<Natural>(),
                   Natural lockoutDays = 0,
-                  bool applyObservationShift = false) {
+                  bool applyObservationShift = false,
+                  bool compoundSpreadDaily = false,
+                  const std::vector<Rate>& caps = {},
+                  const std::vector<Rate>& floors = {},
+                  bool dailyCapFloor = false,
+                  bool inArrears = true,
+                  bool nakedOption = false,
+                  const std::vector<Date>& paymentDates = {}) {
     return QuantLib::OvernightLeg(schedule, index)
         .withNotionals(nominals)
         .withPaymentDayCounter(paymentDayCounter)
@@ -919,7 +992,14 @@ Leg _OvernightLeg(const std::vector<Real>& nominals,
         .withAveragingMethod(averagingMethod)
         .withLookbackDays(lookbackDays)
         .withLockoutDays(lockoutDays)
-        .withObservationShift(applyObservationShift);
+        .withObservationShift(applyObservationShift)
+        .compoundingSpreadDaily(compoundSpreadDaily)
+        .withCaps(caps)
+        .withFloors(floors)
+        .withDailyCapFloor(dailyCapFloor)
+        .inArrears(inArrears)
+        .withNakedOption(nakedOption)
+        .withPaymentDates(paymentDates);
 }
 %}
 #if !defined(SWIGJAVA) && !defined(SWIGCSHARP)
@@ -939,7 +1019,14 @@ Leg _OvernightLeg(const std::vector<Real>& nominals,
                   Integer paymentLag = 0,
                   Natural lookbackDays = Null<Natural>(),
                   Natural lockoutDays = 0,
-                  bool applyObservationShift = false);
+                  bool applyObservationShift = false,
+                  bool compoundSpreadDaily = false,
+                  const std::vector<Rate>& caps = {},
+                  const std::vector<Rate>& floors = {},
+                  bool dailyCapFloor = false,
+                  bool inArrears = true,
+                  bool nakedOption = false,
+                  const std::vector<Date>& paymentDates = {});
 
 %{
 Leg _CmsLeg(const std::vector<Real>& nominals,
@@ -1322,26 +1409,13 @@ class CashFlows {
 
     }
 
+    static Real npv(const Leg& leg,
+                    const YieldTermStructure& discountCurve,
+                    bool includeSettlementDateFlows,
+                    const Date& settlementDate = Date(),
+                    const Date& npvDate = Date());
+
     %extend {
-        static Real npv(
-                   const Leg& leg,
-                   const ext::shared_ptr<YieldTermStructure>& discountCurve,
-                   Spread zSpread,
-                   const DayCounter &dayCounter,
-                   Compounding compounding,
-                   Frequency frequency,
-                   bool includeSettlementDateFlows,
-                   const Date& settlementDate = Date(),
-                   const Date& npvDate = Date()) {
-            return QuantLib::CashFlows::npv(leg, discountCurve,
-                                            zSpread,
-                                            dayCounter,
-                                            compounding,
-                                            frequency,
-                                            includeSettlementDateFlows,
-                                            settlementDate,
-                                            npvDate);
-        }
         static Real npv(
                    const Leg& leg,
                    const Handle<YieldTermStructure>& discountCurve,
@@ -1353,6 +1427,7 @@ class CashFlows {
                                             settlementDate, npvDate);
         }
     }
+
     static Real npv(const Leg&,
                     const InterestRate&,
                     bool includeSettlementDateFlows,
@@ -1367,17 +1442,24 @@ class CashFlows {
                     bool includeSettlementDateFlows,
                     Date settlementDate = Date(),
                     Date npvDate = Date());
+
+    static Real npv(const Leg& leg,
+                    const ext::shared_ptr<YieldTermStructure>& discountCurve,
+                    Spread zSpread,
+                    const DayCounter &dayCounter,
+                    Compounding compounding,
+                    Frequency frequency,
+                    bool includeSettlementDateFlows,
+                    const Date& settlementDate = Date(),
+                    const Date& npvDate = Date());
+
+    static Real bps(const Leg& leg,
+                    const YieldTermStructure& discountCurve,
+                    bool includeSettlementDateFlows,
+                    const Date& settlementDate = Date(),
+                    const Date& npvDate = Date());
+
     %extend {
-        static Real bps(
-                   const Leg& leg,
-                   const ext::shared_ptr<YieldTermStructure>& discountCurve,
-                   bool includeSettlementDateFlows,
-                   const Date& settlementDate = Date(),
-                   const Date& npvDate = Date()) {
-            return QuantLib::CashFlows::bps(leg, *discountCurve,
-                                            includeSettlementDateFlows,
-                                            settlementDate, npvDate);
-        }
         static Real bps(
                    const Leg& leg,
                    const Handle<YieldTermStructure>& discountCurve,
@@ -1389,11 +1471,13 @@ class CashFlows {
                                             settlementDate, npvDate);
         }
     }
+
     static Real bps(const Leg&,
                     const InterestRate &,
                     bool includeSettlementDateFlows,
                     Date settlementDate = Date(),
                     Date npvDate = Date());
+
     static Real bps(const Leg&,
                     Rate yield,
                     const DayCounter&dayCounter,
@@ -1403,17 +1487,14 @@ class CashFlows {
                     Date settlementDate = Date(),
                     Date npvDate = Date());
 
-    %extend {
-        static std::pair<Real,Real> npvbps(
+    static std::pair<Real,Real> npvbps(
                    const Leg& leg,
-                   const ext::shared_ptr<YieldTermStructure>& discountCurve,
+                   const YieldTermStructure& discountCurve,
                    bool includeSettlementDateFlows,
                    const Date& settlementDate = Date(),
-                   const Date& npvDate = Date()) {
-            return QuantLib::CashFlows::npvbps(leg, *discountCurve,
-                                               includeSettlementDateFlows,
-                                               settlementDate, npvDate);
-        }
+                   const Date& npvDate = Date());
+
+    %extend {
         static std::pair<Real,Real> npvbps(
                    const Leg& leg,
                    const Handle<YieldTermStructure>& discountCurve,
@@ -1426,20 +1507,14 @@ class CashFlows {
         }
     }
 
-    %extend {
-        static Rate atmRate(
+    static Rate atmRate(
                    const Leg& leg,
-                   const ext::shared_ptr<YieldTermStructure>& discountCurve,
+                   const YieldTermStructure& discountCurve,
                    bool includeSettlementDateFlows,
                    const Date& settlementDate = Date(),
                    const Date& npvDate = Date(),
-                   Real npv = Null<Real>()) {
-            return QuantLib::CashFlows::atmRate(leg, *discountCurve,
-                                                includeSettlementDateFlows,
-                                                settlementDate, npvDate,
-                                                npv);
-        }
-    }
+                   Real npv = Null<Real>());
+
     static Rate yield(const Leg&,
                       Real npv,
                       const DayCounter& dayCounter,
@@ -1451,6 +1526,7 @@ class CashFlows {
                       Real accuracy = 1.0e-10,
                       Size maxIterations = 10000,
                       Rate guess = 0.05);
+
     static Time duration(const Leg&,
                          const InterestRate&,
                          Duration::Type type,

@@ -1,28 +1,29 @@
 # -*- coding: utf-8 -*-
-"""
- Copyright (C) 2000, 2001, 2002, 2003 RiskMap srl
- Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008 StatPro Italia srl
+#
+# Copyright (C) 2000, 2001, 2002, 2003 RiskMap srl
+# Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008 StatPro Italia srl
+#
+# This file is part of QuantLib, a free-software/open-source library
+# for financial quantitative analysts and developers - http://quantlib.org/
+#
+# QuantLib is free software: you can redistribute it and/or modify it
+# under the terms of the QuantLib license.  You should have received a
+# copy of the license along with this program; if not, please email
+# <quantlib-dev@lists.sf.net>. The license is also available online at
+# <https://www.quantlib.org/license.shtml>.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the license for more details.
 
- This file is part of QuantLib, a free-software/open-source library
- for financial quantitative analysts and developers - http://quantlib.org/
-
- QuantLib is free software: you can redistribute it and/or modify it
- under the terms of the QuantLib license.  You should have received a
- copy of the license along with this program; if not, please email
- <quantlib-dev@lists.sf.net>. The license is also available online at
- <https://www.quantlib.org/license.shtml>.
-
- This program is distributed in the hope that it will be useful, but WITHOUT
- ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- FOR A PARTICULAR PURPOSE.  See the license for more details.
-"""
 
 import os, sys, math, platform, sysconfig
 from setuptools import setup, Extension
 from setuptools._distutils.ccompiler import get_default_compiler
 
+
 def is_debug_quantlib():
-    return os.getenv("QL_DEBUG", 'False').lower() in ('true', '1', 't')
+    return os.getenv("QL_DEBUG", "False").lower() in ("true", "1", "t")
 
 
 def define_macros(py_limited_api):
@@ -211,17 +212,20 @@ a comprehensive software framework for quantitative finance.
 """
 
 
-py_limited_api = platform.python_implementation() == "CPython" and not sysconfig.get_config_var("Py_GIL_DISABLED")
+py_limited_api = (
+    platform.python_implementation() == "CPython"
+    and not sysconfig.get_config_var("Py_GIL_DISABLED")
+)
 
 
 with open("./setup.cfg", "w") as f:
-    if py_limited_api:	
-        f.write('[bdist_wheel]' + os.linesep + 'py_limited_api=cp38' + os.linesep)
+    if py_limited_api:
+        f.write("[bdist_wheel]" + os.linesep + "py_limited_api=cp38" + os.linesep)
 
 
 setup(
     name="QuantLib",
-    version="1.40",
+    version="1.41",
     description="Python bindings for the QuantLib library",
     long_description=long_description,
     long_description_content_type="text/x-rst",
